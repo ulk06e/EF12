@@ -198,6 +198,11 @@ function App() {
     if (selectedDay) setItemDayId(selectedDay)
   }, [selectedDay])
 
+  // Handler to remove an item from state when deleted
+  function handleDeleteItem(id) {
+    setItems(items => items.filter(item => item.id !== id));
+  }
+
   return (
       <div>
  
@@ -276,7 +281,7 @@ function App() {
       <WeekSelector selectedDay={selectedDay} onSelect={setSelectedDay} />
       <h2>Selected Day: {selectedDay || 'None'}</h2>
       <h2>Plan / Fact Columns</h2>
-      <PlanFactColumns items={filteredItems} />
+      <PlanFactColumns items={filteredItems} onDeleteItem={handleDeleteItem} />
       <h2>Items List</h2>
       <table border="1" cellPadding="4">
         <thead>

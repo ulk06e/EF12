@@ -142,6 +142,15 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     db.refresh(new_item)
     return new_item
 
+@app.delete("/items/{item_id}")
+def delete_item(item_id: str, db: Session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        return {"error": "Item not found"}, 404
+    db.delete(item)
+    db.commit()
+    return {"ok": True}
+
 # Projects endpoints
 @app.get("/projects")
 def get_projects(db: Session = Depends(get_db)):
