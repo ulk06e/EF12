@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TaskPopup({ open, onClose, task, onDelete, onEdit }) {
+export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart }) {
   if (!open || !task) return null;
   return (
     <div style={{
@@ -12,7 +12,7 @@ export default function TaskPopup({ open, onClose, task, onDelete, onEdit }) {
         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
           <button onClick={() => onDelete(task)}>Delete</button>
           <button onClick={() => onEdit(task)}>Edit</button>
-          <button>Start</button>
+          <button onClick={() => onStart(task)}>Start</button>
         </div>
         <button style={{ position: 'absolute', top: 16, right: 24 }} onClick={onClose}>×</button>
       </div>
