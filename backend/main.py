@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -150,6 +150,28 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
     db.delete(item)
     db.commit()
     return {"ok": True}
+
+@app.put("/items/{item_id}")
+def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_db)):
+    db_item = db.query(Item).filter(Item.id == item_id).first()
+    if not db_item:
+        return {"error": "Item not found"}, 404
+    # Parse enums if present
+    if "time_type" in item and item["time_type"]:
+        db_item.time_type = TimeTypeEnum(item["time_type"])
+    if "task_quality" in item and item["task_quality"]:
+        db_item.task_quality = TaskQualityEnum(item["task_quality"])
+    if "column_location" in item and item["column_location"]:
+        db_item.column_location = ColumnLocationEnum(item["column_location"])
+    if "time_quality" in item and item["time_quality"]:
+        db_item.time_quality = TimeQualityEnum(item["time_quality"])
+    # Update other fields
+    for key, value in item.items():
+        if key not in ["time_type", "task_quality", "column_location", "time_quality"]:
+            setattr(db_item, key, value)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
 
 # Projects endpoints
 @app.get("/projects")

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import TaskPopup from './TaskPopup';
 import EditTaskPopup from './EditTaskPopup';
+import AddTaskPopup from './AddTaskPopup';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
-export default function PlanFactColumns({ items, onDeleteItem }) {
+export default function PlanFactColumns({ items, onDeleteItem, onAddTask, selectedProjectId, selectedDay }) {
   const [popupTask, setPopupTask] = useState(null);
   const [editTask, setEditTask] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
   // Sort plan items by priority (asc: 1 at top), then task quality (A > D)
   const planItems = items
     .filter(item => item.column_location === 'plan')
@@ -40,9 +42,21 @@ export default function PlanFactColumns({ items, onDeleteItem }) {
       .then(res => res.json())
       .then(data => {
         onDeleteItem(updatedTask.id); // Remove old
-        // Add updated (simulate update in parent)
-        setTimeout(() => onDeleteItem(null, data), 0); // We'll update App.jsx to support this
+        setTimeout(() => onDeleteItem(null, data), 0);
         setEditTask(null);
+      });
+  };
+
+  const handleAdd = (item) => {
+    fetch('http://localhost:8000/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item)
+    })
+      .then(res => res.json())
+      .then(data => {
+        onAddTask(data);
+        setAddOpen(false);
       });
   };
 
@@ -50,8 +64,12 @@ export default function PlanFactColumns({ items, onDeleteItem }) {
     <div style={{ display: 'flex', gap: 32, margin: '24px 0' }}>
       <TaskPopup open={!!popupTask} onClose={() => setPopupTask(null)} task={popupTask} onDelete={handleDelete} onEdit={handleEdit} />
       <EditTaskPopup open={!!editTask} onClose={() => setEditTask(null)} task={editTask} onSave={handleSaveEdit} />
+      <AddTaskPopup open={addOpen} onClose={() => setAddOpen(false)} onAdd={handleAdd} projectId={selectedProjectId} dayId={selectedDay} />
       <div style={{ flex: 1 }}>
-        <h3>Plan</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ margin: 0 }}>Plan</h3>
+          <button onClick={() => setAddOpen(true)} style={{ fontSize: 20, fontWeight: 'bold', padding: '0 8px' }}>+</button>
+        </div>
         {planItems.length === 0 && <div style={{ color: '#aaa' }}>No planned tasks</div>}
         {planItems.map((item, idx) => (
           <div

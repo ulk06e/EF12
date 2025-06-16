@@ -1,49 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
+import AddProjectPopup from './AddProjectPopup';
 
 function getColumnProjects(projects, parentId) {
   return projects.filter(p => (parentId ? p.parent_id === parentId : !p.parent_id));
 }
 
-export default function ProjectColumns({ projects, selectedProjectIds, onSelect }) {
+export default function ProjectColumns({ projects, selectedProjectIds, onSelect, onAddProject }) {
+  const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
+
   const [selected1, selected2, selected3] = selectedProjectIds;
   const col1 = getColumnProjects(projects, null);
   const col2 = getColumnProjects(projects, selected1);
-  const col3 = getColumnProjects(projects, selected2);
+  const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
+
+  // Determine parentId for each column
+  const parentIds = [null, selected1, selected2];
+
+  const handleAdd = (project) => {
+    fetch('http://localhost:8000/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(project)
+    })
+      .then(res => res.json())
+      .then(data => {
+        onAddProject(data);
+        setAddCol(null);
+      });
+  };
 
   return (
     <div style={{ display: 'flex', gap: 16 }}>
-      {/* Column 1 */}
-      <div style={{ flex: 1 }}>
-        <h3>Project 1</h3>
-        {col1.map(p => (
-          <div key={p.id} style={{ padding: 4, background: selected1 === p.id ? '#eef' : '#fff', cursor: 'pointer' }}
-            onClick={() => onSelect([p.id, null, null])}>
-            {p.name} (id: {p.id})
+      {[col1, col2, col3].map((col, i) => (
+        <div style={{ flex: 1 }} key={i}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h3 style={{ margin: 0 }}>Project {i + 1}</h3>
+            <button onClick={() => setAddCol(i + 1)} style={{ fontSize: 20, fontWeight: 'bold', padding: '0 8px' }}>+</button>
           </div>
-        ))}
-      </div>
-      {/* Column 2 */}
-      <div style={{ flex: 1 }}>
-        <h3>Project 2</h3>
-        {col2.length === 0 && <div style={{ color: '#aaa' }}>Select Project 1</div>}
-        {col2.map(p => (
-          <div key={p.id} style={{ padding: 4, background: selected2 === p.id ? '#eef' : '#fff', cursor: 'pointer' }}
-            onClick={() => onSelect([selected1, p.id, null])}>
-            {p.name} (id: {p.id})
-          </div>
-        ))}
-      </div>
-      {/* Column 3 */}
-      <div style={{ flex: 1 }}>
-        <h3>Project 3</h3>
-        {col3.length === 0 && <div style={{ color: '#aaa' }}>Select Project 2</div>}
-        {col3.map(p => (
-          <div key={p.id} style={{ padding: 4, background: selected3 === p.id ? '#eef' : '#fff', cursor: 'pointer' }}
-            onClick={() => onSelect([selected1, selected2, p.id])}>
-            {p.name} (id: {p.id})
-          </div>
-        ))}
-      </div>
+          {col.length === 0 && <div style={{ color: '#aaa' }}>Select {i === 0 ? '' : `Project ${i}`}</div>}
+          {col.map(p => (
+            <div key={p.id} style={{ padding: 4, background: selectedProjectIds[i] === p.id ? '#eef' : '#fff', cursor: 'pointer' }}
+              onClick={() => {
+                const newSel = [...selectedProjectIds];
+                newSel[i] = p.id;
+                for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                onSelect(newSel);
+              }}>
+              {p.name} (id: {p.id})
+            </div>
+          ))}
+          <AddProjectPopup open={addCol === i + 1} onClose={() => setAddCol(null)} onAdd={handleAdd} parentId={parentIds[i]} />
+        </div>
+      ))}
     </div>
   );
 } 

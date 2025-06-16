@@ -198,129 +198,42 @@ function App() {
     if (selectedDay) setItemDayId(selectedDay)
   }, [selectedDay])
 
-  // Handler to remove an item from state when deleted
-  function handleDeleteItem(id) {
-    setItems(items => items.filter(item => item.id !== id));
+  // Handler to remove or update an item in state
+  function handleDeleteItem(id, updatedItem) {
+    if (id && !updatedItem) {
+      setItems(items => items.filter(item => item.id !== id));
+    } else if (updatedItem) {
+      setItems(items => {
+        const idx = items.findIndex(item => item.id === updatedItem.id);
+        if (idx !== -1) {
+          const newItems = [...items];
+          newItems[idx] = updatedItem;
+          return newItems;
+        } else {
+          return [...items, updatedItem];
+        }
+      });
+    }
+  }
+
+  // Handler to add a project to state
+  function handleAddProject(project) {
+    setProjects(projects => [...projects, project]);
+  }
+
+  // Handler to add a task to state
+  function handleAddTask(item) {
+    setItems(items => [...items, item]);
   }
 
   return (
       <div>
- 
-      <h2>Create Day</h2>
-      <form onSubmit={createDay}>
-        <input placeholder="id" value={dayId} onChange={e => setDayId(e.target.value)} required />
-        <input type="datetime-local" value={dayDate} onChange={e => setDayDate(e.target.value)} required />
-        <button type="submit">Add Day</button>
-      </form>
-      <h2>Create Project</h2>
-      <form onSubmit={createProject}>
-        <input placeholder="id" value={projectId} onChange={e => setProjectId(e.target.value)} required />
-        <input placeholder="name" value={projectName} onChange={e => setProjectName(e.target.value)} required />
-        <input placeholder="parent_id (optional)" value={projectParentId} onChange={e => setProjectParentId(e.target.value)} />
-        <button type="submit">Add Project</button>
-      </form>
-      <h2>Create Item</h2>
-      <form onSubmit={createItem}>
-        <input placeholder="id" value={itemId} onChange={e => setItemId(e.target.value)} required />
-        <input placeholder="description" value={itemDesc} onChange={e => setItemDesc(e.target.value)} required />
-        <input placeholder="day_id (YYYY-MM-DD)" type="date" value={itemDayId} onChange={e => setItemDayId(e.target.value)} required />
-        <input placeholder="project_id" value={itemProjectId} onChange={e => setItemProjectId(e.target.value)} required />
-        <select value={itemTimeType} onChange={e => setItemTimeType(e.target.value)}>
-          <option value="">time_type</option>
-          <option value="to-goal">to-goal</option>
-          <option value="to-time">to-time</option>
-        </select>
-        <select value={itemTaskQuality} onChange={e => setItemTaskQuality(e.target.value)}>
-          <option value="">task_quality</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="D">D</option>
-        </select>
-        <input placeholder="estimated_duration (min)" type="number" value={itemEstimatedDuration} onChange={e => setItemEstimatedDuration(e.target.value)} />
-        <input placeholder="actual_duration (min)" type="number" value={itemActualDuration} onChange={e => setItemActualDuration(e.target.value)} />
-        <input placeholder="priority (1-10)" type="number" value={itemPriority} onChange={e => setItemPriority(e.target.value)} />
-        <select value={itemColumnLocation} onChange={e => setItemColumnLocation(e.target.value)}>
-          <option value="">column_location</option>
-          <option value="plan">plan</option>
-          <option value="fact">fact</option>
-        </select>
-        <input placeholder="xp_value" type="number" value={itemXpValue} onChange={e => setItemXpValue(e.target.value)} />
-        <select value={itemTimeQuality} onChange={e => setItemTimeQuality(e.target.value)}>
-          <option value="">time_quality</option>
-          <option value="pure">pure</option>
-          <option value="not-pure">not-pure</option>
-        </select>
-        <button type="submit">Add Item</button>
-      </form>
-      <hr />
-      <h2>Project Hierarchy</h2>
-      <ProjectColumns projects={projects} selectedProjectIds={selectedProjectIds} onSelect={handleProjectSelect} />
-      <h2>Projects List</h2>
-      <table border="1" cellPadding="4">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>name</th>
-            <th>current_xp</th>
-            <th>parent_id</th>
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map(project => (
-            <tr key={project.id}>
-              <td>{project.id}</td>
-              <td>{project.name}</td>
-              <td>{project.current_xp}</td>
-              <td>{project.parent_id || '-'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Project</h2>
+      <ProjectColumns projects={projects} selectedProjectIds={selectedProjectIds} onSelect={handleProjectSelect} onAddProject={handleAddProject} />
+      <h2>Plan / Fact Columns</h2>
+      <PlanFactColumns items={filteredItems} onDeleteItem={handleDeleteItem} onAddTask={handleAddTask} selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} selectedDay={selectedDay} />
       <h2>Week Selector</h2>
       <WeekSelector selectedDay={selectedDay} onSelect={setSelectedDay} />
-      <h2>Selected Day: {selectedDay || 'None'}</h2>
-      <h2>Plan / Fact Columns</h2>
-      <PlanFactColumns items={filteredItems} onDeleteItem={handleDeleteItem} />
-      <h2>Items List</h2>
-      <table border="1" cellPadding="4">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>description</th>
-            <th>day_id</th>
-            <th>project_id</th>
-            <th>time_type</th>
-            <th>task_quality</th>
-            <th>estimated_duration</th>
-            <th>actual_duration</th>
-            <th>priority</th>
-            <th>column_location</th>
-            <th>xp_value</th>
-            <th>time_quality</th>
-            <th>completed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredItems.map(item => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.description}</td>
-              <td>{item.day_id}</td>
-              <td>{item.project_id}</td>
-              <td>{item.time_type}</td>
-              <td>{item.task_quality}</td>
-              <td>{item.estimated_duration}</td>
-              <td>{item.actual_duration}</td>
-              <td>{item.priority}</td>
-              <td>{item.column_location}</td>
-              <td>{item.xp_value}</td>
-              <td>{item.time_quality}</td>
-              <td>{item.completed ? 'Yes' : 'No'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
       </div>
   )
 }
