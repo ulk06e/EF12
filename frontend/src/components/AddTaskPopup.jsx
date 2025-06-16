@@ -25,8 +25,8 @@ export default function AddTaskPopup({ open, onClose, onAdd, projectId, dayId })
         <div style={{ marginBottom: 12 }}>
           <select value={timeType} onChange={e => setTimeType(e.target.value)} required style={{ width: '100%' }}>
             <option value="">Time type</option>
-            <option value="to_goal">to_goal</option>
-            <option value="to_time">to_time</option>
+            <option value="to-goal">to_goal</option>
+            <option value="to-time">to_time</option>
           </select>
         </div>
         <div style={{ marginBottom: 12 }}>
