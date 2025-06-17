@@ -115,6 +115,10 @@
   background: #eff6ff;
 }
 
+.week-day-button.today {
+    font-weight: 600;
+  }
+
 .week-day-button.duration-low {
   background-color: #fee2e2;
 }

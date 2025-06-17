@@ -179,7 +179,11 @@ function App() {
   // Filter items by selected project (deepest selection) and selected day
   let filteredItems = items
   const lastSelected = selectedProjectIds.slice().reverse().find(id => id)
-  if (lastSelected) {
+  
+  // Check if selected day is in the past
+  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false
+  
+  if (lastSelected && !isPastDate) {
     const descendantIds = [lastSelected, ...getDescendantProjectIds(projects, lastSelected)]
     filteredItems = filteredItems.filter(item => descendantIds.includes(item.project_id))
   }
