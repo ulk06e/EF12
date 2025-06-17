@@ -27,17 +27,10 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
     if (a.priority !== b.priority) return a.priority - b.priority;
     return qualityOrder[a.task_quality] - qualityOrder[b.task_quality];
   });
-
-  console.log("DEBUG: Plan items after filtering:", planItems);
   
   // Fact items: show all items in fact column, sort completed ones by completion time
   const factItems = items
     .filter(item => {
-      console.log("DEBUG: Checking fact item:", {
-        id: item.id,
-        completed_time: item.completed_time,
-        type: typeof item.completed_time
-      });
       return item.column_location === 'fact';
     })
     .sort((a, b) => {
@@ -52,7 +45,6 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
       return b.id.localeCompare(a.id);
     });
 
-  console.log("DEBUG: Fact items after filtering:", factItems);
 
   const handleDelete = (task) => {
     fetch(`http://localhost:8000/items/${task.id}`, { method: 'DELETE' })

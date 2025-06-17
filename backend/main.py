@@ -70,6 +70,8 @@ class Project(Base):
     id = Column(String, primary_key=True, index=True)
     name = Column(String)
     current_xp = Column(Integer, default=0)
+    current_level = Column(Integer, default=0)
+    next_level_xp = Column(Integer, default=100)
     parent_id = Column(String, ForeignKey("projects.id"), nullable=True)
 
 # Create tables
@@ -157,8 +159,6 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
 
 @app.put("/items/{item_id}")
 def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_db)):
-    print("DEBUG: Updating item:", item_id, "with data:", item)
-    print("DEBUG: Completed time:", item.get('completed_time'), "type:", type(item.get('completed_time')))
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
         return {"error": "Item not found"}, 404
@@ -195,16 +195,14 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
             priority=db_item.priority
         )
         db_item.xp_value = xp
+        
+        # Update project XP and levels
+        if db_item.project_id:
+            from utils.xp import update_project_xp
+            update_project_xp(db_item.project_id, xp, db_item.actual_duration, db)
 
     db.commit()
     db.refresh(db_item)
-    print("DEBUG: Updated item in database:", {
-        "id": db_item.id,
-        "column_location": db_item.column_location,
-        "completed": db_item.completed,
-        "completed_time": db_item.completed_time,
-        "completed_time_type": type(db_item.completed_time)
-    })
     return db_item
 
 # Projects endpoints

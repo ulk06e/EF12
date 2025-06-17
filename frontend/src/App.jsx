@@ -213,6 +213,15 @@ function App() {
           return [...items, updatedItem];
         }
       });
+
+      // If the item has a project_id, update the project's XP
+      if (updatedItem.project_id) {
+        fetch('http://localhost:8000/projects')
+          .then(res => res.json())
+          .then(updatedProjects => {
+            setProjects(updatedProjects);
+          });
+      }
     }
   }
 
@@ -227,11 +236,25 @@ function App() {
   }
 
   return (
-      <div>
-      <ProjectColumns projects={projects} selectedProjectIds={selectedProjectIds} onSelect={handleProjectSelect} onAddProject={handleAddProject} />
-      <PlanFactColumns items={filteredItems} onDeleteItem={handleDeleteItem} onAddTask={handleAddTask} selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} selectedDay={selectedDay} />
+    <div>
+      <ProjectColumns 
+        projects={projects} 
+        selectedProjectIds={selectedProjectIds} 
+        onSelect={handleProjectSelect} 
+        onAddProject={handleAddProject} 
+        onDeleteProject={(id) => {
+          setProjects(projects => projects.filter(p => p.id !== id));
+        }} 
+      />
+      <PlanFactColumns 
+        items={filteredItems} 
+        onDeleteItem={handleDeleteItem} 
+        onAddTask={handleAddTask} 
+        selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
+        selectedDay={selectedDay} 
+      />
       <WeekSelector selectedDay={selectedDay} onSelect={setSelectedDay} />
-      </div>
+    </div>
   )
 }
 

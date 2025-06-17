@@ -1,27 +1,14 @@
 import math
 
-def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality, priority):
-    """
-    XP Calculation Rules:
-    - 1 XP per 10 minutes of actual duration.
-    - Task Quality multiplier:
-        A = 4
-        B = 3
-        C = 2
-        D = 1
-    - Time Quality:
-        pure = 1.5
-        not-pure = 1.0
-    - Priority:
-        1 = 1.5
-        2 = 1.4
-        3 = 1.3
-        else = 1.0
-    - Duration Accuracy:
-        If actual is within ±20% of estimated: 1.0
-        Else: 0.7
-    """
+def calculate_level_from_xp(total_xp):
+    """Calculate level based on total XP using a square root progression."""
+    return int(math.sqrt(total_xp / 100))
 
+def calculate_next_level_xp(level):
+    """Calculate XP needed for next level using quadratic progression."""
+    return 100 * (level + 1) ** 2
+
+def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality, priority):
     base_xp = actual_duration / 10
 
     quality_map = {"A": 4, "B": 3, "C": 2, "D": 1}
@@ -46,3 +33,25 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
 
     xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * duration_multiplier + 40
     return math.floor(xp)
+
+
+def update_project_xp(project_id, xp_to_add, actual_duration, db):
+    from main import Project  # Import here to avoid circular imports
+    
+    # Get project and update XP
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        return
+    
+    # Update XP and calculate new level
+    project.current_xp += xp_to_add
+    new_level = calculate_level_from_xp(project.current_xp)
+    project.current_level = new_level
+    project.next_level_xp = calculate_next_level_xp(new_level)
+    
+    # Update parent project if exists
+    if project.parent_id:
+        update_project_xp(project.parent_id, xp_to_add, actual_duration, db)
+    
+    db.commit()
+    return project
