@@ -168,7 +168,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
           <button 
             className="add-button" 
             onClick={() => !isPastDate && setAddOpen(true)}
-            disabled={isPastDate}
+            disabled={isPastDate || !selectedProjectId}
           >
             Add Task
           </button>

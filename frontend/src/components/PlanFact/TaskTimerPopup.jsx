@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './AddTaskPopup.css';
 
 export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   if (!open || !task) return null;
@@ -90,25 +91,24 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-      background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div style={{ background: '#fff', padding: 24, borderRadius: 8, minWidth: 320, boxShadow: '0 2px 16px #0002', position: 'relative' }}>
-        <h2>{task.description}</h2>
-        <div style={{ fontSize: 32, margin: '24px 0', color: remainingTime < 0 ? 'red' : 'black' }}>
+    <div className="task-time-popup">
+      <div className="task-time-content">
+        <h2 className="task-time-title">{task.description}</h2>
+        <div className={`task-time-display ${remainingTime < 0 ? 'negative' : ''}`}>
           {formatTime(remainingTime)}
         </div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+        <div className="task-time-buttons">
           <button
             onClick={isRunning ? handlePause : handleContinue}
-            style={{ fontWeight: !isRunning ? 'bold' : 'normal' }}
+            className={`task-time-button ${!isRunning ? 'bold' : ''}`}
           >
             {isRunning ? 'Pause' : 'Continue'}
           </button>
-          <button onClick={handleFinish}>Complete</button>
+          <button onClick={handleFinish} className="task-time-button primary">
+            Complete
+          </button>
         </div>
-        <button style={{ position: 'absolute', top: 16, right: 24 }} onClick={onClose}>×</button>
+
       </div>
     </div>
   );

@@ -120,3 +120,98 @@
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
+
+/* Task Time Popup styles */
+.task-time-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.task-time-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 320px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.task-time-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+.task-time-display {
+  font-size: 32px;
+  margin: 24px 0;
+  color: #1f2937;
+  text-align: center;
+}
+
+.task-time-display.negative {
+  color: #dc2626;
+}
+
+.task-time-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.task-time-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #4b5563;
+}
+
+.task-time-button:hover {
+  background: #f3f4f6;
+}
+
+.task-time-button.primary {
+  background: #000;
+  border: none;
+  color: #fff;
+}
+
+.task-time-button.primary:hover {
+  background: #1f2937;
+}
+
+.task-time-button.bold {
+  font-weight: 600;
+}
+
+.task-time-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.task-time-close:hover {
+  color: #1f2937;
+}
