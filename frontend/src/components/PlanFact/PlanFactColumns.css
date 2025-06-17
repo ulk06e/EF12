@@ -49,6 +49,12 @@
   background-color: #1f2937;
 }
 
+.add-button:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .no-tasks-message {
   color: #9ca3af;
   font-style: italic;

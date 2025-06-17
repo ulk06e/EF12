@@ -137,6 +137,16 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
     };
   });
 
+  const isDateBeforeToday = (date) => {
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return compareDate < today;
+  };
+
+  const isPastDate = selectedDay ? isDateBeforeToday(selectedDay) : false;
+
   return (
     <div className="plan-fact-columns-container">
       <TaskPopup 
@@ -155,14 +165,20 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
       <div className="plan-fact-column">
         <div className="plan-fact-column-header">
           <h3>Plan</h3>
-          <button onClick={() => setAddOpen(true)} className="add-button">Add</button>
+          <button 
+            className="add-button" 
+            onClick={() => !isPastDate && setAddOpen(true)}
+            disabled={isPastDate}
+          >
+            Add Task
+          </button>
         </div>
         {planItems.length === 0 && <div className="no-tasks-message">No planned tasks</div>}
         {planItems.map((item, idx) => (
           <div
             key={item.id}
             className={`task-card ${idx === 0 ? 'priority-task' : ''}`}
-            onClick={() => setPopupTask(item)}
+            onClick={() => !isPastDate && setPopupTask(item)}
           >
             <div className="item-block">
               <div className="item-header">
