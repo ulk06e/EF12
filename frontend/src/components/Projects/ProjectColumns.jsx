@@ -66,12 +66,15 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
       });
   };
 
+const labels = ['Area', 'Project', 'Sub-project'];
+const cols = [col1, col2, col3];
+
   return (
     <div className="project-columns-container">
-      {[col1, col2, col3].map((col, i) => (
-        <div className="project-column" key={i}>
-          <div className="projects-column-header">
-            <h3>Project {i + 1}</h3>
+      {cols.map((col, i) => (
+    <div className="project-column" key={i}>
+      <div className="projects-column-header">
+        <h3>{labels[i]}</h3>
             <button 
               onClick={() => setAddCol(i + 1)} 
               className="add-button"

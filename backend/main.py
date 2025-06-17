@@ -232,6 +232,33 @@ def update_project(project_id: str, project: dict = Body(...), db: Session = Dep
     db.refresh(db_project)
     return db_project
 
+@app.delete("/projects/{project_id}")
+def delete_project(project_id: str, db: Session = Depends(get_db)):
+    print(f"DEBUG: Deleting project {project_id} and all its descendants")
+    
+    def delete_project_and_descendants(project_id):
+        # Get all children of the current project
+        children = db.query(Project).filter(Project.parent_id == project_id).all()
+        
+        # Recursively delete all children and their descendants
+        for child in children:
+            delete_project_and_descendants(child.id)
+        
+        # Delete the current project
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if project:
+            db.delete(project)
+    
+    try:
+        # Start the recursive deletion
+        delete_project_and_descendants(project_id)
+        db.commit()
+        return {"message": "Project and all descendants deleted successfully"}
+    except Exception as e:
+        print(f"DEBUG: Error deleting project: {str(e)}")
+        db.rollback()
+        raise e
+
 @app.post("/cleanup")
 def cleanup_database(db: Session = Depends(get_db)):
     # Drop all tables

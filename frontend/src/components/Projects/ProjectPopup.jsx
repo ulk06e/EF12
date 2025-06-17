@@ -36,6 +36,26 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
     setIsEditing(false);
   };
 
+  const handleComplete = () => {
+    // Delete the project and all its descendants
+    fetch(`http://localhost:8000/projects/${project.id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        // Close the popup and refresh the project list
+        onClose();
+        // Force a page reload to refresh the project list
+        window.location.reload();
+      })
+      .catch(error => {
+        alert(`Error completing project: ${error.message}`);
+      });
+  };
+
   return (
     <div className="add-task-popup-overlay" onClick={handleOverlayClick}>
       <div className="add-task-popup">
@@ -66,8 +86,8 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
                 <button onClick={handleEdit} className="cancel-button">
                   Edit
                 </button>
-                <button className="add-button">
-                  Complete
+                <button onClick={handleComplete} className="add-button">
+                  Delete
                 </button>
               </div>
             </>
