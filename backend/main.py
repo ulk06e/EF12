@@ -218,6 +218,20 @@ def create_project(project: dict, db: Session = Depends(get_db)):
     db.refresh(new_project)
     return new_project
 
+@app.put("/projects/{project_id}")
+def update_project(project_id: str, project: dict = Body(...), db: Session = Depends(get_db)):
+    db_project = db.query(Project).filter(Project.id == project_id).first()
+    if not db_project:
+        return {"error": "Project not found"}, 404
+    
+    # Update project fields
+    for key, value in project.items():
+        setattr(db_project, key, value)
+    
+    db.commit()
+    db.refresh(db_project)
+    return db_project
+
 @app.post("/cleanup")
 def cleanup_database(db: Session = Depends(get_db)):
     # Drop all tables

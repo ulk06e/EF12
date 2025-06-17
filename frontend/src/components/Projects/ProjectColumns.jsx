@@ -15,7 +15,7 @@ function getColumnProjects(projects, parentId) {
     });
 }
 
-export default function ProjectColumns({ projects, selectedProjectIds, onSelect, onAddProject, onDeleteProject }) {
+export default function ProjectColumns({ projects, setProjects, selectedProjectIds, onSelect, onAddProject, onDeleteProject }) {
   const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
   const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
 
@@ -49,13 +49,37 @@ export default function ProjectColumns({ projects, selectedProjectIds, onSelect,
     setProjectPopup(null); // Close the popup after deletion
   };
 
+  const handleEditProject = (updatedProject) => {
+    fetch(`http://localhost:8000/projects/${updatedProject.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProject)
+    })
+      .then(res => res.json())
+      .then(data => {
+        // Update the project in the local state
+        const updatedProjects = projects.map(p => 
+          p.id === data.id ? data : p
+        );
+        setProjects(updatedProjects);
+        setProjectPopup(null); // Close the popup after edit
+      });
+  };
+
   return (
     <div className="project-columns-container">
       {[col1, col2, col3].map((col, i) => (
         <div className="project-column" key={i}>
           <div className="projects-column-header">
             <h3>Project {i + 1}</h3>
-            <button onClick={() => setAddCol(i + 1)} className="add-button">Add</button>
+            <button 
+              onClick={() => setAddCol(i + 1)} 
+              className="add-button"
+              disabled={i > 0 && !parentIds[i]}
+              style={{ opacity: i > 0 && !parentIds[i] ? 0.5 : 1 }}
+            >
+              Add
+            </button>
           </div>
           {col.length === 0 && <div className="no-projects-message">Select {i === 0 ? '' : `Project ${i}`}</div>}
           {col.map(p => {
@@ -90,7 +114,13 @@ export default function ProjectColumns({ projects, selectedProjectIds, onSelect,
               </div>
             );
           })}
-          <AddProjectPopup open={addCol === i + 1} onClose={() => setAddCol(null)} onAdd={handleAdd} parentId={parentIds[i]} />
+          <AddProjectPopup 
+            open={addCol === i + 1} 
+            onClose={() => setAddCol(null)} 
+            onAdd={handleAdd} 
+            parentId={parentIds[i]} 
+            columnIndex={i}
+          />
         </div>
       ))}
       <ProjectPopup 
@@ -98,6 +128,7 @@ export default function ProjectColumns({ projects, selectedProjectIds, onSelect,
         onClose={() => setProjectPopup(null)} 
         project={projectPopup} 
         onDelete={handleDeleteProjectClick}
+        onEdit={handleEditProject}
       />
     </div>
   );

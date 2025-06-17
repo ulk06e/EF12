@@ -239,6 +239,7 @@ function App() {
     <div>
       <ProjectColumns 
         projects={projects} 
+        setProjects={setProjects}
         selectedProjectIds={selectedProjectIds} 
         onSelect={handleProjectSelect} 
         onAddProject={handleAddProject} 

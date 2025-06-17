@@ -1,0 +1,122 @@
+.add-task-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.add-task-popup {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 300px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+}
+
+.add-task-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.add-task-row input,
+.add-task-row select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+}
+
+.add-task-row input:focus,
+.add-task-row select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.add-task-row input {
+  flex: 1;
+}
+
+.add-task-row select {
+  flex: 1;
+}
+
+.add-task-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.right-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.cancel-button,
+.add-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+
+.cancel-button:hover {
+  background: #f3f4f6;
+}
+
+.add-button {
+  background: #000;
+  border: none;
+  color: #fff;
+}
+
+.add-button:hover {
+  background: #1f2937;
+}
+
+/* Task Popup specific styles */
+.task-popup-content {
+  width: 100%;
+}
+
+.task-name {
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.edit-input {
+  width: calc(100% - 24px);
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}

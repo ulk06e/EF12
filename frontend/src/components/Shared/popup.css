@@ -53,16 +53,19 @@
 .delete-button {
   background-color: #ef4444;
   color: white;
+  min-width: 8rem;
 }
 
 .edit-button {
   background-color: #3b82f6;
   color: white;
+  min-width: 8rem;
 }
 
 .complete-button {
   background-color: #22c55e;
   color: white;
+  min-width: 8rem;
 }
 
 .popup-close {

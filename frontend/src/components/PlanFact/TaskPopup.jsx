@@ -1,6 +1,7 @@
 import React from 'react';
+import './AddTaskPopup.css';
 
-export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay }) {
+function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay }) {
   if (!open || !task) return null;
 
   const isFutureDate = () => {
@@ -12,22 +13,36 @@ export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onSta
     return taskDate > today;
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-      background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div style={{ background: '#fff', padding: 24, borderRadius: 8, minWidth: 300, boxShadow: '0 2px 16px #0002', position: 'relative' }}>
-        <h2>{task.description}</h2>
-        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-          <button onClick={() => onDelete(task)}>Delete</button>
-          <button onClick={() => onEdit(task)}>Edit</button>
-          {!isFutureDate() && (
-            <button onClick={() => onStart(task)}>Start</button>
-          )}
+    <div className="add-task-popup-overlay" onClick={handleOverlayClick}>
+      <div className="add-task-popup">
+        <div className="task-popup-content">
+          <div className="task-name">{task.description}</div>
+          <div className="add-task-buttons">
+            <button onClick={() => onDelete(task)} className="cancel-button">
+              Delete
+            </button>
+            <div className="right-buttons">
+              <button onClick={() => onEdit(task)} className="cancel-button">
+                Edit
+              </button>
+              {!isFutureDate() && (
+                <button onClick={() => onStart(task)} className="add-button">
+                  Start
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-        <button style={{ position: 'absolute', top: 16, right: 24 }} onClick={onClose}>×</button>
       </div>
     </div>
   );
-} 
+}
+
+export default TaskPopup;

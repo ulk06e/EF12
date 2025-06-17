@@ -69,6 +69,7 @@
   margin-bottom: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: left;
 }
 
 .task-card:hover {
