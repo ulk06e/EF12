@@ -53,7 +53,7 @@ export default function ProjectColumns({ projects, selectedProjectIds, onSelect,
     <div className="project-columns-container">
       {[col1, col2, col3].map((col, i) => (
         <div className="project-column" key={i}>
-          <div className="project-column-header">
+          <div className="projects-column-header">
             <h3>Project {i + 1}</h3>
             <button onClick={() => setAddCol(i + 1)} className="add-button">Add</button>
           </div>
@@ -78,14 +78,14 @@ export default function ProjectColumns({ projects, selectedProjectIds, onSelect,
                   <div className="project-name">{p.name}</div>
                   <div className="project-level-badge">Level {p.current_level}</div>
                 </div>
-                <div className="project-xp-details">
-                  {p.current_xp} / {p.next_level_xp} XP
-                </div>
                 <div className="project-progress-bar">
                   <div 
                     className="project-progress-fill"
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
+                </div>
+                <div className="project-xp-details">
+                  {p.current_xp} / {p.next_level_xp} XP
                 </div>
               </div>
             );
