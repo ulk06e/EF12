@@ -63,6 +63,7 @@ class Item(Base):
     time_quality = Column(Enum(TimeQualityEnum), nullable=True)
     project_id = Column(String, ForeignKey("projects.id"))
     day_id = Column(String, ForeignKey("days.id"))
+    completed_time = Column(DateTime, nullable=True)
 
 class Project(Base):
     __tablename__ = "projects"
@@ -157,9 +158,19 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
 @app.put("/items/{item_id}")
 def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_db)):
     print("DEBUG: Updating item:", item_id, "with data:", item)
+    print("DEBUG: Completed time:", item.get('completed_time'), "type:", type(item.get('completed_time')))
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
         return {"error": "Item not found"}, 404
+    
+    # Parse completed_time if present
+    if "completed_time" in item and item["completed_time"]:
+        try:
+            db_item.completed_time = datetime.datetime.fromisoformat(item["completed_time"].replace('Z', '+00:00'))
+        except Exception as e:
+            print("DEBUG: Error parsing completed_time:", e)
+            db_item.completed_time = None
+    
     # Parse enums if present
     if "time_type" in item and item["time_type"]:
         db_item.time_type = TimeTypeEnum(item["time_type"])
@@ -169,10 +180,12 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
         db_item.column_location = ColumnLocationEnum(item["column_location"])
     if "time_quality" in item and item["time_quality"]:
         db_item.time_quality = TimeQualityEnum(item["time_quality"])
+    
     # Update other fields
     for key, value in item.items():
-        if key not in ["time_type", "task_quality", "column_location", "time_quality"]:
+        if key not in ["time_type", "task_quality", "column_location", "time_quality", "completed_time"]:
             setattr(db_item, key, value)
+    
     if db_item.completed:
         xp = calculate_xp(
             actual_duration=db_item.actual_duration,
@@ -185,7 +198,13 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
 
     db.commit()
     db.refresh(db_item)
-    print("DEBUG: Updated item in database:", {"id": db_item.id, "column_location": db_item.column_location, "completed": db_item.completed})
+    print("DEBUG: Updated item in database:", {
+        "id": db_item.id,
+        "column_location": db_item.column_location,
+        "completed": db_item.completed,
+        "completed_time": db_item.completed_time,
+        "completed_time_type": type(db_item.completed_time)
+    })
     return db_item
 
 # Projects endpoints
@@ -200,3 +219,11 @@ def create_project(project: dict, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_project)
     return new_project
+
+@app.post("/cleanup")
+def cleanup_database(db: Session = Depends(get_db)):
+    # Drop all tables
+    Base.metadata.drop_all(bind=engine)
+    # Recreate all tables
+    Base.metadata.create_all(bind=engine)
+    return {"status": "ok", "message": "Database cleaned up"}

@@ -32,17 +32,24 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   
   // Fact items: show all items in fact column, sort completed ones by completion time
   const factItems = items
-    .filter(item => item.column_location === 'fact')
+    .filter(item => {
+      console.log("DEBUG: Checking fact item:", {
+        id: item.id,
+        completed_time: item.completed_time,
+        type: typeof item.completed_time
+      });
+      return item.column_location === 'fact';
+    })
     .sort((a, b) => {
-      // If both have completed_time, sort by that
+      // If both have completed_time, sort by that (newest first)
       if (a.completed_time && b.completed_time) {
         return b.completed_time.localeCompare(a.completed_time);
       }
       // If only one has completed_time, put it first
       if (a.completed_time) return -1;
       if (b.completed_time) return 1;
-      // If neither has completed_time, keep original order
-      return 0;
+      // For items without completed_time, sort by id (newer ids first)
+      return b.id.localeCompare(a.id);
     });
 
   console.log("DEBUG: Fact items after filtering:", factItems);
@@ -108,7 +115,6 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   };
 
   // Calculate unaccounted time for fact items
-  // Since items are sorted newest-first, we need to look at the next item (older) for comparison
   const factCards = factItems.map((item, idx) => {
     let unaccounted = null;
     
@@ -118,17 +124,43 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
       const currentTime = new Date(item.completed_time);
       const previousTime = new Date(nextItem.completed_time);
       
+      console.log("DEBUG: Date parsing:", {
+        id: item.id,
+        completed_time: item.completed_time,
+        parsed: currentTime,
+        isValid: !isNaN(currentTime)
+      });
+      
       // Time difference between when this task finished and when the previous task finished
-      const timeBetweenTasks = (currentTime - previousTime) / 60000; // in minutes
+      const timeBetweenTasks = (currentTime.getTime() - previousTime.getTime()) / (1000 * 60); // in minutes
       
       // Unaccounted time = time between tasks - actual duration of current task
-      unaccounted = timeBetweenTasks - (item.actual_duration || 0);
-      
-      // Don't show negative unaccounted time
-      if (unaccounted < 0) unaccounted = 0;
+      unaccounted = Math.max(0, timeBetweenTasks - (item.actual_duration || 0));
     }
     
-    return { ...item, unaccounted };
+    // Format the time only if we have a valid date
+    let formatted_time = 'Invalid Date';
+    if (item.completed_time) {
+      try {
+        const date = new Date(item.completed_time);
+        if (!isNaN(date)) {
+          formatted_time = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'UTC'  // Use UTC to match backend storage
+          });
+        }
+      } catch (e) {
+        console.error("Error formatting date:", e);
+      }
+    }
+    
+    return { 
+      ...item, 
+      unaccounted,
+      formatted_time
+    };
   });
 
   return (
@@ -185,7 +217,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
             <div>Quality: {item.task_quality ?? '-'}</div>
             <div>Actual: {item.actual_duration ?? '-'} min</div>
             <div>Estimated: {item.estimated_duration ?? '-'} min</div>
-            <div>Finished: {new Date(item.completed_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            <div>Finished: {item.formatted_time}</div>
             <div>XP: {item.xp_value ?? '-'}</div>
             {item.unaccounted !== null && <div>Unaccounted: {Math.round(item.unaccounted)} min</div>}
           </div>

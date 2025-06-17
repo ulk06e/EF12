@@ -71,13 +71,20 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
     const actualDuration = Math.ceil(
       ((endTime.getTime() - startTime.getTime()) - totalPausedTime) / (1000 * 60)
     );
+    const completedTime = new Date().toISOString();
+    console.log("DEBUG: Task completion:", {
+      taskId: task.id,
+      completedTime,
+      parsed: new Date(completedTime),
+      isValid: !isNaN(new Date(completedTime))
+    });
     onComplete({
       ...task,
       actual_duration: actualDuration,
       time_quality: isPure ? 'pure' : 'not-pure',
       column_location: 'fact',
       completed: true,
-      completed_time: new Date().toISOString(),
+      completed_time: completedTime,
     });
     onClose();
   };
