@@ -1,7 +1,17 @@
 import React from 'react';
 
-export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart }) {
+export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay }) {
   if (!open || !task) return null;
+
+  const isFutureDate = () => {
+    if (!selectedDay) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const taskDate = new Date(selectedDay);
+    taskDate.setHours(0, 0, 0, 0);
+    return taskDate > today;
+  };
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -12,7 +22,9 @@ export default function TaskPopup({ open, onClose, task, onDelete, onEdit, onSta
         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
           <button onClick={() => onDelete(task)}>Delete</button>
           <button onClick={() => onEdit(task)}>Edit</button>
-          <button onClick={() => onStart(task)}>Start</button>
+          {!isFutureDate() && (
+            <button onClick={() => onStart(task)}>Start</button>
+          )}
         </div>
         <button style={{ position: 'absolute', top: 16, right: 24 }} onClick={onClose}>×</button>
       </div>

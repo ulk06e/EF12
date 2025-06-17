@@ -139,7 +139,15 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
 
   return (
     <div className="plan-fact-columns-container">
-      <TaskPopup open={!!popupTask} onClose={() => setPopupTask(null)} task={popupTask} onDelete={handleDelete} onEdit={handleEdit} onStart={handleStart} />
+      <TaskPopup 
+        open={!!popupTask} 
+        onClose={() => setPopupTask(null)} 
+        task={popupTask} 
+        onDelete={handleDelete} 
+        onEdit={handleEdit} 
+        onStart={handleStart}
+        selectedDay={selectedDay}
+      />
       <EditTaskPopup open={!!editTask} onClose={() => setEditTask(null)} task={editTask} onSave={handleSaveEdit} />
       <AddTaskPopup open={addOpen} onClose={() => setAddOpen(false)} onAdd={handleAdd} projectId={selectedProjectId} dayId={selectedDay} />
       <TaskTimerPopup open={!!timerTask} onClose={() => setTimerTask(null)} task={timerTask} onComplete={handleTimerComplete} />

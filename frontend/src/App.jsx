@@ -253,7 +253,11 @@ function App() {
         selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
         selectedDay={selectedDay} 
       />
-      <WeekSelector selectedDay={selectedDay} onSelect={setSelectedDay} />
+      <WeekSelector 
+        selectedDay={selectedDay} 
+        onSelect={setSelectedDay} 
+        items={items} 
+      />
     </div>
   )
 }

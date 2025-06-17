@@ -1,4 +1,5 @@
 import React from 'react';
+import './WeekSelector.css';
 
 function getCurrentWeek() {
   const today = new Date();
@@ -14,30 +15,90 @@ function getCurrentWeek() {
   });
 }
 
-export default function WeekSelector({ selectedDay, onSelect }) {
-  const week = getCurrentWeek();
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export default function WeekSelector({ selectedDay, onSelect, items }) {
+  const [currentWeek, setCurrentWeek] = React.useState(getCurrentWeek());
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+  const handleTodayClick = () => {
+    const today = new Date();
+    onSelect(today.toISOString().slice(0, 10));
+    setCurrentWeek(getCurrentWeek());
+  };
+
+  const handlePreviousWeek = () => {
+    const newWeek = currentWeek.map(date => {
+      const newDate = new Date(date);
+      newDate.setDate(date.getDate() - 7);
+      return newDate;
+    });
+    setCurrentWeek(newWeek);
+  };
+
+  const handleNextWeek = () => {
+    const newWeek = currentWeek.map(date => {
+      const newDate = new Date(date);
+      newDate.setDate(date.getDate() + 7);
+      return newDate;
+    });
+    setCurrentWeek(newWeek);
+  };
+
+  const formatDayName = (date) => {
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getDayEstimatedDuration = (date) => {
+    const formattedDate = date.toISOString().split('T')[0];
+    const dayItems = items?.filter(item => item.day_id === formattedDate) || [];
+    const totalDuration = dayItems.reduce((sum, item) => sum + (item.estimated_duration || 0), 0);
+    return totalDuration;
+  };
+
+  const getDurationClass = (duration) => {
+    if (duration < 240) return 'duration-low';
+    if (duration <= 480) return 'duration-medium';
+    return 'duration-high';
+  };
+
   return (
-    <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-      {week.map((date, i) => {
-        const iso = date.toISOString().slice(0, 10);
-        return (
-          <button
-            key={iso}
-            style={{
-              padding: '8px 12px',
-              background: selectedDay === iso ? '#eef' : '#fff',
-              border: '1px solid #ccc',
-              borderRadius: 4,
-              fontWeight: selectedDay === iso ? 'bold' : 'normal',
-              cursor: 'pointer',
-            }}
-            onClick={() => onSelect(iso)}
-          >
-            {dayNames[i]}<br />{iso}
-          </button>
-        );
-      })}
+    <div className="project-columns-container">
+      <div className="week-column">
+        <div className="column-header">
+          <h3>Week</h3>
+          <div className="header-buttons">
+            <button onClick={handlePreviousWeek} className="nav-button">←</button>
+            <button onClick={handleTodayClick} className="add-button">Today</button>
+            <button onClick={handleNextWeek} className="nav-button">→</button>
+          </div>
+        </div>
+        <div className="week-days">
+          {currentWeek.map((date) => {
+            const iso = date.toISOString().slice(0, 10);
+            const estimatedDuration = getDayEstimatedDuration(date);
+            const durationClass = getDurationClass(estimatedDuration);
+            return (
+              <div key={iso} className="week-day-container">
+                <button
+                  className={`week-day-button ${selectedDay === iso ? 'selected' : ''} ${durationClass}`}
+                  onClick={() => onSelect(iso)}
+                >
+                  <div className="week-day-name">{formatDayName(date)}</div>
+                  <div className="week-day-date">{formatDate(date)}</div>
+                </button>
+                <div className="week-day-duration">{estimatedDuration} min</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 } 
