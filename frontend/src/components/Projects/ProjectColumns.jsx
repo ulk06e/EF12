@@ -1,0 +1,104 @@
+import React, { useState } from 'react';
+import AddProjectPopup from './AddProjectPopup';
+import ProjectPopup from './ProjectPopup';
+import './projects.css'; // Import the new CSS file
+
+function getColumnProjects(projects, parentId) {
+  return projects.filter(p => (parentId ? p.parent_id === parentId : !p.parent_id))
+    .sort((a, b) => {
+      // Sort by current_level (descending)
+      if (b.current_level !== a.current_level) {
+        return b.current_level - a.current_level;
+      }
+      // Then by current_xp (descending)
+      return b.current_xp - a.current_xp;
+    });
+}
+
+export default function ProjectColumns({ projects, selectedProjectIds, onSelect, onAddProject, onDeleteProject }) {
+  const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
+  const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
+
+  const [selected1, selected2, selected3] = selectedProjectIds;
+  const col1 = getColumnProjects(projects, null);
+  const col2 = getColumnProjects(projects, selected1);
+  const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
+
+  // Determine parentId for each column
+  const parentIds = [null, selected1, selected2];
+
+  const handleAdd = (project) => {
+    fetch('http://localhost:8000/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(project)
+    })
+      .then(res => res.json())
+      .then(data => {
+        onAddProject(data);
+        setAddCol(null);
+      });
+  };
+
+  const handleProjectDoubleClick = (project) => {
+    setProjectPopup(project);
+  };
+
+  const handleDeleteProjectClick = (projectId) => {
+    onDeleteProject(projectId);
+    setProjectPopup(null); // Close the popup after deletion
+  };
+
+  return (
+    <div className="project-columns-container">
+      {[col1, col2, col3].map((col, i) => (
+        <div className="project-column" key={i}>
+          <div className="project-column-header">
+            <h3>Project {i + 1}</h3>
+            <button onClick={() => setAddCol(i + 1)} className="add-button">Add</button>
+          </div>
+          {col.length === 0 && <div className="no-projects-message">Select {i === 0 ? '' : `Project ${i}`}</div>}
+          {col.map(p => {
+            const progressPercentage = p.next_level_xp > 0 
+              ? Math.min(100, (p.current_xp / p.next_level_xp) * 100) 
+              : 0; // Avoid division by zero
+            return (
+              <div 
+                key={p.id} 
+                className={`project-card ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
+                onClick={() => {
+                  const newSel = [...selectedProjectIds];
+                  newSel[i] = p.id;
+                  for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                  onSelect(newSel);
+                }}
+                onDoubleClick={() => handleProjectDoubleClick(p)}
+              >
+                <div className="project-card-header">
+                  <div className="project-name">{p.name}</div>
+                  <div className="project-level-badge">Level {p.current_level}</div>
+                </div>
+                <div className="project-xp-details">
+                  {p.current_xp} / {p.next_level_xp} XP
+                </div>
+                <div className="project-progress-bar">
+                  <div 
+                    className="project-progress-fill"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            );
+          })}
+          <AddProjectPopup open={addCol === i + 1} onClose={() => setAddCol(null)} onAdd={handleAdd} parentId={parentIds[i]} />
+        </div>
+      ))}
+      <ProjectPopup 
+        open={!!projectPopup} 
+        onClose={() => setProjectPopup(null)} 
+        project={projectPopup} 
+        onDelete={handleDeleteProjectClick}
+      />
+    </div>
+  );
+} 

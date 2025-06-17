@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import enum
 import datetime
+from utils.xp import calculate_xp
 
 app = FastAPI()
 
@@ -106,7 +107,9 @@ async def create_day(day: dict, db: Session = Depends(get_db)):
 # Items endpoints
 @app.get("/items")
 def get_items(db: Session = Depends(get_db)):
-    return db.query(Item).all()
+    items = db.query(Item).all()
+    print("DEBUG: Retrieved items from database:", [{"id": item.id, "column_location": item.column_location, "completed": item.completed} for item in items])
+    return items
 
 @app.post("/items")
 async def create_item(item: dict, db: Session = Depends(get_db)):
@@ -153,6 +156,7 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
 
 @app.put("/items/{item_id}")
 def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_db)):
+    print("DEBUG: Updating item:", item_id, "with data:", item)
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
         return {"error": "Item not found"}, 404
@@ -169,8 +173,19 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
     for key, value in item.items():
         if key not in ["time_type", "task_quality", "column_location", "time_quality"]:
             setattr(db_item, key, value)
+    if db_item.completed:
+        xp = calculate_xp(
+            actual_duration=db_item.actual_duration,
+            estimated_duration=db_item.estimated_duration,
+            task_quality=db_item.task_quality.value,
+            time_quality=db_item.time_quality.value,
+            priority=db_item.priority
+        )
+        db_item.xp_value = xp
+
     db.commit()
     db.refresh(db_item)
+    print("DEBUG: Updated item in database:", {"id": db_item.id, "column_location": db_item.column_location, "completed": db_item.completed})
     return db_item
 
 # Projects endpoints

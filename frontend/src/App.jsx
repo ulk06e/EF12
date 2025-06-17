@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import ProjectColumns from './components/ProjectColumns'
-import WeekSelector from './components/WeekSelector'
-import PlanFactColumns from './components/PlanFactColumns'
+import ProjectColumns from './components/Projects/ProjectColumns'
+import WeekSelector from './components/Week/WeekSelector'
+import PlanFactColumns from './components/PlanFact/PlanFactColumns'
 
 function App() {
   const [health, setHealth] = useState(null)
@@ -228,11 +228,8 @@ function App() {
 
   return (
       <div>
-      <h2>Project</h2>
       <ProjectColumns projects={projects} selectedProjectIds={selectedProjectIds} onSelect={handleProjectSelect} onAddProject={handleAddProject} />
-      <h2>Plan / Fact Columns</h2>
       <PlanFactColumns items={filteredItems} onDeleteItem={handleDeleteItem} onAddTask={handleAddTask} selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} selectedDay={selectedDay} />
-      <h2>Week Selector</h2>
       <WeekSelector selectedDay={selectedDay} onSelect={setSelectedDay} />
       </div>
   )
