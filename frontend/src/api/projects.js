@@ -1,6 +1,6 @@
 // Project-related API functions
 import { API_URL } from './index';
-import { getDescendantProjectIds, handleProjectSelect } from '../hooks/useProjects';
+import { getDescendantProjectIds } from '../hooks/useProjects';
 
 export function handleAddProject(project, setProjects, selectedProjectIds, setSelectedProjectIds) {
   fetch(`${API_URL}/projects`, {

@@ -14,6 +14,7 @@ export default function PlanFactColumns({
   onUpdateTask,
   onCompleteTask,
   selectedProjectId, 
+  selectedProjectIds,
   selectedDay 
 }) {
   const [popupTask, setPopupTask] = useState(null);
@@ -76,7 +77,7 @@ export default function PlanFactColumns({
     };
   });
 
-  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
+  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000) : false;
 
   // Common task card renderer
   const renderTaskCard = (item, isPlan = false, index = 0) => (
@@ -152,7 +153,7 @@ export default function PlanFactColumns({
           <button 
             className="add-button" 
             onClick={() => !isPastDate && setAddOpen(true)}
-            disabled={isPastDate || !selectedProjectId}
+            disabled={isPastDate || !selectedProjectId || !selectedProjectIds[2]}
           >
             Add Task
           </button>

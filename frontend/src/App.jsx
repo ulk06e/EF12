@@ -14,7 +14,7 @@ import {
   updateItemsState
 } from './api'
 import { useInitialData } from './hooks'
-import { getDescendantProjectIds, handleProjectSelect, useAutoSelectProjects } from './hooks/useProjects'
+import { getDescendantProjectIds, useAutoSelectProjects } from './hooks/useProjects'
 import { filterItemsByProjectAndDay } from './api/items'
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
         projects={projects} 
         setProjects={setProjects}
         selectedProjectIds={selectedProjectIds} 
-        onSelect={newSelected => handleProjectSelect(newSelected, projects, setSelectedProjectIds)} 
+        onSelect={setSelectedProjectIds} 
         onAddProject={(project) => handleAddProject(project, setProjects, selectedProjectIds, setSelectedProjectIds)} 
         onDeleteProject={(projectId) => handleDeleteProject(projectId, projects, setProjects, setSelectedProjectIds, getDescendantProjectIds)}
         onUpdateProject={(updatedProject) => handleUpdateProject(updatedProject, setProjects)}
@@ -51,6 +51,7 @@ function App() {
         onUpdateTask={(updatedTask) => handleUpdateTask(updatedTask, setItems, (data) => updateItemsState(data, setItems), setProjects)}
         onCompleteTask={(updatedTask) => handleCompleteTask(updatedTask, (data) => updateItemsState(data, setItems), setProjects)}
         selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
+        selectedProjectIds={selectedProjectIds}
         selectedDay={selectedDay} 
       />
       <WeekSelector 
