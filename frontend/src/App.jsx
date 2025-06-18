@@ -5,6 +5,7 @@ import './App.css'
 import ProjectColumns from './components/Projects/ProjectColumns'
 import WeekSelector from './components/Week/WeekSelector'
 import PlanFactColumns from './components/PlanFact/PlanFactColumns'
+import Dashboard from './components/Dashboard/Dashboard'
 
 function App() {
   const [health, setHealth] = useState(null)
@@ -241,6 +242,7 @@ function App() {
 
   return (
     <div>
+      <Dashboard items = {items} /> 
       <ProjectColumns 
         projects={projects} 
         setProjects={setProjects}
