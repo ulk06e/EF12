@@ -88,10 +88,11 @@ export function filterItemsByProjectAndDay(items, projects, selectedProjectIds, 
   const lastSelected = selectedProjectIds.slice().reverse().find(id => id);
 
   // Check if selected day is in the past
-  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
+  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000) : false;
 
   if (lastSelected && !isPastDate) {
     const descendantIds = [lastSelected, ...getDescendantProjectIds(projects, lastSelected)];
+    console.log('Filtering by lastSelected:', lastSelected, 'descendantIds:', descendantIds);
     filteredItems = filteredItems.filter(item => descendantIds.includes(item.project_id));
   }
   if (selectedDay) {
