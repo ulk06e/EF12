@@ -31,7 +31,7 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
         diff_ratio = abs(actual_duration - estimated_duration) / estimated_duration
         duration_multiplier = 1.0 if diff_ratio <= 0.2 else 0.7
 
-    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * duration_multiplier
+    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * duration_multiplier + 40
     return math.floor(xp)
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../shared/Popup.css';
+import '../../shared/Popup.css';
 
 export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   if (!open || !task) return null;

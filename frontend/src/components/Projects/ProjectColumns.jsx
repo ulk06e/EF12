@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AddProjectPopup from './AddProjectPopup';
-import ProjectPopup from './ProjectPopup';
+import AddProjectPopup from './Popups/AddProjectPopup';
+import ProjectPopup from './Popups/ProjectPopup';
 import './Projects.css'; // Import the new CSS file
 
 function getColumnProjects(projects, parentId) {

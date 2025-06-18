@@ -1,36 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import '../shared/Popup.css';
+import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import '../../shared/Popup.css';
 
-export default function EditTaskPopup({ open, onClose, task, onSave }) {
-  const [desc, setDesc] = useState('');
-  const [timeType, setTimeType] = useState('');
-  const [quality, setQuality] = useState('');
-  const [est, setEst] = useState('');
-  const [priority, setPriority] = useState('');
-
-  useEffect(() => {
-    if (task) {
-      setDesc(task.description || '');
-      setTimeType(task.time_type || '');
-      setQuality(task.task_quality || '');
-      setEst(task.estimated_duration || '');
-      setPriority(task.priority || '');
-    }
-  }, [task]);
-
-  if (!open || !task) return null;
+function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
+  const [description, setDescription] = useState('');
+  const [timeType, setTimeType] = useState('to-goal');
+  const [taskQuality, setTaskQuality] = useState('A');
+  const [priority, setPriority] = useState(1);
+  const [estimatedDuration, setEstimatedDuration] = useState(30);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ 
-      ...task, 
-      description: desc, 
-      time_type: timeType, 
-      task_quality: quality, 
-      estimated_duration: est ? parseInt(est) : null, 
-      priority: priority ? parseInt(priority) : null 
+    onAdd({
+      id: uuidv4(),
+      description,
+      time_type: timeType,
+      task_quality: taskQuality,
+      priority,
+      estimated_duration: estimatedDuration,
+      project_id: projectId,
+      day_id: dayId,
+      column_location: 'plan',
+      completed: false,
+      completed_time: null,
+      actual_duration: null
     });
+    setDescription('');
+    setTimeType('to-goal');
+    setTaskQuality('A');
+    setPriority(1);
+    setEstimatedDuration(30);
   };
+
+  if (!open) return null;
 
   return (
     <div className="add-task-popup-overlay">
@@ -39,11 +41,10 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
           <div className="add-task-row">
             <input
               type="text"
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
               placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               required
-              className="edit-input"
             />
           </div>
           
@@ -58,8 +59,8 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
               <option value="to-time">To Time</option>
             </select>
             <select 
-              value={quality} 
-              onChange={(e) => setQuality(e.target.value)}
+              value={taskQuality} 
+              onChange={(e) => setTaskQuality(e.target.value)}
               className="task-quality-select"
               required
             >
@@ -73,18 +74,19 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
           <div className="add-task-row">
             <select 
               value={priority} 
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e) => setPriority(Number(e.target.value))}
               className="priority-select"
               required
             >
               {[...Array(10)].map((_, i) => (
-                <option key={i+1} value={i+1}>{i+1}</option>
+                <option key={i + 1} value={i + 1}>Priority {i + 1}</option>
               ))}
             </select>
             <input
               type="number"
-              value={est}
-              onChange={e => setEst(e.target.value)}
+              value={estimatedDuration}
+              onChange={(e) => setEstimatedDuration(Number(e.target.value))}
+              min="1"
               placeholder="Duration (minutes)"
               className="duration-input"
               required
@@ -96,11 +98,13 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
               Cancel
             </button>
             <button type="submit" className="add-button">
-              Save
+              Add Task
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-} 
+}
+
+export default AddTaskPopup; 

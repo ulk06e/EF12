@@ -1,51 +1,38 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import ProjectColumns from './components/Projects/ProjectColumns'
 import WeekSelector from './components/Week/WeekSelector'
 import PlanFactColumns from './components/PlanFact/PlanFactColumns'
 import Dashboard from './components/Dashboard/Dashboard'
 
 function App() {
-  const [health, setHealth] = useState(null)
-  const [daysCount, setDaysCount] = useState(null)
-  const [itemsCount, setItemsCount] = useState(null)
-  const [projectsCount, setProjectsCount] = useState(null)
-
   // List states
-  const [days, setDays] = useState([])
   const [items, setItems] = useState([])
   const [projects, setProjects] = useState([])
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL_LOCAL = 'https://ef12.onrender.com';
-   const API_URL_OUT = 'http://localhost:8000';
+  function getApiUrl(env) {
+    const urls = {
+      1: 'https://ef12.onrender.com',   // прод
+      2: 'http://localhost:8000',       // локально
+    };
+  
+    return urls[env] || urls[1]; // по умолчанию — прод
+  }
+  
+
+    const API_URL = getApiUrl(1); // ← поменяй 1 или 2 здесь
 
   // Fetch all data on mount
   useEffect(() => {
-    fetch(`${API_URL_OUT}/health`)
+    fetch(`${API_URL}/items`)
       .then(res => res.json())
-      .then(data => setHealth(data.status))
-    fetch(`${API_URL_OUT}/days`)
+      .then(data => setItems(data))
+    
+    fetch(`${API_URL}/projects`)
       .then(res => res.json())
-      .then(data => {
-        setDaysCount(data.length)
-        setDays(data)
-      })
-    fetch(`${API_URL_OUT}/items`)
-      .then(res => res.json())
-      .then(data => {
-        setItemsCount(data.length)
-        setItems(data)
-      })
-    fetch(`${API_URL_OUT}/projects`)
-      .then(res => res.json())
-      .then(data => {
-        setProjectsCount(data.length)
-        setProjects(data)
-      })
+      .then(data => setProjects(data))
+    
     // Auto-select today's date
     const today = new Date()
     const isoToday = today.toISOString().slice(0, 10)
@@ -113,36 +100,23 @@ function App() {
     filteredItems = filteredItems.filter(item => (item.day_id || '').slice(0, 10) === selectedDay)
   }
 
-  // Handler to remove or update an item in state
-  function handleDeleteItem(id, updatedItem) {
-    if (id && !updatedItem) {
-      setItems(items => items.filter(item => item.id !== id));
-    } else if (updatedItem) {
-      setItems(items => {
-        const idx = items.findIndex(item => item.id === updatedItem.id);
-        if (idx !== -1) {
-          const newItems = [...items];
-          newItems[idx] = updatedItem;
-          return newItems;
-        } else {
-          return [...items, updatedItem];
-        }
-      });
-
-      // If the item has a project_id, update the project's XP
-      if (updatedItem.project_id) {
-        fetch(`${API_URL_OUT}/projects`)
-          .then(res => res.json())
-          .then(updatedProjects => {
-            setProjects(updatedProjects);
-          });
+  // Helper function to update items state
+  const updateItemsState = (data) => {
+    setItems(items => {
+      const idx = items.findIndex(item => item.id === data.id);
+      if (idx !== -1) {
+        const newItems = [...items];
+        newItems[idx] = data;
+        return newItems;
+      } else {
+        return [...items, data];
       }
-    }
-  }
+    });
+  };
 
   // Handler to add a project to state
   function handleAddProject(project) {
-    fetch(`${API_URL_OUT}/projects`, {
+    fetch(`${API_URL}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(project)
@@ -172,7 +146,7 @@ function App() {
 
   // Handler to update a project
   function handleUpdateProject(updatedProject) {
-    fetch(`${API_URL_OUT}/projects/${updatedProject.id}`, {
+    fetch(`${API_URL}/projects/${updatedProject.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedProject)
@@ -193,7 +167,7 @@ function App() {
     
     // Delete all descendant projects first, then the parent
     const deletePromises = allIdsToDelete.map(id => 
-      fetch(`${API_URL_OUT}/projects/${id}`, {
+      fetch(`${API_URL}/projects/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       })
@@ -223,9 +197,9 @@ function App() {
       });
   }
 
-  // Handler to add a task to state
+  // Handler to add a task
   function handleAddTask(item) {
-    fetch(`${API_URL_OUT}/items`, {
+    fetch(`${API_URL}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item)
@@ -238,7 +212,7 @@ function App() {
 
   // Handler to delete a task
   function handleDeleteTask(taskId) {
-    fetch(`${API_URL_OUT}/items/${taskId}`, { method: 'DELETE' })
+    fetch(`${API_URL}/items/${taskId}`, { method: 'DELETE' })
       .then(res => {
         if (res.ok) {
           setItems(items => items.filter(item => item.id !== taskId));
@@ -248,51 +222,63 @@ function App() {
 
   // Handler to update a task
   function handleUpdateTask(updatedTask) {
-    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
+    fetch(`${API_URL}/items/${updatedTask.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedTask)
     })
       .then(res => res.json())
       .then(data => {
-        setItems(items => {
-          const idx = items.findIndex(item => item.id === data.id);
-          if (idx !== -1) {
-            const newItems = [...items];
-            newItems[idx] = data;
-            return newItems;
-          } else {
-            return [...items, data];
-          }
-        });
+        // Update the task in state
+        updateItemsState(data);
+        
+        // If the task is being marked as completed, refresh projects to get updated XP and levels
+        if (data.completed) {
+          return fetch(`${API_URL}/projects`);
+        }
+      })
+      .then(res => {
+        if (res) {
+          return res.json();
+        }
+      })
+      .then(projectsData => {
+        if (projectsData) {
+          setProjects(projectsData);
+        }
+      })
+      .catch(error => {
+        console.error('Error updating task:', error);
       });
   }
 
   // Handler to complete a task (timer completion)
   function handleCompleteTask(updatedTask) {
-    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
+    fetch(`${API_URL}/items/${updatedTask.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedTask)
     })
       .then(res => res.json())
       .then(data => {
-        setItems(items => {
-          const idx = items.findIndex(item => item.id === data.id);
-          if (idx !== -1) {
-            const newItems = [...items];
-            newItems[idx] = data;
-            return newItems;
-          } else {
-            return [...items, data];
-          }
-        });
+        // Update the task in state
+        updateItemsState(data);
+        
+        // Refresh projects to get updated XP and levels
+        return fetch(`${API_URL}/projects`);
+      })
+      .then(res => res.json())
+      .then(projectsData => {
+        setProjects(projectsData);
+      })
+      .catch(error => {
+        console.error('Error completing task:', error);
       });
   }
 
   return (
     <div>
-      <Dashboard items = {items} /> 
+      <Dashboard items={items} /> 
       <ProjectColumns 
         projects={projects} 
         setProjects={setProjects}

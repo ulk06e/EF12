@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import TaskPopup from './TaskPopup';
-import EditTaskPopup from './EditTaskPopup';
-import AddTaskPopup from './AddTaskPopup';
-import TaskTimerPopup from './TaskTimerPopup';
+import TaskPopup from './Popups/TaskPopup';
+import EditTaskPopup from './Popups/EditTaskPopup';
+import AddTaskPopup from './Popups/AddTaskPopup';
+import TaskTimerPopup from './Popups/TaskTimerPopup';
 import './PlanFactColumns.css';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };

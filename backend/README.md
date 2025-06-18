@@ -64,7 +64,7 @@ pip install -r ../requirements.txt
 uvicorn main:app --reload
 ```
 
-The backend will be available at `${API_URL_OUT}`
+The backend will be available at `${API_URL}`
 
 ### Frontend Setup
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import '../shared/Popup.css';
+import '../../shared/Popup.css';
 
 export default function AddProjectPopup({ open, onClose, onAdd, parentId }) {
   const [name, setName] = useState('');
