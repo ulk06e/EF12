@@ -13,27 +13,6 @@ function App() {
   const [itemsCount, setItemsCount] = useState(null)
   const [projectsCount, setProjectsCount] = useState(null)
 
-  // Form states
-  const [dayId, setDayId] = useState("")
-  const [dayDate, setDayDate] = useState("")
-  const [projectId, setProjectId] = useState("")
-  const [projectName, setProjectName] = useState("")
-  const [projectParentId, setProjectParentId] = useState("")
-  const [itemId, setItemId] = useState("")
-  const [itemDesc, setItemDesc] = useState("")
-  const [itemDayId, setItemDayId] = useState("")
-  const [itemProjectId, setItemProjectId] = useState("")
-  const [itemTimeType, setItemTimeType] = useState("")
-  const [itemTaskQuality, setItemTaskQuality] = useState("")
-  const [itemEstimatedDuration, setItemEstimatedDuration] = useState("")
-  const [itemActualDuration, setItemActualDuration] = useState("")
-  const [itemPriority, setItemPriority] = useState("")
-  const [itemColumnLocation, setItemColumnLocation] = useState("")
-  const [itemXpValue, setItemXpValue] = useState("")
-  const [itemCreatedTime, setItemCreatedTime] = useState("")
-  const [itemCompletedTime, setItemCompletedTime] = useState("")
-  const [itemTimeQuality, setItemTimeQuality] = useState("")
-
   // List states
   const [days, setDays] = useState([])
   const [items, setItems] = useState([])
@@ -41,8 +20,8 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL_OUT = 'https://ef12.onrender.com';
-  const API_URL_LOCAL = 'http://localhost:8000';
+  const API_URL_LOCAL = 'http://localhost:8000'; 
+   const API_URL_OUT = 'https://ef12.onrender.com';
 
   // Fetch all data on mount
   useEffect(() => {
@@ -91,70 +70,6 @@ function App() {
     }
   }, [projects])
 
-  // Create handlers
-  const createDay = (e) => {
-    e.preventDefault()
-    fetch(`${API_URL_OUT}/days`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: dayId, date: dayDate })
-    }).then(() => {
-      fetchDays()
-      setDayId("")
-      setDayDate("")
-    })
-  }
-
-  const createProject = (e) => {
-    e.preventDefault()
-    fetch(`${API_URL_OUT}/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: projectId, name: projectName, parent_id: projectParentId || null })
-    }).then(() => {
-      fetchProjects()
-      setProjectId("")
-      setProjectName("")
-      setProjectParentId("")
-    })
-  }
-
-  const createItem = (e) => {
-    e.preventDefault()
-    fetch(`${API_URL_OUT}/items`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: itemId,
-        description: itemDesc,
-        time_type: itemTimeType || null,
-        task_quality: itemTaskQuality || null,
-        estimated_duration: itemEstimatedDuration ? parseInt(itemEstimatedDuration) : null,
-        actual_duration: itemActualDuration ? parseInt(itemActualDuration) : null,
-        priority: itemPriority ? parseInt(itemPriority) : null,
-        completed: false,
-        column_location: itemColumnLocation || null,
-        xp_value: itemXpValue ? parseInt(itemXpValue) : null,
-        time_quality: itemTimeQuality || null,
-        project_id: itemProjectId,
-        day_id: itemDayId
-      })
-    }).then(() => {
-      fetchItems()
-      setItemId("")
-      setItemDesc("")
-      setItemDayId("")
-      setItemTimeType("")
-      setItemTaskQuality("")
-      setItemEstimatedDuration("")
-      setItemActualDuration("")
-      setItemPriority("")
-      setItemColumnLocation("")
-      setItemXpValue("")
-      setItemTimeQuality("")
-    })
-  }
-
   // Helper: get all descendant project ids for a given project id
   function getDescendantProjectIds(projects, parentId) {
     const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id)
@@ -194,17 +109,6 @@ function App() {
   if (selectedDay) {
     filteredItems = filteredItems.filter(item => (item.day_id || '').slice(0, 10) === selectedDay)
   }
-
-  // When selectedProjectIds changes, set itemProjectId to the deepest selected project
-  useEffect(() => {
-    const lastSelected = selectedProjectIds.slice().reverse().find(id => id)
-    if (lastSelected) setItemProjectId(lastSelected)
-  }, [selectedProjectIds])
-
-  // When selectedDay changes, set itemDayId to selectedDay
-  useEffect(() => {
-    if (selectedDay) setItemDayId(selectedDay)
-  }, [selectedDay])
 
   // Handler to remove or update an item in state
   function handleDeleteItem(id, updatedItem) {

@@ -24,8 +24,8 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   const col2 = getColumnProjects(projects, selected1);
   const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
 
-  const API_URL_OUT = 'https://ef12.onrender.com';
-  const API_URL_LOCAL = 'http://localhost:8000';
+  const API_URL_LOCAL = 'https://ef12.onrender.com';
+   const API_URL_OUT = 'http://localhost:8000';
 
   // Determine parentId for each column
   const parentIds = [null, selected1, selected2];
@@ -58,6 +58,24 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
       .then(res => res.json())
       .then(data => {
         onAddProject(data);
+        
+        // Auto-select the newly added project
+        const newSelected = [...selectedProjectIds];
+        if (project.parent_id === null) {
+          // If it's a top-level project (Area), select it in column 1
+          newSelected[0] = data.id;
+          newSelected[1] = null; // Clear column 2
+          newSelected[2] = null; // Clear column 3
+        } else if (project.parent_id === selected1) {
+          // If it's a child of the selected project in column 1, select it in column 2
+          newSelected[1] = data.id;
+          newSelected[2] = null; // Clear column 3
+        } else if (project.parent_id === selected2) {
+          // If it's a child of the selected project in column 2, select it in column 3
+          newSelected[2] = data.id;
+        }
+        onSelect(newSelected);
+        
         setAddCol(null);
       });
   };

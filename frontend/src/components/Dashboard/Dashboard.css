@@ -41,17 +41,10 @@
   }
   
   .dashboard-card {
-
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 16px;
     transition: all 0.2s ease;
-  }
-  
-  .dashboard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-color: #d1d5db;
   }
   
   .card-header {
@@ -85,21 +78,4 @@
   
   .red-text {
     color: #dc2626 !important;
-  }
-  
-  .dashboard-card .fire-emoji {
-    font-size: 1.5rem;
-    animation: pulse 1.5s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-    100% {
-      transform: scale(1);
-    }
   }
