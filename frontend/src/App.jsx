@@ -29,11 +29,6 @@ function App() {
   useAutoSelectProjects(projects, selectedProjectIds, setSelectedProjectIds)
 
   const filteredItems = filterItemsByProjectAndDay(items, projects, selectedProjectIds, selectedDay, getDescendantProjectIds)
-  console.log('filterItemsByProjectAndDay called');
-  console.log('selectedProjectIds:', selectedProjectIds);
-  console.log('lastSelected:', selectedDay);
-  console.log('isPastDate:', selectedDay && selectedDay < new Date().toISOString().split('T')[0]);
-  console.log('App filteredItems:', filteredItems)
 
   return (
     <div>

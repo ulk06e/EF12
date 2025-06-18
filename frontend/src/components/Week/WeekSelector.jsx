@@ -84,13 +84,14 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
             const iso = date.toISOString().slice(0, 10);
             const estimatedDuration = getDayEstimatedDuration(date);
             const durationClass = getDurationClass(estimatedDuration);
+            const isToday = date.toDateString() === new Date().toDateString();
             return (
               <div key={iso} className="week-day-container">
                 <button
                   className={`card-custom ${selectedDay === iso ? 'selected' : ''} ${durationClass}`}
                   onClick={() => onSelect(iso)}
                 >
-                  <div className="week-day-name">{formatDayName(date)}</div>
+                  <div className={`week-day-name${isToday ? ' today' : ''}`}>{formatDayName(date)}</div>
                   <div className="week-day-date">{formatDate(date)}</div>
                 </button>
                 <div className="week-day-duration">{estimatedDuration} min</div>

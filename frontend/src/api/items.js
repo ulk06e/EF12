@@ -92,7 +92,7 @@ export function filterItemsByProjectAndDay(items, projects, selectedProjectIds, 
 
   if (lastSelected && !isPastDate) {
     const descendantIds = [lastSelected, ...getDescendantProjectIds(projects, lastSelected)];
-    console.log('Filtering by lastSelected:', lastSelected, 'descendantIds:', descendantIds);
+    
     filteredItems = filteredItems.filter(item => descendantIds.includes(item.project_id));
   }
   if (selectedDay) {

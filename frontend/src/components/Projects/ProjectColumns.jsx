@@ -80,8 +80,6 @@ export default function ProjectColumns({
   const labels = ['Area', 'Project', 'Sub-project'];
   const cols = [col1, col2, col3];
 
-  console.log('ProjectColumns render, selectedProjectIds:', selectedProjectIds);
-
   return (
     <div className="columns-container">
       {cols.map((col, i) => (
@@ -110,7 +108,7 @@ export default function ProjectColumns({
                   const newSel = [...selectedProjectIds];
                   newSel[i] = p.id;
                   for (let j = i + 1; j < 3; j++) newSel[j] = null;
-                  console.log('Clicked project', p.id, 'column', i, 'newSel:', newSel);
+                 
                   onSelect(newSel);
                 }}
                 onDoubleClick={() => handleProjectDoubleClick(p)}
