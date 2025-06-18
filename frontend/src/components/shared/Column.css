@@ -75,6 +75,15 @@
   background-color: #1f2937;
 }
 
+.add-button:disabled,
+.add-button[disabled] {
+  background-color: #d1d5db !important; 
+  color: #9ca3af !important;            
+  cursor: not-allowed !important;
+  opacity: 0.7;
+  border: none;
+}
+
 /* Add Button with custom styling */
 .add-button-custom {
   background-color: #3b82f6;
