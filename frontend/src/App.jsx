@@ -41,28 +41,27 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL = import.meta.env.PROD
-  ? 'https://my-fastapi-app.onrender.com'
-  : 'http://localhost:8000';
+  const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'http://localhost:8000';
 
   // Fetch all data on mount
   useEffect(() => {
-    fetch('http://localhost:8000/health')
+    fetch(`${API_URL_OUT}/health`)
       .then(res => res.json())
       .then(data => setHealth(data.status))
-    fetch('http://localhost:8000/days')
+    fetch(`${API_URL_OUT}/days`)
       .then(res => res.json())
       .then(data => {
         setDaysCount(data.length)
         setDays(data)
       })
-    fetch('http://localhost:8000/items')
+    fetch(`${API_URL_OUT}/items`)
       .then(res => res.json())
       .then(data => {
         setItemsCount(data.length)
         setItems(data)
       })
-    fetch('http://localhost:8000/projects')
+    fetch(`${API_URL_OUT}/projects`)
       .then(res => res.json())
       .then(data => {
         setProjectsCount(data.length)
@@ -95,7 +94,7 @@ function App() {
   // Create handlers
   const createDay = (e) => {
     e.preventDefault()
-    fetch('http://localhost:8000/days', {
+    fetch(`${API_URL_OUT}/days`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: dayId, date: dayDate })
@@ -108,7 +107,7 @@ function App() {
 
   const createProject = (e) => {
     e.preventDefault()
-    fetch('http://localhost:8000/projects', {
+    fetch(`${API_URL_OUT}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: projectId, name: projectName, parent_id: projectParentId || null })
@@ -122,7 +121,7 @@ function App() {
 
   const createItem = (e) => {
     e.preventDefault()
-    fetch('http://localhost:8000/items', {
+    fetch(`${API_URL_OUT}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -225,7 +224,7 @@ function App() {
 
       // If the item has a project_id, update the project's XP
       if (updatedItem.project_id) {
-        fetch('http://localhost:8000/projects')
+        fetch(`${API_URL_OUT}/projects`)
           .then(res => res.json())
           .then(updatedProjects => {
             setProjects(updatedProjects);

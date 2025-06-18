@@ -24,6 +24,9 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   const col2 = getColumnProjects(projects, selected1);
   const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
 
+  const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'http://localhost:8000';
+
   // Determine parentId for each column
   const parentIds = [null, selected1, selected2];
 
@@ -47,7 +50,7 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   };
 
   const handleAdd = (project) => {
-    fetch('http://localhost:8000/projects', {
+    fetch(`${API_URL_OUT}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(project)
@@ -69,7 +72,7 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   };
 
   const handleEditProject = (updatedProject) => {
-    fetch(`http://localhost:8000/projects/${updatedProject.id}`, {
+    fetch(`${API_URL_OUT}/projects/${updatedProject.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedProject)

@@ -12,8 +12,9 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   const [editTask, setEditTask] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [timerTask, setTimerTask] = useState(null);
-  
-  console.log("DEBUG: All items received:", items);
+
+  const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'http://localhost:8000';
   
   // Sort plan items by priority (asc: 1 at top), then task quality (A > D)
   const planItems = items
@@ -42,7 +43,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
     });
 
   const handleDelete = (task) => {
-    fetch(`http://localhost:8000/items/${task.id}`, { method: 'DELETE' })
+    fetch(`${API_URL_OUT}/items/${task.id}`, { method: 'DELETE' })
       .then(res => {
         if (res.ok) {
           onDeleteItem(task.id);
@@ -57,7 +58,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   };
 
   const handleSaveEdit = (updatedTask) => {
-    fetch(`http://localhost:8000/items/${updatedTask.id}`, {
+    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedTask)
@@ -71,7 +72,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   };
 
   const handleAdd = (item) => {
-    fetch('http://localhost:8000/items', {
+    fetch(`${API_URL_OUT}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item)
@@ -89,7 +90,7 @@ export default function PlanFactColumns({ items, onDeleteItem, onAddTask, select
   };
 
   const handleTimerComplete = (updatedTask) => {
-    fetch(`http://localhost:8000/items/${updatedTask.id}`, {
+    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedTask)

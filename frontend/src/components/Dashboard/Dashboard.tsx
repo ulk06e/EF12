@@ -46,11 +46,14 @@ export default function Dashboard({ items }: DashboardProps) {
     checkNewDay();
   }, []);
 
+  const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'http://localhost:8000';
+
   // Fetch statistics when component mounts
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
-        const response = await fetch('http://localhost:8000/statistics');
+        const response = await fetch(`${API_URL_OUT}/statistics`);
         if (!response.ok) {
           throw new Error('Failed to fetch statistics');
         }

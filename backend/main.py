@@ -12,7 +12,10 @@ app = FastAPI()
 # Allow requests from your frontend (localhost:5173)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",         # для локальной разработки
+        "https://ef-12.vercel.app"       # для прода
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

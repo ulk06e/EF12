@@ -5,6 +5,9 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(project?.name || '');
 
+  const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'http://localhost:8000';
+
   // Update editedName when project changes
   useEffect(() => {
     if (project) {
@@ -38,7 +41,7 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
 
   const handleComplete = () => {
     // Delete the project and all its descendants
-    fetch(`http://localhost:8000/projects/${project.id}`, {
+    fetch(`${API_URL_OUT}/projects/${project.id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     })
