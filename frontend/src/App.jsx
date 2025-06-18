@@ -20,8 +20,10 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL_LOCAL = 'https://ef12.onrender.com';
-   const API_URL_OUT = 'http://localhost:8000';
+  const API_URL_LOCAL = 'http://localhost:8000';
+   const API_URL_OUT = 'https://ef12.onrender.com';
+
+   
 
   // Fetch all data on mount
   useEffect(() => {
