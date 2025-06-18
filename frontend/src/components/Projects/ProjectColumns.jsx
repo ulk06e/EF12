@@ -81,9 +81,9 @@ export default function ProjectColumns({
   const cols = [col1, col2, col3];
 
   return (
-    <div className="project-columns-container">
+    <div className="columns-container">
       {cols.map((col, i) => (
-        <div className="project-column" key={i}>
+        <div className="column-custom-padding" key={i}>
           <div className="projects-column-header">
             <h3>{labels[i]}</h3>
             <button 
@@ -95,7 +95,7 @@ export default function ProjectColumns({
               Add
             </button>
           </div>
-          {col.length === 0 && <div className="no-projects-message">Select {i === 0 ? '' : `Project ${i}`}</div>}
+          {col.length === 0 && <div className="no-items-message">Select {i === 0 ? '' : `Project ${i}`}</div>}
           {col.map(p => {
             const progressPercentage = p.next_level_xp > 0 
               ? Math.min(100, (p.current_xp / p.next_level_xp) * 100) 
@@ -103,7 +103,7 @@ export default function ProjectColumns({
             return (
               <div 
                 key={p.id} 
-                className={`project-card ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
+                className={`card-relative ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
                 onClick={() => {
                   const newSel = [...selectedProjectIds];
                   newSel[i] = p.id;
@@ -112,20 +112,20 @@ export default function ProjectColumns({
                 }}
                 onDoubleClick={() => handleProjectDoubleClick(p)}
               >
-                <div className="project-card-header">
+                <div className="card-header">
                   <div className="project-name">{p.name}</div>
                   <div className="project-level-badge">Level {p.current_level}</div>
                 </div>
-                <div className="project-progress-bar">
+                <div className="card-progress-bar">
                   <div 
-                    className="project-progress-fill"
+                    className="card-progress-fill"
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
                 </div>
-                <div className="project-xp-details">
+                <div className="card-item-details-end">
                   {p.current_xp} / {p.next_level_xp} XP
                 </div>
-                {hasTasks(p.id) && <div className="task-indicator"></div>}
+                {hasTasks(p.id) && <div className="card-indicator"></div>}
               </div>
             );
           })}

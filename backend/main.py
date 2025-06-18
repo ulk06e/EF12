@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request, Body
+from fastapi import FastAPI, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -31,11 +31,6 @@ class Day(Base):
     __tablename__ = "days"
     id = Column(String, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
-    reflection = Column(String, nullable=True)
-
-class TimeTypeEnum(enum.Enum):
-    to_goal = "to-goal"
-    to_time = "to-time"
 
 class TaskQualityEnum(enum.Enum):
     A = "A"
@@ -55,7 +50,6 @@ class Item(Base):
     __tablename__ = "items"
     id = Column(String, primary_key=True, index=True)
     description = Column(String)
-    time_type = Column(Enum(TimeTypeEnum), nullable=True)
     task_quality = Column(Enum(TaskQualityEnum), nullable=True)
     estimated_duration = Column(Integer, nullable=True)
     actual_duration = Column(Integer, nullable=True)
@@ -114,14 +108,11 @@ async def create_day(day: dict, db: Session = Depends(get_db)):
 @app.get("/items")
 def get_items(db: Session = Depends(get_db)):
     items = db.query(Item).all()
-    print("DEBUG: Retrieved items from database:", [{"id": item.id, "column_location": item.column_location, "completed": item.completed} for item in items])
     return items
 
 @app.post("/items")
 async def create_item(item: dict, db: Session = Depends(get_db)):
     # Parse enums
-    if "time_type" in item and item["time_type"]:
-        item["time_type"] = TimeTypeEnum(item["time_type"])
     if "task_quality" in item and item["task_quality"]:
         item["task_quality"] = TaskQualityEnum(item["task_quality"])
     if "column_location" in item and item["column_location"]:
@@ -136,10 +127,8 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     if day_id:
         day = db.query(Day).filter(Day.id == day_id).first()
         if not day:
-            # Create new Day with id=day_id and date=day_id
             try:
-                from datetime import datetime
-                day_date = datetime.fromisoformat(day_id)
+                day_date = datetime.datetime.fromisoformat(day_id)
             except Exception:
                 day_date = None
             new_day = Day(id=day_id, date=day_date)
@@ -171,12 +160,9 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
         try:
             db_item.completed_time = datetime.datetime.fromisoformat(item["completed_time"].replace('Z', '+00:00'))
         except Exception as e:
-            print("DEBUG: Error parsing completed_time:", e)
             db_item.completed_time = None
     
     # Parse enums if present
-    if "time_type" in item and item["time_type"]:
-        db_item.time_type = TimeTypeEnum(item["time_type"])
     if "task_quality" in item and item["task_quality"]:
         db_item.task_quality = TaskQualityEnum(item["task_quality"])
     if "column_location" in item and item["column_location"]:
@@ -186,7 +172,7 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
     
     # Update other fields
     for key, value in item.items():
-        if key not in ["time_type", "task_quality", "column_location", "time_quality", "completed_time"]:
+        if key not in ["task_quality", "column_location", "time_quality", "completed_time"]:
             setattr(db_item, key, value)
     
     if db_item.completed:
@@ -237,28 +223,22 @@ def update_project(project_id: str, project: dict = Body(...), db: Session = Dep
 
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str, db: Session = Depends(get_db)):
-    print(f"DEBUG: Deleting project {project_id} and all its descendants")
-    
     def delete_project_and_descendants(project_id):
         # Get all children of the current project
         children = db.query(Project).filter(Project.parent_id == project_id).all()
-        
         # Recursively delete all children and their descendants
         for child in children:
             delete_project_and_descendants(child.id)
-        
         # Delete the current project
         project = db.query(Project).filter(Project.id == project_id).first()
         if project:
             db.delete(project)
-    
     try:
         # Start the recursive deletion
         delete_project_and_descendants(project_id)
         db.commit()
         return {"message": "Project and all descendants deleted successfully"}
     except Exception as e:
-        print(f"DEBUG: Error deleting project: {str(e)}")
         db.rollback()
         raise e
 

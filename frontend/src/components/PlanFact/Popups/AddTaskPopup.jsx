@@ -4,7 +4,6 @@ import '../../shared/Popup.css';
 
 function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
   const [description, setDescription] = useState('');
-  const [timeType, setTimeType] = useState('to-goal');
   const [taskQuality, setTaskQuality] = useState('A');
   const [priority, setPriority] = useState(1);
   const [estimatedDuration, setEstimatedDuration] = useState(30);
@@ -14,7 +13,6 @@ function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
     onAdd({
       id: uuidv4(),
       description,
-      time_type: timeType,
       task_quality: taskQuality,
       priority,
       estimated_duration: estimatedDuration,
@@ -26,7 +24,6 @@ function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
       actual_duration: null
     });
     setDescription('');
-    setTimeType('to-goal');
     setTaskQuality('A');
     setPriority(1);
     setEstimatedDuration(30);
@@ -50,29 +47,6 @@ function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
           
           <div className="add-task-row">
             <select 
-              value={timeType} 
-              onChange={(e) => setTimeType(e.target.value)}
-              className="time-type-select"
-              required
-            >
-              <option value="to-goal">To Goal</option>
-              <option value="to-time">To Time</option>
-            </select>
-            <select 
-              value={taskQuality} 
-              onChange={(e) => setTaskQuality(e.target.value)}
-              className="task-quality-select"
-              required
-            >
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-            </select>
-          </div>
-
-          <div className="add-task-row">
-            <select 
               value={priority} 
               onChange={(e) => setPriority(Number(e.target.value))}
               className="priority-select"
@@ -91,6 +65,17 @@ function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
               className="duration-input"
               required
             />
+            <select 
+              value={taskQuality} 
+              onChange={(e) => setTaskQuality(e.target.value)}
+              className="task-quality-select"
+              required
+            >
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
           </div>
 
           <div className="add-task-buttons">

@@ -69,9 +69,9 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
   };
 
   return (
-    <div className="project-columns-container">
-      <div className="week-column">
-        <div className="column-header">
+    <div className="columns-container">
+      <div className="column-custom-padding">
+        <div className="column-header-custom-padding">
           <h3>Week</h3>
           <div className="header-buttons">
             <button onClick={handlePreviousWeek} className="nav-button">←</button>
@@ -87,7 +87,7 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
             return (
               <div key={iso} className="week-day-container">
                 <button
-                  className={`week-day-button ${selectedDay === iso ? 'selected' : ''} ${durationClass}`}
+                  className={`card-custom ${selectedDay === iso ? 'selected' : ''} ${durationClass}`}
                   onClick={() => onSelect(iso)}
                 >
                   <div className="week-day-name">{formatDayName(date)}</div>

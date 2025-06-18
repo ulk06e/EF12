@@ -3,7 +3,6 @@ import '../../shared/Popup.css';
 
 export default function EditTaskPopup({ open, onClose, task, onSave }) {
   const [desc, setDesc] = useState('');
-  const [timeType, setTimeType] = useState('');
   const [quality, setQuality] = useState('');
   const [est, setEst] = useState('');
   const [priority, setPriority] = useState('');
@@ -11,7 +10,6 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
   useEffect(() => {
     if (task) {
       setDesc(task.description || '');
-      setTimeType(task.time_type || '');
       setQuality(task.task_quality || '');
       setEst(task.estimated_duration || '');
       setPriority(task.priority || '');
@@ -25,7 +23,6 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
     onSave({ 
       ...task, 
       description: desc, 
-      time_type: timeType, 
       task_quality: quality, 
       estimated_duration: est ? parseInt(est) : null, 
       priority: priority ? parseInt(priority) : null 
@@ -49,29 +46,6 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
           
           <div className="add-task-row">
             <select 
-              value={timeType} 
-              onChange={(e) => setTimeType(e.target.value)}
-              className="time-type-select"
-              required
-            >
-              <option value="to-goal">To Goal</option>
-              <option value="to-time">To Time</option>
-            </select>
-            <select 
-              value={quality} 
-              onChange={(e) => setQuality(e.target.value)}
-              className="task-quality-select"
-              required
-            >
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-            </select>
-          </div>
-
-          <div className="add-task-row">
-            <select 
               value={priority} 
               onChange={(e) => setPriority(e.target.value)}
               className="priority-select"
@@ -89,6 +63,17 @@ export default function EditTaskPopup({ open, onClose, task, onSave }) {
               className="duration-input"
               required
             />
+            <select 
+              value={quality} 
+              onChange={(e) => setQuality(e.target.value)}
+              className="task-quality-select"
+              required
+            >
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
           </div>
 
           <div className="add-task-buttons">

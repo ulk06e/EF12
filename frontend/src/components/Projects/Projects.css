@@ -1,124 +1,27 @@
 /* ProjectColumns.jsx Styles */
+@import '../shared/Column.css';
+@import '../shared/Card.css';
 
-.project-columns-container {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  width: 100%;
-  overflow-x: auto;
-  padding: 1rem;
-  box-sizing: border-box;
-  
-}
+/* Project-specific styles */
 
-.project-column {
-  flex: 1;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  padding: 0 16px 16px 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.add-button {
-  background-color: #374151; /* Black-like color */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.no-projects-message {
-  color: #9ca3af;
-  font-style: italic;
-  padding: 8px 0;
-}
-
-/* Project Card Styles */
-.project-card {
-  background-color: #f9fafb; /* Light grey background for cards */
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative; /* For absolute positioning of level */
-  overflow: hidden; /* To contain progress bar */
-}
-
-.project-card:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.project-card.selected {
-  border-color: #3b82f6; /* Highlight color for selected project */
-  background-color: #eff6ff;
-}
-
-.project-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
+/* Project name styling */
 .project-name {
   font-weight: 600;
   color: #1f2937;
   font-size: 1.1em;
 }
 
+/* Project level badge */
 .project-level-badge {
   color: #6b7280;
   font-size: 0.9em;
 }
 
-.project-xp-details {
-  font-size: 0.9em;
-  color: #6b7280;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.project-progress-bar {
-  background-color: #e5e7eb;
-  height: 6px;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.project-progress-fill {
-  background-color: #3b82f6;
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s ease-out;
-}
-
-.task-indicator {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  width: 4px;
-  height: 4px;
-  background-color: #000;
-  border-radius: 50%;
-  z-index: 1;
-}
-
+/* Project-specific column header */
 .projects-column-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
-}
-  
+} 

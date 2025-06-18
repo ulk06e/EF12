@@ -82,21 +82,21 @@ export default function PlanFactColumns({
   const renderTaskCard = (item, isPlan = false, index = 0) => (
     <div
       key={item.id}
-      className={`task-card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
+      className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
       onClick={() => isPlan && !isPastDate && setPopupTask(item)}
     >
-      <div className="item-block">
-        <div className="item-header">
-          <span className="item-name">
-            <span className="item-priority">#{item.priority}</span>
-            <span className="item-separator">-</span>
-            <span className="item-quality">{item.task_quality}</span>
+      <div className="card-item-block">
+        <div className="card-item-header">
+          <span className="card-item-name">
+            <span className="card-item-priority">#{item.priority}</span>
+            <span className="card-item-separator">-</span>
+            <span className="card-item-quality">{item.task_quality}</span>
           </span>
-          <span className="item-description">: {item.description}</span>
+          <span className="card-item-description">: {item.description}</span>
         </div>
       </div>
-      <div className="item-block">
-        <div className="item-details">
+      <div className="card-item-block">
+        <div className="card-item-details">
           {isPlan ? (
             <span>{item.estimated_duration}m</span>
           ) : (
@@ -104,10 +104,10 @@ export default function PlanFactColumns({
               <div>
                 {item.actual_duration}m/{item.estimated_duration}m - {item.formatted_time}
                 {item.unaccounted !== null && item.unaccounted > 0 && (
-                  <span className="unaccounted-time"> (+{Math.round(item.unaccounted)}m)</span>
+                  <span className="card-text-unaccounted"> (+{Math.round(item.unaccounted)}m)</span>
                 )}
               </div>
-              <div className="xp-value">+{item.xp_value} XP</div>
+              <div className="card-text-xp">+{item.xp_value} XP</div>
             </>
           )}
         </div>
@@ -116,7 +116,7 @@ export default function PlanFactColumns({
   );
 
   return (
-    <div className="plan-fact-columns-container">
+    <div className="columns-container">
       <TaskPopup 
         open={!!popupTask} 
         onClose={() => setPopupTask(null)} 
@@ -146,8 +146,8 @@ export default function PlanFactColumns({
         onComplete={onCompleteTask}
       />
       
-      <div className="plan-fact-column">
-        <div className="plan-fact-column-header">
+      <div className="column">
+        <div className="column-header">
           <h3>Plan</h3>
           <button 
             className="add-button" 
@@ -157,15 +157,15 @@ export default function PlanFactColumns({
             Add Task
           </button>
         </div>
-        {planItems.length === 0 && <div className="no-tasks-message">No planned tasks</div>}
+        {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
         {planItems.map((item, idx) => renderTaskCard(item, true, idx))}
       </div>
       
-      <div className="plan-fact-column">
-        <div className="plan-fact-column-header">
+      <div className="column">
+        <div className="column-header">
           <h3>Fact</h3>
         </div>
-        {factCards.length === 0 && <div className="no-tasks-message">No completed tasks</div>}
+        {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
         {factCards.map((item) => renderTaskCard(item, false))}
       </div>
     </div>

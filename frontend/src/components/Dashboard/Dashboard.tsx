@@ -14,13 +14,13 @@ export default function Dashboard({ items }) {
     .reduce((sum, item) => sum + (item.actual_duration || 0), 0);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard">
-        <div className="dashboard-header">
+    <div className="columns-container">
+      <div className="column">
+        <div className="column-header">
           <h3>Dashboard</h3>
         </div>
         <div className="dashboard-cards">
-          <div className="dashboard-card">
+          <div className="dashboard-card card">
             <div className="card-header">
               <h4>Todays XP</h4>
             </div>
@@ -30,7 +30,7 @@ export default function Dashboard({ items }) {
             </div>
           </div>
           
-          <div className="dashboard-card">
+          <div className="dashboard-card card">
             <div className="card-header">
               <h4>Accounted time</h4>
             </div>

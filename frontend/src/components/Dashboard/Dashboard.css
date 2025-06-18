@@ -1,81 +1,30 @@
-.dashboard-container {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    width: 100%;
-    overflow-x: auto;
-    padding: 1rem;
-    box-sizing: border-box;
-  }
-  
-  .dashboard {
-    flex: 1;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
-  .dashboard-header h3 {
-    margin: 0;
-    font-size: 1.25em;
-    color: #374151;
-  }
-  
-  .dashboard-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 8px;
-  }
-  
-  .dashboard-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 16px;
-    transition: all 0.2s ease;
-  }
-  
-  .card-header {
-    margin-bottom: 12px;
-  }
-  
-  .card-header h4 {
-    margin: 0;
-    font-size: 1em;
-    color: #6b7280;
-    font-weight: 500;
-  }
-  
-  .card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .card-value {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #111827;
-  }
-  
-  .card-label {
-    font-size: 0.8em;
-    color: #6b7280;
-    margin-top: 4px;
-  }
-  
-  .red-text {
-    color: #dc2626 !important;
-  }
+/* Dashboard Styles */
+@import '../shared/Column.css';
+@import '../shared/Card.css';
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 8px;
+}
+
+.dashboard-card {
+  background: #fff;
+}
+
+.card-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.card-label {
+  font-size: 0.8em;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.red-text {
+  color: #dc2626 !important;
+}
