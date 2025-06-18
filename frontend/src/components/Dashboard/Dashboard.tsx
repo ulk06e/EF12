@@ -99,8 +99,9 @@ export default function Dashboard({ items }: DashboardProps) {
               <h4>Todays XP</h4>
             </div>
             <div className="card-content">
-              <span className="card-value">{todayXP}</span>
-              {/* <span className="card-label">Best {statistics.best_xp_day}XP</span> */}
+
+              <span className={`card-value ${todayActualTime < 500 ? 'red-text' : ''}`}>{todayXP}XP</span>
+              <span className="card-label">Required 500XP</span>
             </div>
           </div>
           

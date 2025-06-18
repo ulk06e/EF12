@@ -78,8 +78,13 @@
   }
   
   .card-label {
-    font-size: 0.875em;
+    font-size: 0.8em;
     color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  .red-text {
+    color: #dc2626 !important;
   }
   
   .dashboard-card .fire-emoji {
