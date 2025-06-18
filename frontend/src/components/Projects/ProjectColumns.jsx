@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddProjectPopup from './AddProjectPopup';
 import ProjectPopup from './ProjectPopup';
-import './projects.css'; // Import the new CSS file
+import './Projects.css'; // Import the new CSS file
 
 function getColumnProjects(projects, parentId) {
   return projects.filter(p => (parentId ? p.parent_id === parentId : !p.parent_id))

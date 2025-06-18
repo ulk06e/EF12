@@ -41,6 +41,10 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
+  const API_URL = import.meta.env.PROD
+  ? 'https://my-fastapi-app.onrender.com'
+  : 'http://localhost:8000';
+
   // Fetch all data on mount
   useEffect(() => {
     fetch('http://localhost:8000/health')
