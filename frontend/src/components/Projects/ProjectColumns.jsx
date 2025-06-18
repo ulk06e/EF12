@@ -15,7 +15,16 @@ function getColumnProjects(projects, parentId) {
     });
 }
 
-export default function ProjectColumns({ projects, setProjects, selectedProjectIds, onSelect, onAddProject, onDeleteProject, items }) {
+export default function ProjectColumns({ 
+  projects, 
+  setProjects, 
+  selectedProjectIds, 
+  onSelect, 
+  onAddProject, 
+  onDeleteProject, 
+  onUpdateProject,
+  items 
+}) {
   const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
   const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
 
@@ -23,9 +32,6 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   const col1 = getColumnProjects(projects, null);
   const col2 = getColumnProjects(projects, selected1);
   const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
-
-  const API_URL_LOCAL = 'https://ef12.onrender.com';
-   const API_URL_OUT = 'http://localhost:8000';
 
   // Determine parentId for each column
   const parentIds = [null, selected1, selected2];
@@ -50,34 +56,8 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   };
 
   const handleAdd = (project) => {
-    fetch(`${API_URL_OUT}/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(project)
-    })
-      .then(res => res.json())
-      .then(data => {
-        onAddProject(data);
-        
-        // Auto-select the newly added project
-        const newSelected = [...selectedProjectIds];
-        if (project.parent_id === null) {
-          // If it's a top-level project (Area), select it in column 1
-          newSelected[0] = data.id;
-          newSelected[1] = null; // Clear column 2
-          newSelected[2] = null; // Clear column 3
-        } else if (project.parent_id === selected1) {
-          // If it's a child of the selected project in column 1, select it in column 2
-          newSelected[1] = data.id;
-          newSelected[2] = null; // Clear column 3
-        } else if (project.parent_id === selected2) {
-          // If it's a child of the selected project in column 2, select it in column 3
-          newSelected[2] = data.id;
-        }
-        onSelect(newSelected);
-        
-        setAddCol(null);
-      });
+    onAddProject(project);
+    setAddCol(null);
   };
 
   const handleProjectDoubleClick = (project) => {
@@ -90,31 +70,19 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
   };
 
   const handleEditProject = (updatedProject) => {
-    fetch(`${API_URL_OUT}/projects/${updatedProject.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedProject)
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Update the project in the local state
-        const updatedProjects = projects.map(p => 
-          p.id === data.id ? data : p
-        );
-        setProjects(updatedProjects);
-        setProjectPopup(null); // Close the popup after edit
-      });
+    onUpdateProject(updatedProject);
+    setProjectPopup(null); // Close the popup after edit
   };
 
-const labels = ['Area', 'Project', 'Sub-project'];
-const cols = [col1, col2, col3];
+  const labels = ['Area', 'Project', 'Sub-project'];
+  const cols = [col1, col2, col3];
 
   return (
     <div className="project-columns-container">
       {cols.map((col, i) => (
-    <div className="project-column" key={i}>
-      <div className="projects-column-header">
-        <h3>{labels[i]}</h3>
+        <div className="project-column" key={i}>
+          <div className="projects-column-header">
+            <h3>{labels[i]}</h3>
             <button 
               onClick={() => setAddCol(i + 1)} 
               className="add-button"

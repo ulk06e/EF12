@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../PlanFact/AddTaskPopup.css';
 
-export default function ProjectPopup({ open, onClose, project, onEdit }) {
+export default function ProjectPopup({ open, onClose, project, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(project?.name || '');
-
-  const API_URL_OUT = 'https://ef12.onrender.com';
-  const API_URL_LOCAL = 'http://localhost:8000';
 
   // Update editedName when project changes
   useEffect(() => {
@@ -39,24 +36,11 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
     setIsEditing(false);
   };
 
-  const handleComplete = () => {
-    // Delete the project and all its descendants
-    fetch(`${API_URL_OUT}/projects/${project.id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        // Close the popup and refresh the project list
-        onClose();
-        // Force a page reload to refresh the project list
-        window.location.reload();
-      })
-      .catch(error => {
-        alert(`Error completing project: ${error.message}`);
-      });
+  const handleDeleteProject = () => {
+    if (onDelete && typeof onDelete === 'function') {
+      onDelete(project.id);
+    }
+    onClose();
   };
 
   return (
@@ -89,7 +73,7 @@ export default function ProjectPopup({ open, onClose, project, onEdit }) {
                 <button onClick={handleEdit} className="cancel-button">
                   Edit
                 </button>
-                <button onClick={handleComplete} className="add-button">
+                <button onClick={handleDeleteProject} className="add-button">
                   Delete
                 </button>
               </div>

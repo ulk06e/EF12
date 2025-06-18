@@ -20,8 +20,8 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL_LOCAL = 'http://localhost:8000'; 
-   const API_URL_OUT = 'https://ef12.onrender.com';
+  const API_URL_LOCAL = 'https://ef12.onrender.com';
+   const API_URL_OUT = 'http://localhost:8000';
 
   // Fetch all data on mount
   useEffect(() => {
@@ -54,7 +54,10 @@ function App() {
 
   // Auto-select top project in first column (and its top children) when projects change
   useEffect(() => {
-    if (projects.length > 0) {
+    // Only auto-select if no projects are currently selected
+    const hasAnySelection = selectedProjectIds.some(id => id !== null);
+    
+    if (projects.length > 0 && !hasAnySelection) {
       const top1 = projects.find(p => !p.parent_id);
       if (top1) {
         const col2 = projects.filter(p => p.parent_id === top1.id);
@@ -68,7 +71,7 @@ function App() {
         ]);
       }
     }
-  }, [projects])
+  }, [projects, selectedProjectIds])
 
   // Helper: get all descendant project ids for a given project id
   function getDescendantProjectIds(projects, parentId) {
@@ -139,7 +142,85 @@ function App() {
 
   // Handler to add a project to state
   function handleAddProject(project) {
-    setProjects(projects => [...projects, project]);
+    fetch(`${API_URL_OUT}/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(project)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setProjects(projects => [...projects, data]);
+        
+        // Auto-select the newly added project
+        const newSelected = [...selectedProjectIds];
+        if (project.parent_id === null) {
+          // If it's a top-level project (Area), select it in column 1
+          newSelected[0] = data.id;
+          newSelected[1] = null; // Clear column 2
+          newSelected[2] = null; // Clear column 3
+        } else if (project.parent_id === selectedProjectIds[0]) {
+          // If it's a child of the selected project in column 1, select it in column 2
+          newSelected[1] = data.id;
+          newSelected[2] = null; // Clear column 3
+        } else if (project.parent_id === selectedProjectIds[1]) {
+          // If it's a child of the selected project in column 2, select it in column 3
+          newSelected[2] = data.id;
+        }
+        setSelectedProjectIds(newSelected);
+      });
+  }
+
+  // Handler to update a project
+  function handleUpdateProject(updatedProject) {
+    fetch(`${API_URL_OUT}/projects/${updatedProject.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProject)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setProjects(projects => projects.map(p => 
+          p.id === data.id ? data : p
+        ));
+      });
+  }
+
+  // Handler to delete a project
+  function handleDeleteProject(projectId) {
+    // First, get all descendant project IDs that need to be deleted
+    const descendantIds = getDescendantProjectIds(projects, projectId);
+    const allIdsToDelete = [projectId, ...descendantIds];
+    
+    // Delete all descendant projects first, then the parent
+    const deletePromises = allIdsToDelete.map(id => 
+      fetch(`${API_URL_OUT}/projects/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    );
+    
+    Promise.all(deletePromises)
+      .then(responses => {
+        // Check if all deletions were successful
+        const allSuccessful = responses.every(res => res.ok);
+        if (allSuccessful) {
+          // Remove all deleted projects from state
+          setProjects(projects => projects.filter(p => !allIdsToDelete.includes(p.id)));
+          
+          // Clear selections if any of the deleted projects were selected
+          setSelectedProjectIds(current => {
+            const newSelection = current.map(id => 
+              allIdsToDelete.includes(id) ? null : id
+            );
+            return newSelection;
+          });
+        } else {
+          console.error('Some project deletions failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting projects:', error);
+      });
   }
 
   // Handler to add a task to state
@@ -156,9 +237,8 @@ function App() {
         selectedProjectIds={selectedProjectIds} 
         onSelect={handleProjectSelect} 
         onAddProject={handleAddProject} 
-        onDeleteProject={(id) => {
-          setProjects(projects => projects.filter(p => p.id !== id));
-        }} 
+        onDeleteProject={handleDeleteProject}
+        onUpdateProject={handleUpdateProject}
         items={items}
       />
       <PlanFactColumns 
