@@ -23,7 +23,8 @@ export default function ProjectColumns({
   onAddProject, 
   onDeleteProject, 
   onUpdateProject,
-  items 
+  items,
+  selectedDay
 }) {
   const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
   const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
@@ -46,12 +47,14 @@ export default function ProjectColumns({
     return all;
   };
 
-  // Check if a project or its descendants have tasks
+  // Check if a project or its descendants have tasks in the plan column for the selected date
   const hasTasks = (projectId) => {
     const allProjectIds = [projectId, ...getDescendantProjectIds(projectId)];
     return items.some(item => 
       allProjectIds.includes(item.project_id) && 
-      item.column_location === 'plan'
+      item.column_location === 'plan' &&
+      item.day_id && 
+      item.day_id.slice(0, 10) === selectedDay
     );
   };
 

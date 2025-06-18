@@ -20,10 +20,8 @@ function App() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const API_URL_LOCAL = 'http://localhost:8000';
-   const API_URL_OUT = 'https://ef12.onrender.com';
-
-   
+  const API_URL_LOCAL = 'https://ef12.onrender.com';
+   const API_URL_OUT = 'http://localhost:8000';
 
   // Fetch all data on mount
   useEffect(() => {
@@ -227,7 +225,69 @@ function App() {
 
   // Handler to add a task to state
   function handleAddTask(item) {
-    setItems(items => [...items, item]);
+    fetch(`${API_URL_OUT}/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setItems(items => [...items, data]);
+      });
+  }
+
+  // Handler to delete a task
+  function handleDeleteTask(taskId) {
+    fetch(`${API_URL_OUT}/items/${taskId}`, { method: 'DELETE' })
+      .then(res => {
+        if (res.ok) {
+          setItems(items => items.filter(item => item.id !== taskId));
+        }
+      });
+  }
+
+  // Handler to update a task
+  function handleUpdateTask(updatedTask) {
+    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedTask)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setItems(items => {
+          const idx = items.findIndex(item => item.id === data.id);
+          if (idx !== -1) {
+            const newItems = [...items];
+            newItems[idx] = data;
+            return newItems;
+          } else {
+            return [...items, data];
+          }
+        });
+      });
+  }
+
+  // Handler to complete a task (timer completion)
+  function handleCompleteTask(updatedTask) {
+    fetch(`${API_URL_OUT}/items/${updatedTask.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedTask)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setItems(items => {
+          const idx = items.findIndex(item => item.id === data.id);
+          if (idx !== -1) {
+            const newItems = [...items];
+            newItems[idx] = data;
+            return newItems;
+          } else {
+            return [...items, data];
+          }
+        });
+      });
   }
 
   return (
@@ -242,11 +302,14 @@ function App() {
         onDeleteProject={handleDeleteProject}
         onUpdateProject={handleUpdateProject}
         items={items}
+        selectedDay={selectedDay}
       />
       <PlanFactColumns 
         items={filteredItems} 
-        onDeleteItem={handleDeleteItem} 
-        onAddTask={handleAddTask} 
+        onAddTask={handleAddTask}
+        onDeleteTask={handleDeleteTask}
+        onUpdateTask={handleUpdateTask}
+        onCompleteTask={handleCompleteTask}
         selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
         selectedDay={selectedDay} 
       />

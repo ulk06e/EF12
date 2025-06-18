@@ -21,17 +21,6 @@
   flex-direction: column;
 }
 
-.project-column-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.project-column-header h3 {
-  font-size: 1.25em;
-  color: #374151; /* Darker text for Notion-like feel */
-}
-
 .add-button {
   background-color: #374151; /* Black-like color */
   color: white;
@@ -41,10 +30,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.add-button:hover {
-  background-color: #1f2937; /* Slightly darker on hover */
 }
 
 .no-projects-message {
@@ -92,8 +77,6 @@
 .project-level-badge {
   color: #6b7280;
   font-size: 0.9em;
-
-
 }
 
 .project-xp-details {

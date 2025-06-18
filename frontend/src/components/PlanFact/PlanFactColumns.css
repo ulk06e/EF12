@@ -27,12 +27,6 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.plan-fact-column-header h3 {
-  margin: 0;
-  font-size: 1.25em;
-  color: #374151;
-}
-
 .add-button {
   background-color: #374151;
   color: white;
@@ -43,16 +37,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.add-button:hover {
-  background-color: #1f2937;
-}
-
-.add-button:disabled {
-  background-color: #e5e7eb;
-  color: #9ca3af;
-  cursor: not-allowed;
 }
 
 .no-tasks-message {
@@ -70,11 +54,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-}
-
-.task-card:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
 }
 
 .task-card.priority-task {

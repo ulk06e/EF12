@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AddTaskPopup.css';
+import '../shared/Popup.css';
 
 export default function EditTaskPopup({ open, onClose, task, onSave }) {
   const [desc, setDesc] = useState('');

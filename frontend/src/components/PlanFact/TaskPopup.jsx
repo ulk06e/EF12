@@ -1,5 +1,5 @@
 import React from 'react';
-import './AddTaskPopup.css';
+import '../shared/Popup.css';
 
 function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay }) {
   if (!open || !task) return null;

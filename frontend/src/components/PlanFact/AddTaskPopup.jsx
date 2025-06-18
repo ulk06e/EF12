@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import './AddTaskPopup.css';
+import '../shared/Popup.css';
 
 function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
   const [description, setDescription] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../PlanFact/AddTaskPopup.css';
+import '../shared/Popup.css';
 
 export default function ProjectPopup({ open, onClose, project, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);

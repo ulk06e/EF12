@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AddTaskPopup.css';
+import '../shared/Popup.css';
 
 export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   if (!open || !task) return null;
@@ -73,12 +73,6 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
       ((endTime.getTime() - startTime.getTime()) - totalPausedTime) / (1000 * 60)
     );
     const completedTime = new Date().toISOString();
-    console.log("DEBUG: Task completion:", {
-      taskId: task.id,
-      completedTime,
-      parsed: new Date(completedTime),
-      isValid: !isNaN(new Date(completedTime))
-    });
     onComplete({
       ...task,
       actual_duration: actualDuration,
