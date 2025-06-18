@@ -15,7 +15,7 @@ function getColumnProjects(projects, parentId) {
     });
 }
 
-export default function ProjectColumns({ projects, setProjects, selectedProjectIds, onSelect, onAddProject, onDeleteProject }) {
+export default function ProjectColumns({ projects, setProjects, selectedProjectIds, onSelect, onAddProject, onDeleteProject, items }) {
   const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
   const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
 
@@ -26,6 +26,25 @@ export default function ProjectColumns({ projects, setProjects, selectedProjectI
 
   // Determine parentId for each column
   const parentIds = [null, selected1, selected2];
+
+  // Helper function to get all descendant project IDs
+  const getDescendantProjectIds = (parentId) => {
+    const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id);
+    let all = [...direct];
+    for (const id of direct) {
+      all = all.concat(getDescendantProjectIds(id));
+    }
+    return all;
+  };
+
+  // Check if a project or its descendants have tasks
+  const hasTasks = (projectId) => {
+    const allProjectIds = [projectId, ...getDescendantProjectIds(projectId)];
+    return items.some(item => 
+      allProjectIds.includes(item.project_id) && 
+      item.column_location === 'plan'
+    );
+  };
 
   const handleAdd = (project) => {
     fetch('http://localhost:8000/projects', {
@@ -114,6 +133,7 @@ const cols = [col1, col2, col3];
                 <div className="project-xp-details">
                   {p.current_xp} / {p.next_level_xp} XP
                 </div>
+                {hasTasks(p.id) && <div className="task-indicator"></div>}
               </div>
             );
           })}

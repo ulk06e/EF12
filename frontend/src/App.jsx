@@ -252,6 +252,7 @@ function App() {
         onDeleteProject={(id) => {
           setProjects(projects => projects.filter(p => p.id !== id));
         }} 
+        items={items}
       />
       <PlanFactColumns 
         items={filteredItems} 
