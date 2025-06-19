@@ -31,7 +31,7 @@ export default function ProjectColumns({
 
   const [selected1, selected2, selected3] = selectedProjectIds;
   const col1 = getColumnProjects(projects, null);
-  const col2 = getColumnProjects(projects, selected1);
+  const col2 = selected1 ? getColumnProjects(projects, selected1) : [];
   const col3 = selected2 ? getColumnProjects(projects, selected2) : [];
 
   // Determine parentId for each column

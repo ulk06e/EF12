@@ -14,7 +14,7 @@ import {
   updateItemsState
 } from './api'
 import { useInitialData } from './hooks'
-import { getDescendantProjectIds, useAutoSelectProjects } from './hooks/useProjects'
+import { getDescendantProjectIds } from './hooks/useProjects'
 import { filterItemsByProjectAndDay } from './api/items'
 
 function App() {
@@ -25,8 +25,6 @@ function App() {
   const [selectedDay, setSelectedDay] = useState(null)
 
   useInitialData(setItems, setProjects, setSelectedDay)
-
-  useAutoSelectProjects(projects, selectedProjectIds, setSelectedProjectIds)
 
   const filteredItems = filterItemsByProjectAndDay(items, projects, selectedProjectIds, selectedDay, getDescendantProjectIds)
 

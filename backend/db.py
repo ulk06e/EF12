@@ -4,8 +4,7 @@ import os
 from models import Day, Item, Project, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
 from sqlalchemy.ext.declarative import declarative_base
 
-# ***REMOVED***
-***REMOVED***
+SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL") or "sqlite:///./app.db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

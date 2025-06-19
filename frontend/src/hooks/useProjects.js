@@ -8,25 +8,3 @@ export function getDescendantProjectIds(projects, parentId) {
   }
   return all
 }
-
-export function useAutoSelectProjects(projects, selectedProjectIds, setSelectedProjectIds) {
-  useEffect(() => {
-    // Only auto-select if no projects are currently selected
-    const hasAnySelection = selectedProjectIds.some(id => id !== null);
-    
-    if (projects.length > 0 && !hasAnySelection) {
-      const top1 = projects.find(p => !p.parent_id);
-      if (top1) {
-        const col2 = projects.filter(p => p.parent_id === top1.id);
-        const top2 = col2.length > 0 ? col2[0] : null;
-        const col3 = top2 ? projects.filter(p => p.parent_id === top2.id) : [];
-        const top3 = col3.length > 0 ? col3[0] : null;
-        setSelectedProjectIds([
-          top1.id,
-          top2 ? top2.id : null,
-          top3 ? top3.id : null
-        ]);
-      }
-    }
-  }, [projects, selectedProjectIds]);
-} 
