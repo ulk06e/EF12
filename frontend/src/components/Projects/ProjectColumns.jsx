@@ -95,7 +95,7 @@ export default function ProjectColumns({
               Add
             </button>
           </div>
-          {col.length === 0 && <div className="no-items-message">Select {i === 0 ? '' : `Project ${i}`}</div>}
+          {col.length === 0 && <div className="no-items-message">Select / Create {i === 0 ? '' : `Project ${i}`}</div>}
           {col.map(p => {
             const progressPercentage = p.next_level_xp > 0 
               ? Math.min(100, (p.current_xp / p.next_level_xp) * 100) 

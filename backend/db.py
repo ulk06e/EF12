@@ -6,7 +6,8 @@ import datetime
 import os
 
 
-SQLALCHEMY_DATABASE_URL = os.environ["DATABASE_URL"]
+# ***REMOVED***
+***REMOVED***
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
