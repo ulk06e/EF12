@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db import get_db
-from models import Project
+from models.base import Base
+from models import Day, Item, Project, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
+from db import engine
+
 
 router = APIRouter(prefix="/utils")
 
