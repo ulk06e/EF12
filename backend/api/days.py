@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
-from db import Day, get_db
+from models import Day
+from db import get_db
 import datetime
 
 router = APIRouter(prefix="/days")

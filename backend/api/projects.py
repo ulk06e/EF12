@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
-from db import Project, Base, engine, get_db
+from models import Project
+from db import get_db
 import datetime
 
 router = APIRouter(prefix="/projects")

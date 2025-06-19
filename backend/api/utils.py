@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
-from db import Base, engine, get_db
 from sqlalchemy.orm import Session
+from db import get_db
+from models import Project
 
-router = APIRouter()
+router = APIRouter(prefix="/utils")
 
 @router.get("/health")
 def health():

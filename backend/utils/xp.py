@@ -36,7 +36,7 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
 
 
 def update_project_xp(project_id, xp_to_add, actual_duration, db):
-    from main import Project  # Import here to avoid circular imports
+    from models import Project  # Updated import
     
     # Get project and update XP
     project = db.query(Project).filter(Project.id == project_id).first()
