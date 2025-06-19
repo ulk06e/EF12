@@ -1,0 +1,3 @@
+literal:SQLALCHEMY_DATABASE_URL = "postgresql://ef12_db_user:thDgQvWlu1stoWONxPn6gA2cTPyPZ6Cm@dpg-d19rv4idbo4c73bqd8gg-a.oregon-postgres.render.com/ef12_db"
+==>
+SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL") or "sqlite:///./app.db"
