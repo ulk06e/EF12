@@ -254,6 +254,7 @@
   font-size: 14px;
   color: #1f2937;
   background: #fff;
+  flex: 1;
 }
 
 .add-task-row input:focus,
@@ -261,6 +262,34 @@
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.add-task-row input.input-error,
+.add-task-row select.input-error,
+.hour-select.input-error,
+.minute-select.input-error,
+.approximate-time-select.input-error,
+.edit-input.input-error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+}
+
+.add-task-row input.input-error:focus,
+.add-task-row select.input-error:focus,
+.hour-select.input-error:focus,
+.minute-select.input-error:focus,
+.approximate-time-select.input-error:focus,
+.edit-input.input-error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.validation-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: -12px;
+  margin-bottom: 8px;
+  padding-left: 4px;
 }
 
 .add-task-row input {
@@ -275,6 +304,99 @@
   display: flex;
   justify-content: space-between;
   margin-top: 16px;
+}
+
+/* Plan Time Section Styles */
+.plan-time-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 16px 0;
+}
+
+.plan-time-section {
+  margin-bottom: 16px;
+}
+
+.plan-time-toggle {
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0 0;
+  user-select: none;
+  transition: color 0.2s;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.plan-time-toggle:hover {
+  color: #374151;
+}
+
+.plan-time-content {
+  margin-top: 8px;
+  padding: 12px 0;
+}
+
+.plan-time-row {
+  margin-bottom: 8px;
+}
+
+.plan-time-row:last-child {
+  margin-bottom: 0;
+}
+
+.time-selectors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hour-select,
+.minute-select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  flex: 1;
+}
+
+.hour-select:focus,
+.minute-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.time-separator {
+  font-size: 16px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.plan-time-row select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+}
+
+.plan-time-row select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.plan-time-or {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin: 8px 0;
+  font-style: italic;
 }
 
 .task-popup-content {

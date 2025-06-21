@@ -1,17 +1,23 @@
 import React from 'react';
 import './Dashboard.css';
 import { SETTINGS } from '../../config';
-import { formatMinutesToHours } from '../../utils/time';
+import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../../utils/time';
 
 export default function Dashboard({ items, selectedDay }) {
   // Calculate today's XP from completed tasks
   const todayXP = items
-    .filter(item => item.completed_time && item.completed_time.startsWith(selectedDay))
+    .filter(item => {
+      const localDate = getLocalDateFromCompletedTime(item.completed_time);
+      return localDate === selectedDay;
+    })
     .reduce((sum, item) => sum + (item.xp_value || 0), 0);
 
   // Calculate today's total actual time
   const todayActualTime = items
-    .filter(item => item.completed_time && item.completed_time.startsWith(selectedDay))
+    .filter(item => {
+      const localDate = getLocalDateFromCompletedTime(item.completed_time);
+      return localDate === selectedDay;
+    })
     .reduce((sum, item) => sum + (item.actual_duration || 0), 0);
 
   return (

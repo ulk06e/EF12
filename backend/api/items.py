@@ -21,9 +21,32 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
         item["column_location"] = ColumnLocationEnum(item["column_location"])
     if "time_quality" in item and item["time_quality"]:
         item["time_quality"] = TimeQualityEnum(item["time_quality"])
+    
     # Remove created_time and completed_time if present
     item.pop("created_time", None)
     item.pop("completed_time", None)
+    
+    # Handle planned_time - convert time string to datetime if provided
+    if "planned_time" in item and item["planned_time"]:
+        try:
+            # Parse time string like "14:30" to datetime
+            time_str = item["planned_time"]
+            hour, minute = map(int, time_str.split(':'))
+            # Use today's date as base
+            today = datetime.datetime.now().replace(hour=hour, minute=minute, second=0, microsecond=0)
+            item["planned_time"] = today
+        except Exception:
+            item["planned_time"] = None
+    else:
+        item["planned_time"] = None
+    
+    # Handle approximate_planned_time - store as string
+    if "approximate_planned_time" in item and item["approximate_planned_time"]:
+        # Keep as string since it's just "morning", "afternoon", etc.
+        pass
+    else:
+        item["approximate_planned_time"] = None
+    
     # Ensure Day exists
     day_id = item.get("day_id")
     if day_id:
@@ -36,6 +59,7 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
             new_day = Day(id=day_id, date=day_date)
             db.add(new_day)
             db.commit()
+    
     new_item = Item(**item)
     db.add(new_item)
     db.commit()
@@ -64,6 +88,25 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
         except Exception as e:
             db_item.completed_time = None
     
+    # Handle planned_time - convert time string to datetime if provided
+    if "planned_time" in item:
+        if item["planned_time"]:
+            try:
+                # Parse time string like "14:30" to datetime
+                time_str = item["planned_time"]
+                hour, minute = map(int, time_str.split(':'))
+                # Use today's date as base
+                today = datetime.datetime.now().replace(hour=hour, minute=minute, second=0, microsecond=0)
+                db_item.planned_time = today
+            except Exception:
+                db_item.planned_time = None
+        else:
+            db_item.planned_time = None
+    
+    # Handle approximate_planned_time - store as string
+    if "approximate_planned_time" in item:
+        db_item.approximate_planned_time = item["approximate_planned_time"]
+    
     # Parse enums if present
     if "task_quality" in item and item["task_quality"]:
         db_item.task_quality = TaskQualityEnum(item["task_quality"])
@@ -74,7 +117,7 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
     
     # Update other fields
     for key, value in item.items():
-        if key not in ["task_quality", "column_location", "time_quality", "completed_time"]:
+        if key not in ["task_quality", "column_location", "time_quality", "completed_time", "planned_time", "approximate_planned_time"]:
             setattr(db_item, key, value)
     
     if db_item.completed:

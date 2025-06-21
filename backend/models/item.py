@@ -32,4 +32,6 @@ class Item(Base):
     time_quality = Column(Enum(TimeQualityEnum), nullable=True)
     project_id = Column(String, ForeignKey("projects.id"))
     day_id = Column(String, ForeignKey("days.id"))
-    completed_time = Column(DateTime, nullable=True) 
+    completed_time = Column(DateTime, nullable=True)
+    planned_time = Column(DateTime, nullable=True, default=None)
+    approximate_planned_time = Column(String, nullable=True, default=None) 

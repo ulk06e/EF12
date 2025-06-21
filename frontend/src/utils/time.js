@@ -28,4 +28,58 @@ export const toLocalDateString = (date) => {
  */
 export const getTodayDateString = () => {
   return toLocalDateString(new Date());
+};
+
+/**
+ * Converts UTC completed_time to local date string by adding 6 hours offset.
+ * @param {string} completedTime The UTC ISO string from completed_time field.
+ * @returns {string|null} The local date string in 'YYYY-MM-DD' format, or null if invalid.
+ */
+export const getLocalDateFromCompletedTime = (completedTime) => {
+  if (!completedTime) return null;
+  try {
+    const utcDate = new Date(completedTime);
+    // Add 6 hours to convert from UTC to local timezone
+    const localDate = new Date(utcDate.getTime() + 6 * 60 * 60 * 1000);
+    return toLocalDateString(localDate);
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Converts UTC completed_time to a local Date object for time calculations.
+ * @param {string} completedTime The UTC ISO string from completed_time field.
+ * @returns {Date|null} The local Date object, or null if invalid.
+ */
+export const getLocalDateObjectFromCompletedTime = (completedTime) => {
+  if (!completedTime) return null;
+  try {
+    const utcDate = new Date(completedTime);
+    // Add 6 hours to convert from UTC to local timezone
+    return new Date(utcDate.getTime() + 6 * 60 * 60 * 1000);
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Formats completed_time for display by converting UTC to local timezone.
+ * @param {string} completedTime The UTC ISO string from completed_time field.
+ * @returns {string} The formatted time string in local timezone, or 'Invalid Date' if invalid.
+ */
+export const formatCompletedTimeForDisplay = (completedTime) => {
+  if (!completedTime) return 'Invalid Date';
+  try {
+    const utcDate = new Date(completedTime);
+    // Add 6 hours to convert from UTC to local timezone
+    const localDate = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
+    return localDate.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  } catch (error) {
+    return 'Invalid Date';
+  }
 }; 
