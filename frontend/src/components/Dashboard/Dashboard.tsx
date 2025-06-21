@@ -1,5 +1,7 @@
 import React from 'react';
 import './Dashboard.css';
+import { SETTINGS } from '../../config';
+import { formatMinutesToHours } from '../../utils/time';
 
 export default function Dashboard({ items }) {
   // Calculate today's XP from completed tasks
@@ -25,8 +27,8 @@ export default function Dashboard({ items }) {
               <h4>Todays XP</h4>
             </div>
             <div className="card-content">
-              <span className={`card-value ${todayXP < 500 ? 'red-text' : ''}`}>{todayXP}XP</span>
-              <span className="card-label">Required 500XP</span>
+              <span className={`card-value ${todayXP < SETTINGS.DASHBOARD.REQUIRED_XP ? 'red-text' : ''}`}>{todayXP}XP</span>
+              <span className="card-label">Required {SETTINGS.DASHBOARD.REQUIRED_XP}XP</span>
             </div>
           </div>
           
@@ -35,8 +37,8 @@ export default function Dashboard({ items }) {
               <h4>Accounted time</h4>
             </div>
             <div className="card-content">
-              <span className={`card-value ${todayActualTime < 480 ? 'red-text' : ''}`}>{todayActualTime}m</span>
-              <span className="card-label">Required 480m</span>
+              <span className={`card-value ${todayActualTime < SETTINGS.DASHBOARD.REQUIRED_ACCOUNTED_TIME_MINUTES ? 'red-text' : ''}`}>{formatMinutesToHours(todayActualTime)}</span>
+              <span className="card-label">Required {formatMinutesToHours(SETTINGS.DASHBOARD.REQUIRED_ACCOUNTED_TIME_MINUTES)}</span>
             </div>
           </div>
         </div>

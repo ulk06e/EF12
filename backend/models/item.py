@@ -1,4 +1,5 @@
 import enum
+import uuid
 from sqlalchemy import Column, String, Integer, Boolean, Enum, ForeignKey, DateTime
 from models.base import Base
 import datetime
@@ -19,7 +20,7 @@ class TimeQualityEnum(enum.Enum):
 
 class Item(Base):
     __tablename__ = "items"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     description = Column(String)
     task_quality = Column(Enum(TaskQualityEnum), nullable=True)
     estimated_duration = Column(Integer, nullable=True)

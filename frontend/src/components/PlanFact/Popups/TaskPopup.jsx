@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../shared/Popup.css';
 
-function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay }) {
+function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate, selectedDay }) {
   if (!open || !task) return null;
 
   const isFutureDate = () => {
@@ -24,18 +24,14 @@ function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, selectedDay
       <div className="add-task-popup">
         <div className="task-popup-content">
           <div className="task-name">{task.description}</div>
-          <div className="add-task-buttons">
-            <button onClick={() => onDelete(task)} className="cancel-button">
-              Delete
-            </button>
+          <div className="popup-buttons">
+            <button onClick={() => onDelete(task)} className="delete-button">Delete</button>
+            
             <div className="right-buttons">
-              <button onClick={() => onEdit(task)} className="cancel-button">
-                Edit
-              </button>
+              <button onClick={() => onDuplicate(task)} className="cancel-button">Duplicate</button>
+              <button onClick={() => onEdit(task)} className="cancel-button">Edit</button>
               {!isFutureDate() && (
-                <button onClick={() => onStart(task)} className="add-button">
-                  Start
-                </button>
+                <button onClick={() => onStart(task)} className="add-button">Start</button>
               )}
             </div>
           </div>

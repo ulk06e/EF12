@@ -4,6 +4,7 @@ import EditTaskPopup from './Popups/EditTaskPopup';
 import AddTaskPopup from './Popups/AddTaskPopup';
 import TaskTimerPopup from './Popups/TaskTimerPopup';
 import './PlanFactColumns.css';
+import { formatMinutesToHours } from '../../utils/time';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
@@ -79,6 +80,19 @@ export default function PlanFactColumns({
 
   const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000) : false;
 
+  const handleDuplicateTask = (task) => {
+    const { id, completed_time, actual_duration, time_quality, project, ...rest } = task;
+    const today = new Date().toISOString().split('T')[0];
+    const taskDate = new Date(task.day_id);
+    const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+    
+    const newTask = {
+      ...rest,
+      day_id: taskDate < startOfToday ? today : task.day_id,
+    };
+    onAddTask(newTask);
+  };
+
   // Common task card renderer
   const renderTaskCard = (item, isPlan = false, index = 0) => (
     <div
@@ -99,13 +113,13 @@ export default function PlanFactColumns({
       <div className="card-item-block">
         <div className="card-item-details">
           {isPlan ? (
-            <span>{item.estimated_duration}m</span>
+            <span>{formatMinutesToHours(item.estimated_duration)}</span>
           ) : (
             <>
               <div>
-                {item.actual_duration}m/{item.estimated_duration}m - {item.formatted_time}
+                {formatMinutesToHours(item.actual_duration)}/{formatMinutesToHours(item.estimated_duration)} - {item.formatted_time}
                 {item.unaccounted !== null && item.unaccounted > 0 && (
-                  <span className="card-text-unaccounted"> (+{Math.round(item.unaccounted)}m)</span>
+                  <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
                 )}
               </div>
               <div className="card-text-xp">+{item.xp_value} XP</div>
@@ -125,6 +139,7 @@ export default function PlanFactColumns({
         onDelete={(task) => { onDeleteTask(task.id); setPopupTask(null); }}
         onEdit={(task) => { setEditTask(task); setPopupTask(null); }}
         onStart={(task) => { setTimerTask(task); setPopupTask(null); }}
+        onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
         selectedDay={selectedDay}
       />
       <EditTaskPopup 
@@ -132,6 +147,7 @@ export default function PlanFactColumns({
         onClose={() => setEditTask(null)} 
         task={editTask} 
         onSave={(updatedTask) => { onUpdateTask(updatedTask); setEditTask(null); }}
+        onDuplicate={(task) => { handleDuplicateTask(task); setEditTask(null); }}
       />
       <AddTaskPopup 
         open={addOpen} 

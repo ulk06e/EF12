@@ -73,7 +73,7 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onDelete 
                 <button onClick={handleEdit} className="cancel-button">
                   Edit
                 </button>
-                <button onClick={handleDeleteProject} className="add-button">
+                <button onClick={handleDeleteProject} className="delete-button">
                   Delete
                 </button>
               </div>

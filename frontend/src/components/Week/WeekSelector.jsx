@@ -1,5 +1,7 @@
 import React from 'react';
 import './WeekSelector.css';
+import { SETTINGS } from '../../config';
+import { formatMinutesToHours } from '../../utils/time';
 
 function getCurrentWeek() {
   const today = new Date();
@@ -63,15 +65,15 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
   };
 
   const getDurationClass = (duration) => {
-    if (duration < 240) return 'duration-low';
-    if (duration <= 480) return 'duration-medium';
+    if (duration < SETTINGS.WEEK_SELECTOR.DURATION_LOW_MINUTES) return 'duration-low';
+    if (duration <= SETTINGS.WEEK_SELECTOR.DURATION_MEDIUM_MINUTES) return 'duration-medium';
     return 'duration-high';
   };
 
   return (
     <div className="columns-container">
-      <div className="column-custom-padding">
-        <div className="column-header-custom-padding">
+      <div className="column">
+        <div className="column-header">
           <h3>Week</h3>
           <div className="header-buttons">
             <button onClick={handlePreviousWeek} className="nav-button">←</button>
@@ -94,7 +96,7 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
                   <div className={`week-day-name${isToday ? ' today' : ''}`}>{formatDayName(date)}</div>
                   <div className="week-day-date">{formatDate(date)}</div>
                 </button>
-                <div className="week-day-duration">{estimatedDuration} min</div>
+                <div className="week-day-duration">{formatMinutesToHours(estimatedDuration)}</div>
               </div>
             );
           })}

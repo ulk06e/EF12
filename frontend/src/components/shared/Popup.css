@@ -18,6 +18,7 @@
   padding: 24px;
   border-radius: 8px;
   min-width: 300px;
+  max-width: 60vw;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -64,13 +65,16 @@
 }
 
 .cancel-button,
-.add-button {
+.add-button,
+.delete-button {
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 80px;
+  text-align: center;
 }
 
 .cancel-button {
@@ -81,6 +85,16 @@
 
 .cancel-button:hover {
   background: #f3f4f6;
+}
+
+.delete-button {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #ef4444;
+}
+
+.delete-button:hover {
+  background: #fef2f2;
 }
 
 .add-button {
@@ -103,6 +117,7 @@
   color: #1f2937;
   margin-bottom: 16px;
   line-height: 1.5;
+  overflow-wrap: break-word;
 }
 
 .edit-input {
@@ -220,6 +235,7 @@
   padding: 24px;
   border-radius: 8px;
   min-width: 300px;
+  max-width: 400px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -269,4 +285,6 @@
   color: #1f2937;
   margin-bottom: 16px;
   line-height: 1.5;
-} 
+  overflow-wrap: break-word;
+}
+

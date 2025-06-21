@@ -83,8 +83,8 @@ export default function ProjectColumns({
   return (
     <div className="columns-container">
       {cols.map((col, i) => (
-        <div className="column-custom-padding" key={i}>
-          <div className="projects-column-header">
+        <div className="column" key={i}>
+          <div className="column-header">
             <h3>{labels[i]}</h3>
             <button 
               onClick={() => setAddCol(i + 1)} 
