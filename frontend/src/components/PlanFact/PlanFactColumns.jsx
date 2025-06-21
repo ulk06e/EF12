@@ -16,7 +16,9 @@ export default function PlanFactColumns({
   onCompleteTask,
   selectedProjectId, 
   selectedProjectIds,
-  selectedDay 
+  selectedDay,
+  viewMode,
+  setViewMode
 }) {
   const [popupTask, setPopupTask] = useState(null);
   const [editTask, setEditTask] = useState(null);
@@ -165,13 +167,21 @@ export default function PlanFactColumns({
       <div className="column">
         <div className="column-header">
           <h3>Plan</h3>
-          <button 
-            className="add-button" 
-            onClick={() => !isPastDate && setAddOpen(true)}
-            disabled={isPastDate || !selectedProjectId || !selectedProjectIds[2]}
-          >
-            Add Task
-          </button>
+          <div className="column-header-actions">
+            <button 
+              className="view-toggle-button" 
+              onClick={() => setViewMode(prev => prev === 'target' ? 'overview' : 'target')}
+            >
+              {viewMode === 'target' ? '🎯' : '🗓️'}
+            </button>
+            <button 
+              className="add-button" 
+              onClick={() => !isPastDate && setAddOpen(true)}
+              disabled={isPastDate || !selectedProjectId || !selectedProjectIds[2]}
+            >
+              Add Task
+            </button>
+          </div>
         </div>
         {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
         {planItems.map((item, idx) => renderTaskCard(item, true, idx))}

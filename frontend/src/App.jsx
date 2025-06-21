@@ -30,12 +30,29 @@ function App() {
     selectedDay,
     setSelectedDay,
   } = useInitialData();
+  const [viewMode, setViewMode] = useState('target');
 
-  const filteredItems = filterItemsByProjectAndDay(items, projects, selectedProjectIds, selectedDay, getDescendantProjectIds)
+  const getFilteredItems = () => {
+    const itemsForDay = items.filter(item => (item.day_id || '').slice(0, 10) === selectedDay);
+
+    if (viewMode === 'target') {
+      const lastSelected = selectedProjectIds.slice().reverse().find(id => id);
+      if (lastSelected) {
+        const descendantIds = [lastSelected, ...getDescendantProjectIds(projects, lastSelected)];
+        return itemsForDay.filter(item => descendantIds.includes(item.project_id));
+      }
+      return []; // In target mode with no project, show nothing
+    }
+    
+    // Overview mode shows all tasks for the day
+    return itemsForDay;
+  };
+
+  const filteredItems = getFilteredItems();
 
   return (
     <div>
-      <Dashboard items={items} /> 
+      <Dashboard items={items} selectedDay={selectedDay} /> 
       <ProjectColumns 
         projects={projects} 
         setProjects={setProjects}
@@ -55,7 +72,9 @@ function App() {
         onCompleteTask={(updatedTask) => handleCompleteTask(updatedTask, (data) => updateItemsState(data, setItems), setProjects)}
         selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
         selectedProjectIds={selectedProjectIds}
-        selectedDay={selectedDay} 
+        selectedDay={selectedDay}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
       <WeekSelector 
         selectedDay={selectedDay} 

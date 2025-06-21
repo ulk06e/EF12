@@ -25,13 +25,30 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
     else:
         priority_multiplier = 1.0
 
-    if estimated_duration == 0:
-        duration_multiplier = 0.7
-    else:
-        diff_ratio = abs(actual_duration - estimated_duration) / estimated_duration
-        duration_multiplier = 1.0 if diff_ratio <= 0.2 else 0.7
+    # Penalty for time difference
+    penalty_multiplier = 1.0
+    if estimated_duration and actual_duration:
+        ratio = actual_duration / estimated_duration
+        quality = task_quality
 
-    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * duration_multiplier 
+        if quality in ['A', 'B']:
+            if 1.5 < ratio <= 2.0:
+                penalty_multiplier = 0.7
+            elif ratio > 2.0:
+                penalty_multiplier = 0.5
+            elif 0.5 <= ratio < 0.8:
+                penalty_multiplier = 0.7
+            elif ratio < 0.5:
+                penalty_multiplier = 0.5
+        
+        elif quality in ['C', 'D']:
+            if (1.2 < ratio <= 1.5) or (0.5 <= ratio < 0.8):
+                penalty_multiplier = 0.7
+            elif ratio > 1.5 or ratio < 0.5:
+                penalty_multiplier = 0.5
+
+    # Calculate final XP
+    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier + 40
     return math.floor(xp)
 
 
