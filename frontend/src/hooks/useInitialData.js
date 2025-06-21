@@ -1,19 +1,42 @@
-import { useEffect } from 'react';
-import { API_URL } from '../api/index';
+import { useState, useEffect } from 'react';
+import { API_URL } from '../api';
+import { getTodayDateString } from '../utils/time';
 
-export function useInitialData(setItems, setProjects, setSelectedDay) {
+export default function useInitialData() {
+  const [items, setItems] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [days, setDays] = useState([]);
+  const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState(getTodayDateString());
+
   useEffect(() => {
-    fetch(`${API_URL}/items`)
-      .then(res => res.json())
-      .then(data => setItems(data))
-    
-    fetch(`${API_URL}/projects`)
-      .then(res => res.json())
-      .then(data => setProjects(data))
-    
-    // Auto-select today's date
-    const today = new Date()
-    const isoToday = today.toISOString().slice(0, 10)
-    setSelectedDay(isoToday)
-  }, [])
+    async function fetchData() {
+      try {
+        const [itemsRes, projectsRes] = await Promise.all([
+          fetch(`${API_URL}/items`),
+          fetch(`${API_URL}/projects`),
+        ]);
+        const itemsData = await itemsRes.json();
+        const projectsData = await projectsRes.json();
+        setItems(itemsData);
+        setProjects(projectsData);
+      } catch (error) {
+        console.error("Failed to fetch initial data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  return { 
+    items, setItems, 
+    projects, setProjects, 
+    days, setDays, 
+    selectedProjectIds, setSelectedProjectIds, 
+    loading, 
+    selectedDay, setSelectedDay 
+  };
 } 

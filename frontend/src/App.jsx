@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState } from 'react'
 import ProjectColumns from './components/Projects/ProjectColumns'
 import WeekSelector from './components/Week/WeekSelector'
@@ -13,18 +14,22 @@ import {
   handleCompleteTask,
   updateItemsState
 } from './api'
-import { useInitialData } from './hooks'
+import useInitialData from './hooks/useInitialData'
 import { getDescendantProjectIds } from './hooks/useProjects'
 import { filterItemsByProjectAndDay } from './api/items'
 
 function App() {
-  // List states
-  const [items, setItems] = useState([])
-  const [projects, setProjects] = useState([])
-  const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null])
-  const [selectedDay, setSelectedDay] = useState(null)
-
-  useInitialData(setItems, setProjects, setSelectedDay)
+  const {
+    items,
+    setItems,
+    projects,
+    setProjects,
+    selectedProjectIds,
+    setSelectedProjectIds,
+    loading,
+    selectedDay,
+    setSelectedDay,
+  } = useInitialData();
 
   const filteredItems = filterItemsByProjectAndDay(items, projects, selectedProjectIds, selectedDay, getDescendantProjectIds)
 

@@ -17,8 +17,8 @@
   background: #fff;
   padding: 24px;
   border-radius: 8px;
-  min-width: 300px;
-  max-width: 60vw;
+  min-width: 30vw;
+  max-width: 40vw;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -152,11 +152,12 @@
   z-index: 1000;
 }
 
+
 .task-time-content {
   background: #fff;
   padding: 24px;
   border-radius: 8px;
-  min-width: 320px;
+  min-width: 30vw;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -234,8 +235,8 @@
   background: #fff;
   padding: 24px;
   border-radius: 8px;
-  min-width: 300px;
-  max-width: 400px;
+  min-width: 30vw;
+  max-width: 40vw;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
 }
 

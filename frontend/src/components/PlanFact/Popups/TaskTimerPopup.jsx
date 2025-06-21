@@ -73,7 +73,7 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
     const actualDuration = Math.round(
       (endTime - startTime - effectivePaused) / (1000 * 60) // Duration in minutes
     );
-    const completedTime = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(); // UTC+6
+    const completedTime = new Date().toISOString();
     onComplete({
       ...task,
       actual_duration: actualDuration,

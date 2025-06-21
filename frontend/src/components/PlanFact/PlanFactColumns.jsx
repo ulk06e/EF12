@@ -4,7 +4,7 @@ import EditTaskPopup from './Popups/EditTaskPopup';
 import AddTaskPopup from './Popups/AddTaskPopup';
 import TaskTimerPopup from './Popups/TaskTimerPopup';
 import './PlanFactColumns.css';
-import { formatMinutesToHours } from '../../utils/time';
+import { formatMinutesToHours, getTodayDateString } from '../../utils/time';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
@@ -63,11 +63,10 @@ export default function PlanFactColumns({
     }
     
     const formatted_time = item.completed_time 
-      ? new Date(item.completed_time).toLocaleTimeString('en-US', {
+      ? new Date(new Date(item.completed_time).getTime() + 3 * 60 * 60 * 1000).toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
           hour12: false,
-          timeZone: 'UTC'
         })
       : 'Invalid Date';
     
@@ -78,11 +77,11 @@ export default function PlanFactColumns({
     };
   });
 
-  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000) : false;
+  const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
 
   const handleDuplicateTask = (task) => {
     const { id, completed_time, actual_duration, time_quality, project, ...rest } = task;
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayDateString();
     const taskDate = new Date(task.day_id);
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
     

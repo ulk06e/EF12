@@ -1,7 +1,7 @@
 import React from 'react';
 import './WeekSelector.css';
 import { SETTINGS } from '../../config';
-import { formatMinutesToHours } from '../../utils/time';
+import { formatMinutesToHours, toLocalDateString } from '../../utils/time';
 
 function getCurrentWeek() {
   const today = new Date();
@@ -24,7 +24,7 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
 
   const handleTodayClick = () => {
     const today = new Date();
-    onSelect(today.toISOString().slice(0, 10));
+    onSelect(toLocalDateString(today));
     setCurrentWeek(getCurrentWeek());
   };
 
@@ -58,7 +58,7 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
   };
 
   const getDayEstimatedDuration = (date) => {
-    const formattedDate = date.toISOString().split('T')[0];
+    const formattedDate = toLocalDateString(date);
     const dayItems = items?.filter(item => item.day_id === formattedDate) || [];
     const totalDuration = dayItems.reduce((sum, item) => sum + (item.estimated_duration || 0), 0);
     return totalDuration;
@@ -83,7 +83,7 @@ export default function WeekSelector({ selectedDay, onSelect, items }) {
         </div>
         <div className="week-days">
           {currentWeek.map((date) => {
-            const iso = date.toISOString().slice(0, 10);
+            const iso = toLocalDateString(date);
             const estimatedDuration = getDayEstimatedDuration(date);
             const durationClass = getDurationClass(estimatedDuration);
             const isToday = date.toDateString() === new Date().toDateString();
