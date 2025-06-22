@@ -153,7 +153,7 @@ export default function PlanFactColumns({
               <>
                 <div>
                   {formatMinutesToHours(item.actual_duration)}/{formatMinutesToHours(item.estimated_duration)} - {item.formatted_time}
-                  {item.unaccounted !== null && item.unaccounted > 0 && (
+                  {viewMode === 'overview' && item.unaccounted !== null && item.unaccounted > 0 && (
                     <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
                   )}
                 </div>
