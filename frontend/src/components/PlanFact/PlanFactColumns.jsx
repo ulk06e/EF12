@@ -63,12 +63,21 @@ export default function PlanFactColumns({
   // Calculate unaccounted time and format time for fact items
   const factCards = factItems.map((item, idx) => {
     let unaccounted = null;
-    
-    if (idx < factItems.length - 1 && item.completed_time) {
+
+    if (idx === 0 && item.completed_time) {
+      // Calculate unaccounted time before the first task
+      const currentTime = getLocalDateObjectFromCompletedTime(item.completed_time);
+      if (currentTime) {
+        const startOfDay = new Date(currentTime);
+        startOfDay.setHours(3, 0, 0, 0);
+        const timeBetween = (currentTime.getTime() - startOfDay.getTime()) / (1000 * 60);
+        unaccounted = Math.max(0, timeBetween - (item.actual_duration || 0));
+      }
+    } else if (idx < factItems.length - 1 && item.completed_time) {
       const nextItem = factItems[idx + 1];
       if (nextItem.completed_time) {
         const currentTime = getLocalDateObjectFromCompletedTime(item.completed_time);
-        const previousTime = getLocalDateObjectFromCompletedTime(nextItem.completed_time);
+        const previousTime = getLocalDateObjectFromCompletedTime(nextItem.completed_time) || 0;
         if (currentTime && previousTime) {
           const timeBetweenTasks = (currentTime.getTime() - previousTime.getTime()) / (1000 * 60);
           unaccounted = Math.max(0, timeBetweenTasks - (item.actual_duration || 0));
@@ -115,8 +124,8 @@ export default function PlanFactColumns({
       return formatMinutesToHours(item.estimated_duration);
     };
 
-    const duration = item.estimated_duration || 0;
-    const cardStyle = viewMode === 'overview' && duration >= 30
+    const duration = isPlan ? item.estimated_duration || 0 : item.actual_duration || 0;
+    const cardStyle = viewMode === 'overview' && duration > 30
       ? {
           display: 'flex',
           flexDirection: 'column',
@@ -153,7 +162,7 @@ export default function PlanFactColumns({
               <>
                 <div>
                   {formatMinutesToHours(item.actual_duration)}/{formatMinutesToHours(item.estimated_duration)} - {item.formatted_time}
-                  {viewMode === 'overview' && item.unaccounted !== null && item.unaccounted > 0 && (
+                  {item.showUnaccountedInline && (
                     <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
                   )}
                 </div>
@@ -169,7 +178,7 @@ export default function PlanFactColumns({
   // Gap card renderer for unaccounted time
   const renderGapCard = (gap, index) => {
     const duration = gap.minutes || 0;
-    const cardStyle = viewMode === 'overview' && duration >= 30
+    const cardStyle = viewMode === 'overview' && duration > 30
       ? {
           display: 'flex',
           flexDirection: 'column',
@@ -195,6 +204,27 @@ export default function PlanFactColumns({
         </div>
       </div>
     );
+  };
+
+  // Render fact column in overview mode with unaccounted time as grey cards (>=15m) and as red text (<15m)
+  const renderFactColumnOverview = () => {
+    const cards = [];
+    for (let i = 0; i < factCards.length; i++) {
+      const item = factCards[i];
+      // Remove width styling, just use default card rendering
+      const showUnaccountedInline = item.unaccounted && item.unaccounted > 0 && item.unaccounted < 15;
+      cards.push(
+        <div key={item.id}>
+          {renderTaskCard({ ...item, showUnaccountedInline }, false)}
+        </div>
+      );
+      if (item.unaccounted && item.unaccounted >= 15) {
+        cards.push(
+          renderGapCard({ minutes: Math.round(item.unaccounted) }, `fact-gap-${i}`)
+        );
+      }
+    }
+    return cards;
   };
 
   return (
@@ -289,7 +319,7 @@ export default function PlanFactColumns({
           <h3>Fact</h3>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
-        {factCards.map((item) => renderTaskCard(item, false))}
+        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => renderTaskCard(item, false))}
       </div>
     </div>
   );

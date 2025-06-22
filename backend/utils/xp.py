@@ -48,7 +48,7 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
                 penalty_multiplier = 0.5
 
     # Calculate final XP
-    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier + 40
+    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier
     return math.floor(xp)
 
 

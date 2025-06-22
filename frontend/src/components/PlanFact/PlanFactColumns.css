@@ -138,7 +138,10 @@
 }
 
 .overview-mode .item-description {
-  white-space: nowrap;
+  display: -webkit-box;             /* establish a WebKit “box” */
+  -webkit-box-orient: vertical;     /* vertical stacking of lines */
+  -webkit-line-clamp: 1;            /* show exactly one line */
+  line-clamp: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
