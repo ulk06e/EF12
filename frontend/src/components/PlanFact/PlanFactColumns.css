@@ -127,4 +127,19 @@
 .gap-label {
   color: white !important;
   font-weight: 500;
+}
+
+.overview-mode .card-item-header {
+  width: 100%;
+}
+
+.overview-mode .card-item-name {
+  flex-shrink: 0;
+}
+
+.overview-mode .item-description {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 } 

@@ -115,10 +115,20 @@ export default function PlanFactColumns({
       return formatMinutesToHours(item.estimated_duration);
     };
 
+    const duration = item.estimated_duration || 0;
+    const cardStyle = viewMode === 'overview' && duration >= 30
+      ? {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${Math.floor(duration / 15) * 6}px`
+        }
+      : {};
+
     return (
       <div
         key={item.id}
         className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
+        style={cardStyle}
         onClick={() => isPlan && !isPastDate && setPopupTask(item)}
       >
         <div className="card-item-block">
@@ -128,7 +138,7 @@ export default function PlanFactColumns({
               <span className="card-item-separator">-</span>
               <span className="card-item-quality">{item.task_quality}</span>
             </span>
-            <span className="card-item-description">: {item.description}</span>
+            <span className="item-description">: {item.description}</span>
           </div>
         </div>
         <div className="card-item-block">
@@ -157,26 +167,38 @@ export default function PlanFactColumns({
   };
 
   // Gap card renderer for unaccounted time
-  const renderGapCard = (gap, index) => (
-    <div
-      key={`gap-${index}`}
-      className="card gap-card"
-    >
-      <div className="card-item-block">
-        <div className="card-item-header">
-          <span className="gap-label">Unaccounted Time</span>
+  const renderGapCard = (gap, index) => {
+    const duration = gap.minutes || 0;
+    const cardStyle = viewMode === 'overview' && duration >= 30
+      ? {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${Math.floor(duration / 15) * 6}px`
+        }
+      : {};
+
+    return (
+      <div
+        key={`gap-${index}`}
+        className="card gap-card"
+        style={cardStyle}
+      >
+        <div className="card-item-block">
+          <div className="card-item-header">
+            <span className="gap-label">Unaccounted Time</span>
+          </div>
+        </div>
+        <div className="card-item-block">
+          <div className="card-item-details">
+            <span>{formatMinutesToHours(gap.minutes)}</span>
+          </div>
         </div>
       </div>
-      <div className="card-item-block">
-        <div className="card-item-details">
-          <span>{formatMinutesToHours(gap.minutes)}</span>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="columns-container">
+    <div className={`columns-container ${viewMode === 'overview' ? 'overview-mode' : ''}`}>
       <TaskPopup 
         open={!!popupTask} 
         onClose={() => setPopupTask(null)} 

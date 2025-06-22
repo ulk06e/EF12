@@ -182,7 +182,7 @@ export const scheduleTasks = (tasks) => {
     }
     
     if (position === -1) {
-      errors.push(`Task "${task.description}" cannot be scheduled`);
+      errors.push(`Task "${task.description}" cannot be scheduled, no big enough fap left`);
       return;
     }
     
