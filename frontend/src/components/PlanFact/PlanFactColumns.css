@@ -77,4 +77,54 @@
 
 .view-toggle-button:focus {
   outline: none;
+}
+
+/* Overview View Styles */
+.overview-errors {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.overview-errors h4 {
+  margin: 0 0 10px 0;
+  color: #856404;
+  font-size: 1rem;
+}
+
+.overview-errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.error-item {
+  color: #856404;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+/* Gap card styles */
+.gap-card {
+  background-color: #6c757d !important;
+  color: white !important;
+  cursor: default !important;
+}
+
+.gap-card:hover {
+  background-color: #6c757d !important;
+}
+
+.gap-card .card-item-header {
+  color: white !important;
+}
+
+.gap-card .card-item-details {
+  color: white !important;
+}
+
+.gap-label {
+  color: white !important;
+  font-weight: 500;
 } 

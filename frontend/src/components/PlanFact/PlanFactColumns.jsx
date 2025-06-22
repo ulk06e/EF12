@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import TaskPopup from './Popups/TaskPopup';
 import EditTaskPopup from './Popups/EditTaskPopup';
 import AddTaskPopup from './Popups/AddTaskPopup';
 import TaskTimerPopup from './Popups/TaskTimerPopup';
+import { scheduleTasks } from '../../utils/scheduler';
 import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time';
 
@@ -37,6 +38,15 @@ export default function PlanFactColumns({
       if (priorityA !== priorityB) return priorityA - priorityB;
       return qualityA - qualityB;
     });
+
+  // Overview scheduling algorithm
+  const scheduledOverview = useMemo(() => {
+    if (viewMode !== 'overview' || !planItems || planItems.length === 0) {
+      return { scheduledTasks: planItems, errors: [] };
+    }
+    
+    return scheduleTasks(planItems);
+  }, [planItems, viewMode]);
   
   // Fact items: show all items in fact column, sort completed ones by completion time
   const factItems = items
@@ -91,37 +101,75 @@ export default function PlanFactColumns({
   };
 
   // Common task card renderer
-  const renderTaskCard = (item, isPlan = false, index = 0) => (
+  const renderTaskCard = (item, isPlan = false, index = 0) => {
+    // Get time information for overview mode
+    const getTimeInfo = () => {
+      if (item.planned_time) {
+        // Extract just the time portion (HH:MM) from planned_time
+        const timeMatch = item.planned_time.match(/(\d{1,2}):(\d{2})/);
+        const timeDisplay = timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}` : item.planned_time;
+        return `${formatMinutesToHours(item.estimated_duration)} - ${timeDisplay}`;
+      } else if (item.approximate_planned_time) {
+        return `${formatMinutesToHours(item.estimated_duration)} - ${item.approximate_planned_time}`;
+      }
+      return formatMinutesToHours(item.estimated_duration);
+    };
+
+    return (
+      <div
+        key={item.id}
+        className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
+        onClick={() => isPlan && !isPastDate && setPopupTask(item)}
+      >
+        <div className="card-item-block">
+          <div className="card-item-header">
+            <span className="card-item-name">
+              <span className="card-item-priority">#{item.priority}</span>
+              <span className="card-item-separator">-</span>
+              <span className="card-item-quality">{item.task_quality}</span>
+            </span>
+            <span className="card-item-description">: {item.description}</span>
+          </div>
+        </div>
+        <div className="card-item-block">
+          <div className="card-item-details">
+            {isPlan ? (
+              viewMode === 'overview' ? (
+                <span>{getTimeInfo()}</span>
+              ) : (
+                <span>{formatMinutesToHours(item.estimated_duration)}</span>
+              )
+            ) : (
+              <>
+                <div>
+                  {formatMinutesToHours(item.actual_duration)}/{formatMinutesToHours(item.estimated_duration)} - {item.formatted_time}
+                  {item.unaccounted !== null && item.unaccounted > 0 && (
+                    <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
+                  )}
+                </div>
+                <div className="card-text-xp">+{item.xp_value} XP</div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Gap card renderer for unaccounted time
+  const renderGapCard = (gap, index) => (
     <div
-      key={item.id}
-      className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
-      onClick={() => isPlan && !isPastDate && setPopupTask(item)}
+      key={`gap-${index}`}
+      className="card gap-card"
     >
       <div className="card-item-block">
         <div className="card-item-header">
-          <span className="card-item-name">
-            <span className="card-item-priority">#{item.priority}</span>
-            <span className="card-item-separator">-</span>
-            <span className="card-item-quality">{item.task_quality}</span>
-          </span>
-          <span className="card-item-description">: {item.description}</span>
+          <span className="gap-label">Unaccounted Time</span>
         </div>
       </div>
       <div className="card-item-block">
         <div className="card-item-details">
-          {isPlan ? (
-            <span>{formatMinutesToHours(item.estimated_duration)}</span>
-          ) : (
-            <>
-              <div>
-                {formatMinutesToHours(item.actual_duration)}/{formatMinutesToHours(item.estimated_duration)} - {item.formatted_time}
-                {item.unaccounted !== null && item.unaccounted > 0 && (
-                  <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
-                )}
-              </div>
-              <div className="card-text-xp">+{item.xp_value} XP</div>
-            </>
-          )}
+          <span>{formatMinutesToHours(gap.minutes)}</span>
         </div>
       </div>
     </div>
@@ -179,8 +227,38 @@ export default function PlanFactColumns({
             </button>
           </div>
         </div>
-        {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
-        {planItems.map((item, idx) => renderTaskCard(item, true, idx))}
+        
+        {viewMode === 'overview' ? (
+          <>
+            {scheduledOverview.errors.length > 0 && (
+              <div className="overview-errors">
+                <h4>Scheduling Issues:</h4>
+                <ul>
+                  {scheduledOverview.errors.map((error, index) => (
+                    <li key={index} className="error-item">{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {scheduledOverview.scheduledTasks.length === 0 ? (
+              <div className="no-items-message">No planned tasks</div>
+            ) : (
+              scheduledOverview.scheduledTasks.map((item, idx) => {
+                if (item.type === 'gap') {
+                  return renderGapCard(item, idx);
+                } else {
+                  return renderTaskCard(item, true, idx);
+                }
+              })
+            )}
+          </>
+        ) : (
+          <>
+            {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
+            {planItems.map((item, idx) => renderTaskCard(item, true, idx))}
+          </>
+        )}
       </div>
       
       <div className="column">
