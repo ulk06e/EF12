@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { scheduleTasks } from '../../../utils/scheduler';
 import '../../shared/Popup.css';
 
 function TaskFormPopup({ 
@@ -9,7 +10,8 @@ function TaskFormPopup({
   onSubmit, 
   initialTask = null, 
   projectId = null, 
-  dayId = null 
+  dayId = null,
+  allPlanItems = []
 }) {
   const [description, setDescription] = useState('');
   const [taskQuality, setTaskQuality] = useState('A');
@@ -64,7 +66,6 @@ function TaskFormPopup({
     const combinedTime = plannedHour && plannedMinute ? `${plannedHour}:${plannedMinute}` : '';
 
     if (mode === 'add') {
-      // Create new task
       const newTask = {
         id: uuidv4(),
         description,
@@ -80,6 +81,19 @@ function TaskFormPopup({
         planned_time: combinedTime || null,
         approximate_planned_time: approximatePlannedTime || null
       };
+
+      // --- Validation Step ---
+      const tasksWithNewOne = [...allPlanItems, newTask];
+      const { errors } = scheduleTasks(tasksWithNewOne);
+      
+      const newTaksErrors = errors.filter(err => err.includes(`"${newTask.description}"`));
+
+      if (newTaksErrors.length > 0) {
+        alert(`Error: ${newTaksErrors.join(', ')}.\nPlease correct the task details.`);
+        return; // Stop submission
+      }
+      // --- End Validation ---
+
       onSubmit(newTask);
       resetForm();
     } else {
@@ -99,9 +113,23 @@ function TaskFormPopup({
 
   if (!open) return null;
 
-  // Generate hour and minute options
-  const hourOptions = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-  const minuteOptions = ['00', '15', '30', '45'];
+  // Generate hour and minute options, filtering for today
+  const today = new Date();
+  const todayDateString = today.toISOString().split('T')[0];
+  const isToday = dayId === todayDateString;
+  const currentHour = today.getHours();
+  const currentMinute = today.getMinutes();
+
+  const hourOptions = Array.from({ length: 24 }, (_, i) => {
+    const hour = i.toString().padStart(2, '0');
+    const disabled = isToday && i < currentHour;
+    return { value: hour, disabled };
+  });
+
+  const minuteOptions = ['00', '15', '30', '45'].map(minute => {
+    const disabled = isToday && parseInt(plannedHour) === currentHour && parseInt(minute) < currentMinute;
+    return { value: minute, disabled };
+  });
 
   // Check for incomplete time selection
   const hasIncompleteTime = (plannedHour && !plannedMinute) || (!plannedHour && plannedMinute);
@@ -184,7 +212,9 @@ function TaskFormPopup({
                     >
                       <option value="">Hour</option>
                       {hourOptions.map(hour => (
-                        <option key={hour} value={hour}>{hour}</option>
+                        <option key={hour.value} value={hour.value} disabled={hour.disabled}>
+                          {hour.value}
+                        </option>
                       ))}
                     </select>
                     <span className="time-separator">:</span>
@@ -198,7 +228,9 @@ function TaskFormPopup({
                     >
                       <option value="">Min</option>
                       {minuteOptions.map(minute => (
-                        <option key={minute} value={minute}>{minute}</option>
+                        <option key={minute.value} value={minute.value} disabled={minute.disabled}>
+                          {minute.value}
+                        </option>
                       ))}
                     </select>
                   </div>

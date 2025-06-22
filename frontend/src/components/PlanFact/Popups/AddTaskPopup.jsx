@@ -1,7 +1,7 @@
 import React from 'react';
 import TaskFormPopup from './TaskFormPopup';
 
-function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
+function AddTaskPopup({ open, onClose, onAdd, projectId, dayId, planItems }) {
   return (
     <TaskFormPopup
       mode="add"
@@ -10,6 +10,7 @@ function AddTaskPopup({ open, onClose, onAdd, projectId, dayId }) {
       onSubmit={onAdd}
       projectId={projectId}
       dayId={dayId}
+      allPlanItems={planItems}
     />
   );
 }

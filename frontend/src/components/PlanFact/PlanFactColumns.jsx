@@ -199,7 +199,8 @@ export default function PlanFactColumns({
         onClose={() => setAddOpen(false)} 
         onAdd={(item) => { onAddTask(item); setAddOpen(false); }} 
         projectId={selectedProjectId} 
-        dayId={selectedDay} 
+        dayId={selectedDay}
+        planItems={planItems}
       />
       <TaskTimerPopup 
         open={!!timerTask} 

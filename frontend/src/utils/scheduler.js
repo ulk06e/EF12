@@ -52,10 +52,27 @@ export const scheduleTasks = (tasks) => {
       return;
     }
     
-    if (!areBlocksAvailable(position, length, occupiedBlocks)) {
-      errors.push(`Task "${task.description}" overlaps with existing task`);
+    // --- Collision Check ---
+    const collidingTasks = new Set();
+    for (let i = position; i < position + length && i <= 96; i++) {
+      if (occupiedBlocks.has(i)) {
+        // Find which task occupies this block
+        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
+          if (i >= taskPos && i < taskPos + taskLen) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) collidingTasks.add(task.description);
+            break;
+          }
+        }
+      }
+    }
+    
+    if (collidingTasks.size > 0) {
+      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
+      errors.push(`Task "${task.description}" collides with ${taskNames}`);
       return;
     }
+    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
@@ -100,6 +117,8 @@ export const scheduleTasks = (tasks) => {
     
     // If not found in preferred period, try other periods
     if (position === -1) {
+      errors.push(`Task "${task.description}" cannot fit into the ${task.approximate_planned_time}`);
+      
       for (const p of periods) {
         for (let i = p.start; i <= p.end - length + 1; i++) {
           if (areBlocksAvailable(i, length, occupiedBlocks)) {
@@ -112,9 +131,30 @@ export const scheduleTasks = (tasks) => {
     }
     
     if (position === -1) {
-      errors.push(`Task "${task.description}" cannot be scheduled`);
+      return; // Error already logged
+    }
+    
+    // --- Collision Check ---
+    const collidingTasks = new Set();
+    for (let i = position; i < position + length && i <= 96; i++) {
+      if (occupiedBlocks.has(i)) {
+        // Find which task occupies this block
+        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
+          if (i >= taskPos && i < taskPos + taskLen) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) collidingTasks.add(task.description);
+            break;
+          }
+        }
+      }
+    }
+    
+    if (collidingTasks.size > 0) {
+      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
+      errors.push(`Task "${task.description}" collides with "${taskNames}"`);
       return;
     }
+    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
@@ -145,6 +185,28 @@ export const scheduleTasks = (tasks) => {
       errors.push(`Task "${task.description}" cannot be scheduled`);
       return;
     }
+    
+    // --- Collision Check ---
+    const collidingTasks = new Set();
+    for (let i = position; i < position + length && i <= 96; i++) {
+      if (occupiedBlocks.has(i)) {
+        // Find which task occupies this block
+        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
+          if (i >= taskPos && i < taskPos + taskLen) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) collidingTasks.add(task.description);
+            break;
+          }
+        }
+      }
+    }
+    
+    if (collidingTasks.size > 0) {
+      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
+      errors.push(`Task "${task.description}" collides with ${taskNames}`);
+      return;
+    }
+    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
