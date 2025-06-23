@@ -22,9 +22,10 @@ const markBlocksOccupied = (startBlock, length, taskId, occupiedBlocks, taskPosi
 /**
  * Schedule tasks in a 24-hour day using 15-minute blocks
  * @param {Array} tasks - Array of task objects
+ * @param {number} [startTimeMinutes] - Optional, start time in minutes since midnight (local time)
  * @returns {Object} - { scheduledTasks, errors }
  */
-export const scheduleTasks = (tasks) => {
+export const scheduleTasks = (tasks, startTimeMinutes) => {
   if (!tasks || tasks.length === 0) {
     return { scheduledTasks: tasks, errors: [] };
   }
@@ -33,6 +34,10 @@ export const scheduleTasks = (tasks) => {
   const occupiedBlocks = new Set(); // Track occupied blocks 1-96
   const taskPositions = new Map(); // task.id -> {position, length}
   
+  // Determine the starting block
+  const startBlock = (typeof startTimeMinutes === 'number')
+    ? Math.floor(startTimeMinutes / 15) + 1
+    : 1;
   // Phase 1: Fixed time tasks (planned_time)
   const fixedTimeTasks = tasks.filter(task => task.planned_time);
   fixedTimeTasks.forEach(task => {
@@ -174,7 +179,7 @@ export const scheduleTasks = (tasks) => {
     let position = -1;
     
     // Find first available position anywhere
-    for (let i = 1; i <= 96 - length + 1; i++) {
+    for (let i = startBlock; i <= 96 - length + 1; i++) {
       if (areBlocksAvailable(i, length, occupiedBlocks)) {
         position = i;
         break;
@@ -182,7 +187,7 @@ export const scheduleTasks = (tasks) => {
     }
     
     if (position === -1) {
-      errors.push(`Task "${task.description}" cannot be scheduled, no big enough fap left`);
+      errors.push(`Task "${task.description}" cannot be scheduled.`);
       return;
     }
     
@@ -228,7 +233,7 @@ export const scheduleTasks = (tasks) => {
   let currentGapStart = -1;
   let currentGapLength = 0;
   
-  for (let block = 1; block <= 96; block++) {
+  for (let block = startBlock; block <= 96; block++) {
     if (!occupiedBlocks.has(block)) {
       if (currentGapStart === -1) {
         currentGapStart = block;

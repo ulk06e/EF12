@@ -251,10 +251,10 @@ function TaskFormPopup({
                     className="approximate-time-select"
                   >
                     <option value="">Select approximate time</option>
+                    <option value="night">Night</option>
                     <option value="morning">Morning</option>
                     <option value="afternoon">Afternoon</option>
                     <option value="evening">Evening</option>
-                    <option value="night">Night</option>
                   </select>
                 </div>
               </div>

@@ -44,9 +44,13 @@ export default function PlanFactColumns({
     if (viewMode !== 'overview' || !planItems || planItems.length === 0) {
       return { scheduledTasks: planItems, errors: [] };
     }
-    
-    return scheduleTasks(planItems);
-  }, [planItems, viewMode]);
+    const isToday = selectedDay === (new Date()).toISOString().split('T')[0];
+    const now = new Date();
+    const startTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    return isToday
+      ? scheduleTasks(planItems, startTimeMinutes)
+      : scheduleTasks(planItems);
+  }, [planItems, viewMode, selectedDay]);
   
   // Fact items: show all items in fact column, sort completed ones by completion time
   const factItems = items
@@ -63,7 +67,7 @@ export default function PlanFactColumns({
   // Calculate unaccounted time and format time for fact items
   const factCards = factItems.map((item, idx) => {
     let unaccounted = null;
-
+    
     if (idx === 0 && item.completed_time) {
       // Calculate unaccounted time before the first task
       const currentTime = getLocalDateObjectFromCompletedTime(item.completed_time);
@@ -187,23 +191,23 @@ export default function PlanFactColumns({
       : {};
 
     return (
-      <div
-        key={`gap-${index}`}
-        className="card gap-card"
+    <div
+      key={`gap-${index}`}
+      className="card gap-card"
         style={cardStyle}
-      >
-        <div className="card-item-block">
-          <div className="card-item-header">
-            <span className="gap-label">Unaccounted Time</span>
-          </div>
-        </div>
-        <div className="card-item-block">
-          <div className="card-item-details">
-            <span>{formatMinutesToHours(gap.minutes)}</span>
-          </div>
+    >
+      <div className="card-item-block">
+        <div className="card-item-header">
+          <span className="gap-label">Unaccounted Time</span>
         </div>
       </div>
-    );
+      <div className="card-item-block">
+        <div className="card-item-details">
+          <span>{formatMinutesToHours(gap.minutes)}</span>
+        </div>
+      </div>
+    </div>
+  );
   };
 
   // Render fact column in overview mode with unaccounted time as grey cards (>=15m) and as red text (<15m)
