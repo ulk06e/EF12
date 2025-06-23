@@ -80,30 +80,7 @@
 }
 
 /* Overview View Styles */
-.overview-errors {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 4px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.overview-errors h4 {
-  margin: 0 0 10px 0;
-  color: #856404;
-  font-size: 1rem;
-}
-
-.overview-errors ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.error-item {
-  color: #856404;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-}
+/* .overview-errors, .overview-errors h4, .overview-errors ul, .error-item { ... } */
 
 /* Gap card styles */
 .gap-card {
@@ -138,11 +115,21 @@
 }
 
 .overview-mode .item-description {
-  display: -webkit-box;             /* establish a WebKit “box” */
+  display: -webkit-box;             /* establish a WebKit "box" */
   -webkit-box-orient: vertical;     /* vertical stacking of lines */
   -webkit-line-clamp: 1;            /* show exactly one line */
   line-clamp: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+.unscheduled-task {
+  background: #ffeaea !important;
+  border: 2px solid #dc2626 !important;
+}
+.unscheduled-separator {
+  border: none;
+  border-top: 2px dashed #dc2626;
+  margin: 16px 0;
 } 

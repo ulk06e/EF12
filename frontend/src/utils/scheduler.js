@@ -3,7 +3,7 @@
  * Calculates positions for tasks based on their time constraints
  */
 
-// Helper: Check if blocks are available
+// --- Helper: Check if blocks are available for a task ---
 const areBlocksAvailable = (startBlock, length, occupiedBlocks) => {
   for (let i = startBlock; i < startBlock + length && i <= 96; i++) {
     if (occupiedBlocks.has(i)) return false;
@@ -11,12 +11,49 @@ const areBlocksAvailable = (startBlock, length, occupiedBlocks) => {
   return true;
 };
 
-// Helper: Mark blocks as occupied
+// --- Helper: Mark blocks as occupied for a task ---
 const markBlocksOccupied = (startBlock, length, taskId, occupiedBlocks, taskPositions) => {
   for (let i = startBlock; i < startBlock + length && i <= 96; i++) {
     occupiedBlocks.add(i);
   }
   taskPositions.set(taskId, { position: startBlock, length });
+};
+
+// --- Helper: Check for collisions with already scheduled tasks ---
+const getCollidingTasks = (position, length, occupiedBlocks, taskPositions, tasks) => {
+  const collidingTasks = new Set();
+  for (let i = position; i < position + length && i <= 96; i++) {
+    if (occupiedBlocks.has(i)) {
+      for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
+        if (i >= taskPos && i < taskPos + taskLen) {
+          const t = tasks.find(t => t.id === taskId);
+          if (t) collidingTasks.add(t.description);
+          break;
+        }
+      }
+    }
+  }
+  return collidingTasks;
+};
+
+// --- Helper: Sort tasks by priority and quality ---
+const sortTasks = (tasks) => {
+  return tasks.slice().sort((a, b) => {
+    const priorityA = a.priority || 10;
+    const priorityB = b.priority || 10;
+    if (priorityA !== priorityB) return priorityA - priorityB;
+    return (a.task_quality || 'D').localeCompare(b.task_quality || 'D');
+  });
+};
+
+// --- Helper: Find first available position in a block range ---
+const findAvailablePosition = (start, end, length, occupiedBlocks) => {
+  for (let i = start; i <= end - length + 1; i++) {
+    if (areBlocksAvailable(i, length, occupiedBlocks)) {
+      return i;
+    }
+  }
+  return -1;
 };
 
 /**
@@ -34,13 +71,15 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   const occupiedBlocks = new Set(); // Track occupied blocks 1-96
   const taskPositions = new Map(); // task.id -> {position, length}
   
-  // Determine the starting block
+  // Determine the starting block (1-based)
   const startBlock = (typeof startTimeMinutes === 'number')
     ? Math.floor(startTimeMinutes / 15) + 1
     : 1;
-  // Phase 1: Fixed time tasks (planned_time)
+  
+  // --- Phase 1: Schedule fixed time tasks (planned_time) ---
   const fixedTimeTasks = tasks.filter(task => task.planned_time);
   fixedTimeTasks.forEach(task => {
+    // Parse planned_time as HH:MM
     const timeMatch = task.planned_time.match(/(\d{1,2}):(\d{2})/);
     if (!timeMatch) {
       errors.push(`Invalid time format for task "${task.description}"`);
@@ -57,49 +96,28 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
       return;
     }
     
-    // --- Collision Check ---
-    const collidingTasks = new Set();
-    for (let i = position; i < position + length && i <= 96; i++) {
-      if (occupiedBlocks.has(i)) {
-        // Find which task occupies this block
-        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
-          if (i >= taskPos && i < taskPos + taskLen) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) collidingTasks.add(task.description);
-            break;
-          }
-        }
-      }
-    }
-    
+    // Check for collisions
+    const collidingTasks = getCollidingTasks(position, length, occupiedBlocks, taskPositions, tasks);
     if (collidingTasks.size > 0) {
-      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
+      const taskNames = [...collidingTasks].slice(0, 2).map(n => `"${n}"`).join(' and ');
       errors.push(`Task "${task.description}" collides with ${taskNames}`);
       return;
     }
-    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
   
-  // Phase 2: Approximate time tasks (approximate_planned_time)
+  // --- Phase 2: Schedule approximate time tasks (approximate_planned_time) ---
   const periods = [
-    { name: 'NIGHT', start: 1, end: 24 }, // 0-6 hours
-    { name: 'MORNING', start: 25, end: 48 }, // 6-12 hours
+    { name: 'NIGHT', start: 1, end: 24 },      // 0-6 hours
+    { name: 'MORNING', start: 25, end: 48 },   // 6-12 hours
     { name: 'AFTERNOON', start: 49, end: 72 }, // 12-18 hours
-    { name: 'EVENING', start: 73, end: 96 } // 18-24 hours
+    { name: 'EVENING', start: 73, end: 96 }    // 18-24 hours
   ];
   
   const periodMap = { 'night': 0, 'morning': 1, 'afternoon': 2, 'evening': 3 };
   
-  const approximateTasks = tasks
-    .filter(task => task.approximate_planned_time)
-    .sort((a, b) => {
-      const priorityA = a.priority || 10;
-      const priorityB = b.priority || 10;
-      if (priorityA !== priorityB) return priorityA - priorityB;
-      return (a.task_quality || 'D').localeCompare(b.task_quality || 'D');
-    });
+  const approximateTasks = sortTasks(tasks.filter(task => task.approximate_planned_time));
   
   approximateTasks.forEach(task => {
     const periodIndex = periodMap[task.approximate_planned_time];
@@ -110,125 +128,67 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     
     const period = periods[periodIndex];
     const length = Math.ceil(task.estimated_duration / 15);
-    let position = -1;
     
-    // Find first available position in preferred period
-    for (let i = period.start; i <= period.end - length + 1; i++) {
-      if (areBlocksAvailable(i, length, occupiedBlocks)) {
-        position = i;
-        break;
-      }
-    }
+    // Try to find a position in the preferred period
+    let position = findAvailablePosition(period.start, period.end, length, occupiedBlocks);
     
-    // If not found in preferred period, try other periods
+    // If not found, try other periods
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot fit into the ${task.approximate_planned_time}`);
       
       for (const p of periods) {
-        for (let i = p.start; i <= p.end - length + 1; i++) {
-          if (areBlocksAvailable(i, length, occupiedBlocks)) {
-            position = i;
-            break;
-          }
-        }
+        position = findAvailablePosition(p.start, p.end, length, occupiedBlocks);
         if (position !== -1) break;
       }
     }
     
-    if (position === -1) {
-      return; // Error already logged
-    }
+    if (position === -1) return; // Error already logged
     
-    // --- Collision Check ---
-    const collidingTasks = new Set();
-    for (let i = position; i < position + length && i <= 96; i++) {
-      if (occupiedBlocks.has(i)) {
-        // Find which task occupies this block
-        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
-          if (i >= taskPos && i < taskPos + taskLen) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) collidingTasks.add(task.description);
-            break;
-          }
-        }
-      }
-    }
-    
+    // Check for collisions
+    const collidingTasks = getCollidingTasks(position, length, occupiedBlocks, taskPositions, tasks);
     if (collidingTasks.size > 0) {
-      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
-      errors.push(`Task "${task.description}" collides with "${taskNames}"`);
+      const taskNames = [...collidingTasks].slice(0, 2).map(n => `"${n}"`).join(' and ');
+      errors.push(`Task "${task.description}" collides with ${taskNames}`);
       return;
     }
-    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
   
-  // Phase 3: Unassigned tasks (no time info)
-  const unassignedTasks = tasks
-    .filter(task => !task.planned_time && !task.approximate_planned_time)
-    .sort((a, b) => {
-      const priorityA = a.priority || 10;
-      const priorityB = b.priority || 10;
-      if (priorityA !== priorityB) return priorityA - priorityB;
-      return (a.task_quality || 'D').localeCompare(b.task_quality || 'D');
-    });
+  // --- Phase 3: Schedule unassigned tasks (no time info) ---
+  const unassignedTasks = sortTasks(tasks.filter(task => !task.planned_time && !task.approximate_planned_time));
   
   unassignedTasks.forEach(task => {
     const length = Math.ceil(task.estimated_duration / 15);
-    let position = -1;
     
-    // Find first available position anywhere
-    for (let i = startBlock; i <= 96 - length + 1; i++) {
-      if (areBlocksAvailable(i, length, occupiedBlocks)) {
-        position = i;
-        break;
-      }
-    }
+    // Find first available position anywhere in the day
+    const position = findAvailablePosition(startBlock, 96, length, occupiedBlocks);
     
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot be scheduled.`);
       return;
     }
     
-    // --- Collision Check ---
-    const collidingTasks = new Set();
-    for (let i = position; i < position + length && i <= 96; i++) {
-      if (occupiedBlocks.has(i)) {
-        // Find which task occupies this block
-        for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
-          if (i >= taskPos && i < taskPos + taskLen) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) collidingTasks.add(task.description);
-            break;
-          }
-        }
-      }
-    }
-    
+    // Check for collisions
+    const collidingTasks = getCollidingTasks(position, length, occupiedBlocks, taskPositions, tasks);
     if (collidingTasks.size > 0) {
-      const taskNames = [...collidingTasks].slice(0, 2).join(' and ');
+      const taskNames = [...collidingTasks].slice(0, 2).map(n => `"${n}"`).join(' and ');
       errors.push(`Task "${task.description}" collides with ${taskNames}`);
       return;
     }
-    // --- End Collision Check ---
     
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
   
-  // Create ordered task list based on positions
+  // --- Create ordered task list based on positions ---
   const sortedTasks = tasks
     .filter(task => taskPositions.has(task.id))
-    .sort((a, b) => {
-      const posA = taskPositions.get(a.id).position;
-      const posB = taskPositions.get(b.id).position;
-      return posA - posB;
-    });
+    .sort((a, b) => taskPositions.get(a.id).position - taskPositions.get(b.id).position);
   
   // Add tasks that couldn't be scheduled
   const unscheduledTasks = tasks.filter(task => !taskPositions.has(task.id));
   
-  // Find unaccounted time periods (gaps)
+  // --- Find unaccounted time periods (gaps) ---
   const gaps = [];
   let currentGapStart = -1;
   let currentGapLength = 0;
@@ -266,7 +226,7 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     });
   }
   
-  // Merge tasks and gaps in chronological order
+  // --- Merge tasks and gaps in chronological order ---
   const finalSchedule = [];
   let taskIndex = 0;
   let gapIndex = 0;
@@ -293,8 +253,69 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     }
   }
   
-  return { 
-    scheduledTasks: [...finalSchedule, ...unscheduledTasks], 
-    errors 
+  // --- Return the merged schedule and any errors ---
+  return {
+    scheduledTasks: [...finalSchedule, ...unscheduledTasks],
+    errors
   };
-}; 
+};
+
+/**
+ * Check if a single task can be scheduled given the current plan items.
+ * Returns the starting block position if it fits, or 0 if it cannot fit.
+ * @param {Object} newTask - The task to check
+ * @param {Array} allTasks - The current list of tasks (excluding newTask)
+ * @param {number} [startTimeMinutes] - Optional, start time in minutes since midnight
+ * @returns {number} - Starting block position if fits, or 0 if not
+ */
+export function canScheduleTask(newTask, allTasks, startTimeMinutes) {
+  console.log('=== canScheduleTask DEBUG ===');
+  console.log('New task:', newTask);
+  console.log('All existing tasks:', allTasks);
+  console.log('Start time minutes:', startTimeMinutes);
+  
+  // Use the actual scheduleTasks function to get the full schedule
+  const tasksWithNewOne = [...allTasks, newTask];
+  console.log('Tasks with new one:', tasksWithNewOne);
+  
+  const { scheduledTasks, errors } = scheduleTasks(tasksWithNewOne, startTimeMinutes);
+  console.log('Scheduled tasks:', scheduledTasks);
+  console.log('Errors:', errors);
+  
+  // Check if our new task appears in the errors
+  const taskError = errors.find(error => error.includes(`"${newTask.description}"`));
+  if (taskError) {
+    console.log('❌ Task cannot be scheduled - appears in errors:', taskError);
+    console.log('=== END canScheduleTask DEBUG ===');
+    return 0;
+  }
+  
+  // Check if our new task is anywhere in the scheduled tasks (not just before first gap)
+  const scheduledNewTask = scheduledTasks.find(t => t.id === newTask.id);
+  console.log('Scheduled new task:', scheduledNewTask);
+  
+  if (!scheduledNewTask) {
+    console.log('❌ Task cannot be scheduled - not found in scheduled tasks');
+    console.log('=== END canScheduleTask DEBUG ===');
+    return 0; // Task cannot be scheduled
+  }
+  
+  // Calculate the position based on the task's position in the schedule
+  const taskIndex = scheduledTasks.indexOf(scheduledNewTask);
+  let position = 1; // Start from block 1
+  
+  // Calculate position by going through all tasks before this one
+  for (let i = 0; i < taskIndex; i++) {
+    const item = scheduledTasks[i];
+    if (item.type === 'gap') {
+      // Skip gaps when calculating position
+      continue;
+    }
+    const length = Math.ceil(item.estimated_duration / 15);
+    position += length;
+  }
+  
+  console.log('✅ Task can be scheduled at position:', position);
+  console.log('=== END canScheduleTask DEBUG ===');
+  return position;
+} 

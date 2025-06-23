@@ -114,7 +114,7 @@ export default function PlanFactColumns({
   };
 
   // Common task card renderer
-  const renderTaskCard = (item, isPlan = false, index = 0) => {
+  const renderTaskCard = (item, isPlan = false, index = 0, isUnscheduled = false) => {
     // Get time information for overview mode
     const getTimeInfo = () => {
       if (item.planned_time) {
@@ -140,7 +140,7 @@ export default function PlanFactColumns({
     return (
       <div
         key={item.id}
-        className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''}`}
+        className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
         style={cardStyle}
         onClick={() => isPlan && !isPastDate && setPopupTask(item)}
       >
@@ -287,27 +287,42 @@ export default function PlanFactColumns({
         
         {viewMode === 'overview' ? (
           <>
-            {scheduledOverview.errors.length > 0 && (
-              <div className="overview-errors">
-                <h4>Scheduling Issues:</h4>
-                <ul>
-                  {scheduledOverview.errors.map((error, index) => (
-                    <li key={index} className="error-item">{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
             {scheduledOverview.scheduledTasks.length === 0 ? (
               <div className="no-items-message">No planned tasks</div>
             ) : (
-              scheduledOverview.scheduledTasks.map((item, idx) => {
-                if (item.type === 'gap') {
-                  return renderGapCard(item, idx);
-                } else {
-                  return renderTaskCard(item, true, idx);
-                }
-              })
+              (() => {
+                // Get all tasks that are actually scheduled (not gaps)
+                const scheduledTasks = scheduledOverview.scheduledTasks.filter(t => t.type !== 'gap');
+                const gaps = scheduledOverview.scheduledTasks.filter(t => t.type === 'gap');
+                
+                // Find tasks that are in planItems but not in scheduledTasks (these are unscheduled)
+                // OR tasks that appear in the errors array
+                const unscheduledTasks = planItems.filter(planItem => {
+                  // Check if task is in errors
+                  const isInErrors = scheduledOverview.errors.some(error => 
+                    error.includes(`"${planItem.description}"`)
+                  );
+                  
+                  // Check if task is not in scheduled tasks
+                  const isNotScheduled = !scheduledTasks.some(scheduledItem => 
+                    scheduledItem.id === planItem.id
+                  );
+                  
+                  return isInErrors || isNotScheduled;
+                });
+                
+                return <>
+                  {scheduledOverview.scheduledTasks.map((item, idx) =>
+                    item.type === 'gap'
+                      ? renderGapCard(item, idx)
+                      : renderTaskCard(item, true, idx)
+                  )}
+                  {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
+                  {unscheduledTasks.map((item, idx) =>
+                    renderTaskCard(item, true, idx, true)
+                  )}
+                </>;
+              })()
             )}
           </>
         ) : (

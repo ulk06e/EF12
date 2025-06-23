@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { scheduleTasks } from '../../../utils/scheduler';
+import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
 import '../../shared/Popup.css';
 
 function TaskFormPopup({ 
@@ -61,7 +61,6 @@ function TaskFormPopup({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     // Combine hour and minute into time string
     const combinedTime = plannedHour && plannedMinute ? `${plannedHour}:${plannedMinute}` : '';
 
@@ -82,17 +81,23 @@ function TaskFormPopup({
         approximate_planned_time: approximatePlannedTime || null
       };
 
-      // --- Validation Step ---
-      const tasksWithNewOne = [...allPlanItems, newTask];
-      const { errors } = scheduleTasks(tasksWithNewOne);
+      // --- Use canScheduleTask helper ---
+      console.log('=== ADD TASK DEBUG ===');
+      console.log('Attempting to add task:', newTask);
+      console.log('Current plan items:', allPlanItems);
       
-      const newTaksErrors = errors.filter(err => err.includes(`"${newTask.description}"`));
-
-      if (newTaksErrors.length > 0) {
-        alert(`Error: ${newTaksErrors.join(', ')}.\nPlease correct the task details.`);
-        return; // Stop submission
+      const canFit = canScheduleTask(newTask, allPlanItems);
+      console.log('Can schedule result:', canFit);
+      
+      if (!canFit) {
+        console.log('❌ Task rejected - cannot be scheduled');
+        alert('This task cannot be scheduled. Please adjust its time or duration.');
+        console.log('=== END ADD TASK DEBUG ===');
+        return;
       }
-      // --- End Validation ---
+      
+      console.log('✅ Task accepted - can be scheduled');
+      // --- End canScheduleTask check ---
 
       onSubmit(newTask);
       resetForm();
@@ -235,9 +240,7 @@ function TaskFormPopup({
                     </select>
                   </div>
                 </div>
-                
                 <div className="plan-time-or">or</div>
-                
                 <div className="plan-time-row">
                   <select
                     value={approximatePlannedTime}
@@ -260,7 +263,6 @@ function TaskFormPopup({
               </div>
             )}
           </div>
-
           <div className="add-task-buttons">
             <button type="button" onClick={onClose} className="cancel-button">
               Cancel
@@ -275,4 +277,4 @@ function TaskFormPopup({
   );
 }
 
-export default TaskFormPopup; 
+export default TaskFormPopup;
