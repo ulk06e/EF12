@@ -17,7 +17,7 @@ import {
 import useInitialData from './Pages/Plan/hooks/useInitialData'
 import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
 import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
-import StatisticsPage from './Pages/statistics'
+import StatisticsPage from './Pages/stat'
 
 function App() {
   const {
