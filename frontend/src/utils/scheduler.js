@@ -256,8 +256,8 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   }
   
   // --- Return the merged schedule and any errors ---
-  return {
-    scheduledTasks: [...finalSchedule, ...unscheduledTasks],
+  return { 
+    scheduledTasks: [...finalSchedule, ...unscheduledTasks], 
     errors,
     taskPositions // Return this for canScheduleTask
   };

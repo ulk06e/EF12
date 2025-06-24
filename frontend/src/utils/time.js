@@ -63,18 +63,13 @@ export const getLocalDateObjectFromCompletedTime = (completedTime) => {
   }
 };
 
-/**
- * Formats completed_time for display by converting UTC to local timezone.
- * @param {string} completedTime The UTC ISO string from completed_time field.
- * @returns {string} The formatted time string in local timezone, or 'Invalid Date' if invalid.
- */
+
 export const formatCompletedTimeForDisplay = (completedTime) => {
   if (!completedTime) return 'Invalid Date';
   try {
-    const utcDate = new Date(completedTime);
-    // Add 6 hours to convert from UTC to local timezone
-    const localDate = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
-    return localDate.toLocaleTimeString('en-US', {
+    const originalDate = new Date(completedTime);
+    const adjustedDate = new Date(originalDate.getTime() + 3 * 60 * 60 * 1000); // +3 часа
+    return adjustedDate.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
@@ -82,4 +77,4 @@ export const formatCompletedTimeForDisplay = (completedTime) => {
   } catch (error) {
     return 'Invalid Date';
   }
-}; 
+};

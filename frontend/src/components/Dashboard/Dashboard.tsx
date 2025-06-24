@@ -7,16 +7,14 @@ export default function Dashboard({ items, selectedDay }) {
   // Calculate today's XP from completed tasks
   const todayXP = items
     .filter(item => {
-      const localDate = getLocalDateFromCompletedTime(item.completed_time);
-      return localDate === selectedDay;
+      return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
     })
     .reduce((sum, item) => sum + (item.xp_value || 0), 0);
 
   // Calculate today's total actual time
   const todayActualTime = items
     .filter(item => {
-      const localDate = getLocalDateFromCompletedTime(item.completed_time);
-      return localDate === selectedDay;
+      return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
     })
     .reduce((sum, item) => sum + (item.actual_duration || 0), 0);
 

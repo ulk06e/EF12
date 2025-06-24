@@ -88,7 +88,7 @@ function TaskFormPopup({
       
       const canFit = canScheduleTask(newTask, allPlanItems);
       console.log('Can schedule result:', canFit);
-      
+
       if (!canFit) {
         console.log('❌ Task rejected - cannot be scheduled');
         alert('This task cannot be scheduled. Please adjust its time or duration.');
@@ -277,4 +277,4 @@ function TaskFormPopup({
   );
 }
 
-export default TaskFormPopup;
+export default TaskFormPopup; 
