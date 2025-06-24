@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../Plan/Projects/Projects.css';
 import '../../Plan/shared/Card.css';
 import '../../Plan/shared/Column.css';
@@ -22,14 +22,15 @@ function getColumnProjects(projects, items, parentId) {
         .filter(item => allProjectIds.includes(item.project_id))
         .reduce((sum, item) => sum + (item.actual_duration || 0), 0);
       return { ...p, totalActualDuration };
-    })
-    .sort((a, b) => b.totalActualDuration - a.totalActualDuration);
+    });
 }
 
 export default function ProjectsTime({ projects, items }) {
+  const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null]);
+  const [selected1, selected2, selected3] = selectedProjectIds;
   const col1 = getColumnProjects(projects, items, null);
-  const col2 = col1.length > 0 ? getColumnProjects(projects, items, col1[0].id) : [];
-  const col3 = col2.length > 0 ? getColumnProjects(projects, items, col2[0].id) : [];
+  const col2 = selected1 ? getColumnProjects(projects, items, selected1) : [];
+  const col3 = selected2 ? getColumnProjects(projects, items, selected2) : [];
   const labels = ['Area', 'Project', 'Sub-project'];
   const cols = [col1, col2, col3];
 
@@ -44,10 +45,8 @@ export default function ProjectsTime({ projects, items }) {
           {col.map(p => {
             // Utility to get previous level minutes threshold (was XP)
             const getPrevLevelMinutes = (level) => 100 * Math.pow(level, 2);
-
             // Utility to get next level minutes threshold (was XP)
             const getNextLevelMinutes = (level) => 100 * Math.pow(level + 1, 2);
-
             const totalMinutes = p.totalActualDuration;
             // Find the current level based on minutes
             let level = 0;
@@ -62,7 +61,16 @@ export default function ProjectsTime({ projects, items }) {
               : 0;
             if (!isFinite(progressPercentage) || progressPercentage < 0) progressPercentage = 0;
             return (
-              <div key={p.id} className="card-relative">
+              <div
+                key={p.id}
+                className={`card-relative ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
+                onClick={() => {
+                  const newSel = [...selectedProjectIds];
+                  newSel[i] = p.id;
+                  for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                  setSelectedProjectIds(newSel);
+                }}
+              >
                 <div className="card-header">
                   <div className="project-name">{p.name}</div>
                   <div className="project-level-badge">Level {level}</div>
