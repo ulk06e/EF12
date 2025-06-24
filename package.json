@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-grid-layout": "^1.5.1",
+    "recharts": "^3.0.0"
+  }
+}

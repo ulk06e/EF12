@@ -31,7 +31,7 @@ export default function ProjectsTime({ projects, items }) {
   const col1 = getColumnProjects(projects, items, null);
   const col2 = selected1 ? getColumnProjects(projects, items, selected1) : [];
   const col3 = selected2 ? getColumnProjects(projects, items, selected2) : [];
-  const labels = ['Area', 'Project', 'Sub-project'];
+  const labels = ['Area Total Time', 'Project', 'Sub-project'];
   const cols = [col1, col2, col3];
 
   return (
