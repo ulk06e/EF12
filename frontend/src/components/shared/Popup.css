@@ -33,7 +33,7 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   background: #fff;
 }
@@ -69,7 +69,7 @@
 .delete-button {
   padding: 6px 12px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -113,7 +113,7 @@
 }
 
 .popup-name {
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   margin-bottom: 16px;
   line-height: 1.5;
@@ -125,7 +125,7 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   background: #fff;
   margin-bottom: 16px;
@@ -163,14 +163,14 @@
 }
 
 .task-time-title {
-  font-size: 18px;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 24px;
 }
 
 .task-time-display {
-  font-size: 32px;
+  font-size: 1.3rem;
   margin: 24px 0;
   color: #1f2937;
   text-align: center;
@@ -190,7 +190,7 @@
 .task-time-button {
   padding: 8px 16px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -251,7 +251,7 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   background: #fff;
   flex: 1;
@@ -356,7 +356,7 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   background: #fff;
   flex: 1;
@@ -370,7 +370,7 @@
 }
 
 .time-separator {
-  font-size: 16px;
+  font-size: 1.1rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -380,7 +380,7 @@
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   background: #fff;
 }
@@ -393,7 +393,7 @@
 
 .plan-time-or {
   text-align: center;
-  font-size: 12px;
+  font-size: 0.8rem;
   color: #6b7280;
   margin: 8px 0;
   font-style: italic;
@@ -404,7 +404,7 @@
 }
 
 .task-name {
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #1f2937;
   margin-bottom: 16px;
   line-height: 1.5;

@@ -97,9 +97,13 @@ export default function ProjectColumns({
           </div>
           {col.length === 0 && <div className="no-items-message">Select / Create {i === 0 ? '' : `Project ${i}`}</div>}
           {col.map(p => {
-            const progressPercentage = p.next_level_xp > 0 
-              ? Math.min(100, (p.current_xp / p.next_level_xp) * 100) 
-              : 0; // Avoid division by zero
+            // Utility to get previous level XP threshold
+            const getPrevLevelXP = (level) => 100 * Math.pow(level, 2);
+            const prevLevelXP = getPrevLevelXP(p.current_level);
+            const progress = (p.current_xp - prevLevelXP) / (p.next_level_xp - prevLevelXP);
+            const progressPercentage = p.next_level_xp > prevLevelXP
+              ? Math.max(0, Math.min(100, progress * 100))
+              : 0; // Avoid division by zero or negative
             return (
               <div 
                 key={p.id} 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models import Item, Day, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
 from db import get_db
 import datetime
-from utils.xp import calculate_xp
+from utils.xp import calculate_xp, get_xp_breakdown
 
 router = APIRouter(prefix="/items")
 
@@ -138,3 +138,11 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
     db.commit()
     db.refresh(db_item)
     return db_item
+
+@router.get("/{item_id}/xp_breakdown")
+def get_item_xp_breakdown(item_id: str, db: Session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        return {"error": "Item not found"}, 404
+    breakdown = get_xp_breakdown(item)
+    return breakdown

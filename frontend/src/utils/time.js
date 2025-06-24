@@ -78,3 +78,18 @@ export const formatCompletedTimeForDisplay = (completedTime) => {
     return 'Invalid Date';
   }
 };
+
+export function isApproximatePeriodInPast(period) {
+  const now = new Date();
+  const hour = now.getHours();
+  if (period === 'night') {
+    return hour >= 6; // Night is over after 6:00 AM
+  } else if (period === 'morning') {
+    return hour >= 12;
+  } else if (period === 'afternoon') {
+    return hour >= 18;
+  } else if (period === 'evening') {
+    return false; // Evening is never disabled
+  }
+  return false;
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
+import { isApproximatePeriodInPast } from '../../../utils/time';
 import '../../shared/Popup.css';
 
 function TaskFormPopup({ 
@@ -82,21 +83,13 @@ function TaskFormPopup({
       };
 
       // --- Use canScheduleTask helper ---
-      console.log('=== ADD TASK DEBUG ===');
-      console.log('Attempting to add task:', newTask);
-      console.log('Current plan items:', allPlanItems);
-      
       const canFit = canScheduleTask(newTask, allPlanItems);
-      console.log('Can schedule result:', canFit);
 
       if (!canFit) {
-        console.log('❌ Task rejected - cannot be scheduled');
         alert('This task cannot be scheduled. Please adjust its time or duration.');
-        console.log('=== END ADD TASK DEBUG ===');
         return;
       }
       
-      console.log('✅ Task accepted - can be scheduled');
       // --- End canScheduleTask check ---
 
       onSubmit(newTask);
@@ -254,9 +247,9 @@ function TaskFormPopup({
                     className="approximate-time-select"
                   >
                     <option value="">Select approximate time</option>
-                    <option value="night">Night</option>
-                    <option value="morning">Morning</option>
-                    <option value="afternoon">Afternoon</option>
+                    <option value="night" disabled={isToday && isApproximatePeriodInPast('night')}>Night</option>
+                    <option value="morning" disabled={isToday && isApproximatePeriodInPast('morning')}>Morning</option>
+                    <option value="afternoon" disabled={isToday && isApproximatePeriodInPast('afternoon')}>Afternoon</option>
                     <option value="evening">Evening</option>
                   </select>
                 </div>
@@ -267,7 +260,11 @@ function TaskFormPopup({
             <button type="button" onClick={onClose} className="cancel-button">
               Cancel
             </button>
-            <button type="submit" className="add-button">
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={hasIncompleteTime || !description || !estimatedDuration || !priority || !taskQuality}
+            >
               {buttonText}
             </button>
           </div>

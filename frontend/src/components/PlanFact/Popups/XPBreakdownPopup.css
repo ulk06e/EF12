@@ -1,0 +1,47 @@
+.xp-multiplier-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1em;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.xp-multiplier-red {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.xp-multiplier-yellow {
+  background: #fefce8;
+  color: #f59e42;
+}
+
+.xp-multiplier-green {
+  background: #ecfdf5;
+  color: #22c55e;
+}
+
+.xp-base-row {
+  background: #fff;
+  color: #444;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1em;
+  font-weight: 400;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.xp-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1em;
+  margin-top: 0;
+} 

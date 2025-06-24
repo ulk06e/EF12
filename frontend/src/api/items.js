@@ -101,3 +101,9 @@ export function filterItemsByProjectAndDay(items, projects, selectedProjectIds, 
   return filteredItems;
 }
 
+export async function fetchXPBreakdown(taskId) {
+  const res = await fetch(`${API_URL}/items/${taskId}/xp_breakdown`);
+  if (!res.ok) throw new Error('Failed to fetch XP breakdown');
+  return res.json();
+}
+

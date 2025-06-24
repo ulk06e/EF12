@@ -3,6 +3,7 @@ import TaskPopup from './Popups/TaskPopup';
 import EditTaskPopup from './Popups/EditTaskPopup';
 import AddTaskPopup from './Popups/AddTaskPopup';
 import TaskTimerPopup from './Popups/TaskTimerPopup';
+import XPBreakdownPopup from './Popups/XPBreakdownPopup';
 import { scheduleTasks } from '../../utils/scheduler';
 import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time';
@@ -29,6 +30,7 @@ export default function PlanFactColumns({
   const [editTask, setEditTask] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [timerTask, setTimerTask] = useState(null);
+  const [xpPopupTaskId, setXpPopupTaskId] = useState(null);
 
   // Use utility for plan items
   const planItems = sortPlanItems(items);
@@ -67,24 +69,18 @@ export default function PlanFactColumns({
   // Render fact column in overview mode with unaccounted time as grey cards (>=15m) and as red text (<15m)
   const renderFactColumnOverview = () => {
     const cards = [];
-    // Iterate backwards to render from oldest to newest, so gaps appear before tasks.
     for (let i = factCards.length - 1; i >= 0; i--) {
       const item = factCards[i];
-      // The unaccounted time is the gap BEFORE the current task.
-      // Render the gap card first if it's significant.
       if (item.unaccounted && item.unaccounted >= 15) {
         cards.push(
           <GapCard key={`fact-gap-${i}`} minutes={Math.round(item.unaccounted)} viewMode={viewMode} />
         );
       }
-      // Then render the task card.
-      // Show unaccounted time inline if it's small.
       const showUnaccountedInline = item.unaccounted && item.unaccounted > 0 && item.unaccounted < 15;
       cards.push(
-        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} />
+        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} />
       );
     }
-    // Reverse the final array to get the desired display order (newest first).
     return cards.reverse();
   };
 
@@ -121,6 +117,7 @@ export default function PlanFactColumns({
         task={timerTask} 
         onComplete={onCompleteTask}
       />
+      <XPBreakdownPopup open={!!xpPopupTaskId} onClose={() => setXpPopupTaskId(null)} taskId={xpPopupTaskId} />
       
       <div className="column">
         <div className="column-header">
@@ -182,7 +179,7 @@ export default function PlanFactColumns({
           <h3>Fact</h3>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
-        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} />)}
+        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} />)}
       </div>
     </div>
   );
