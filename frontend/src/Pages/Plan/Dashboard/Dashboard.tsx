@@ -1,9 +1,9 @@
 import React from 'react';
 import './Dashboard.css';
-import { SETTINGS } from '../../config';
-import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../../utils/time';
+import { SETTINGS } from '../../../config';
+import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../utils/time';
 
-export default function Dashboard({ items, selectedDay }) {
+export default function Dashboard({ items, selectedDay, onDetailsClick }) {
   // Calculate today's XP from completed tasks
   const todayXP = items
     .filter(item => {
@@ -23,6 +23,7 @@ export default function Dashboard({ items, selectedDay }) {
       <div className="column">
         <div className="column-header">
           <h3>Dashboard</h3>
+          <button className="add-button" onClick={onDetailsClick}>Details</button>
         </div>
         <div className="dashboard-cards">
           <div className="dashboard-card card">

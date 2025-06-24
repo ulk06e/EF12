@@ -1,0 +1,50 @@
+/* Statistics Page Styles */
+
+.statistics-page {
+  position: relative;
+  min-height: 100vh;
+  background: #fff;
+  padding: 16px 16px 16px 16px;
+  color: #222;
+  font-family: inherit;
+  padding-top: 0;
+}
+
+.statistics-small {
+  font-size: 0.8rem;
+}
+
+.statistics-basic {
+  font-size: 0.9rem;
+}
+
+.statistics-mid-heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+}
+
+.statistics-big-heading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 24px 0 12px 0;
+}
+
+.statistics-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.statistics-close-btn span {
+  display: none;
+} 

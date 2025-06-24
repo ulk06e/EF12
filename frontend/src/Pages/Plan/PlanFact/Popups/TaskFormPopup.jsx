@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
-import { isApproximatePeriodInPast } from '../../../utils/time';
+import { scheduleTasks, canScheduleTask } from '../../utils/scheduler';
+import { isApproximatePeriodInPast } from '../../utils/time';
 import '../../shared/Popup.css';
 
 function TaskFormPopup({ 

@@ -1,9 +1,9 @@
 import React from 'react'
 import { useState } from 'react'
-import ProjectColumns from './components/Projects/ProjectColumns'
-import WeekSelector from './components/Week/WeekSelector'
-import PlanFactColumns from './components/PlanFact/PlanFactColumns'
-import Dashboard from './components/Dashboard/Dashboard'
+import ProjectColumns from './Pages/Plan/Projects/ProjectColumns'
+import WeekSelector from './Pages/Plan/Week/WeekSelector'
+import PlanFactColumns from './Pages/Plan/PlanFact/PlanFactColumns'
+import Dashboard from './Pages/Plan/Dashboard/Dashboard'
 import {
   handleAddProject,
   handleUpdateProject,
@@ -13,10 +13,11 @@ import {
   handleUpdateTask,
   handleCompleteTask,
   updateItemsState
-} from './api'
-import useInitialData from './hooks/useInitialData'
-import { getDescendantProjectIds } from './hooks/useProjects'
-import { filterItemsByProjectAndDay } from './api/items'
+} from './Pages/Plan/api'
+import useInitialData from './Pages/Plan/hooks/useInitialData'
+import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
+import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
+import StatisticsPage from './Pages/statistics'
 
 function App() {
   const {
@@ -31,6 +32,7 @@ function App() {
     setSelectedDay,
   } = useInitialData();
   const [viewMode, setViewMode] = useState('target');
+  const [showStatistics, setShowStatistics] = useState(false);
 
   const getFilteredItems = () => {
     const itemsForDay = items.filter(item => (item.day_id || '').slice(0, 10) === selectedDay);
@@ -52,35 +54,41 @@ function App() {
 
   return (
     <div>
-      <Dashboard items={items} selectedDay={selectedDay} /> 
-      <ProjectColumns 
-        projects={projects} 
-        setProjects={setProjects}
-        selectedProjectIds={selectedProjectIds} 
-        onSelect={setSelectedProjectIds} 
-        onAddProject={(project) => handleAddProject(project, setProjects, selectedProjectIds, setSelectedProjectIds)} 
-        onDeleteProject={(projectId) => handleDeleteProject(projectId, projects, setProjects, setSelectedProjectIds, getDescendantProjectIds)}
-        onUpdateProject={(updatedProject) => handleUpdateProject(updatedProject, setProjects)}
-        items={items}
-        selectedDay={selectedDay}
-      />
-      <PlanFactColumns 
-        items={filteredItems} 
-        onAddTask={(item) => handleAddTask(item, setItems)}
-        onDeleteTask={(taskId) => handleDeleteTask(taskId, setItems)}
-        onUpdateTask={(updatedTask) => handleUpdateTask(updatedTask, setItems, (data) => updateItemsState(data, setItems), setProjects)}
-        onCompleteTask={(updatedTask) => handleCompleteTask(updatedTask, (data) => updateItemsState(data, setItems), setProjects)}
-        selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
-        selectedProjectIds={selectedProjectIds}
-        selectedDay={selectedDay}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-      />
-      <WeekSelector 
-        selectedDay={selectedDay} 
-        onSelect={setSelectedDay} 
-        items={items} 
-      />
+      {showStatistics ? (
+        <StatisticsPage onClose={() => setShowStatistics(false)} />
+      ) : (
+        <>
+          <Dashboard items={items} selectedDay={selectedDay} onDetailsClick={() => setShowStatistics(true)} />
+          <ProjectColumns 
+            projects={projects} 
+            setProjects={setProjects}
+            selectedProjectIds={selectedProjectIds} 
+            onSelect={setSelectedProjectIds} 
+            onAddProject={(project) => handleAddProject(project, setProjects, selectedProjectIds, setSelectedProjectIds)} 
+            onDeleteProject={(projectId) => handleDeleteProject(projectId, projects, setProjects, setSelectedProjectIds, getDescendantProjectIds)}
+            onUpdateProject={(updatedProject) => handleUpdateProject(updatedProject, setProjects)}
+            items={items}
+            selectedDay={selectedDay}
+          />
+          <PlanFactColumns 
+            items={filteredItems} 
+            onAddTask={(item) => handleAddTask(item, setItems)}
+            onDeleteTask={(taskId) => handleDeleteTask(taskId, setItems)}
+            onUpdateTask={(updatedTask) => handleUpdateTask(updatedTask, setItems, (data) => updateItemsState(data, setItems), setProjects)}
+            onCompleteTask={(updatedTask) => handleCompleteTask(updatedTask, (data) => updateItemsState(data, setItems), setProjects)}
+            selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
+            selectedProjectIds={selectedProjectIds}
+            selectedDay={selectedDay}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+          />
+          <WeekSelector 
+            selectedDay={selectedDay} 
+            onSelect={setSelectedDay} 
+            items={items} 
+          />
+        </>
+      )}
     </div>
   )
 }

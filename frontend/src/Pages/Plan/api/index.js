@@ -1,4 +1,4 @@
-import { SETTINGS } from '../config';
+import { SETTINGS } from '../../../config';
 
 export * from './projects';
 export * from './items';

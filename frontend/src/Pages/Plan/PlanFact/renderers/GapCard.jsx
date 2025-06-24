@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatMinutesToHours } from '../../../utils/time';
+import { formatMinutesToHours } from '../../utils/time';
 
 /**
  * GapCard component for rendering unaccounted time gaps.
