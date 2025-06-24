@@ -185,8 +185,10 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     .filter(task => taskPositions.has(task.id))
     .sort((a, b) => taskPositions.get(a.id).position - taskPositions.get(b.id).position);
   
-  // Add tasks that couldn't be scheduled
-  const unscheduledTasks = tasks.filter(task => !taskPositions.has(task.id));
+  // Add tasks that couldn't be scheduled, explicitly marking them
+  const unscheduledTasks = tasks
+    .filter(task => !taskPositions.has(task.id))
+    .map(task => ({ ...task, isUnscheduled: true }));
   
   // --- Find unaccounted time periods (gaps) ---
   const gaps = [];
@@ -256,7 +258,8 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   // --- Return the merged schedule and any errors ---
   return {
     scheduledTasks: [...finalSchedule, ...unscheduledTasks],
-    errors
+    errors,
+    taskPositions // Return this for canScheduleTask
   };
 };
 
@@ -272,50 +275,17 @@ export function canScheduleTask(newTask, allTasks, startTimeMinutes) {
   console.log('=== canScheduleTask DEBUG ===');
   console.log('New task:', newTask);
   console.log('All existing tasks:', allTasks);
-  console.log('Start time minutes:', startTimeMinutes);
   
-  // Use the actual scheduleTasks function to get the full schedule
-  const tasksWithNewOne = [...allTasks, newTask];
-  console.log('Tasks with new one:', tasksWithNewOne);
+  const { taskPositions } = scheduleTasks([...allTasks, newTask], startTimeMinutes);
   
-  const { scheduledTasks, errors } = scheduleTasks(tasksWithNewOne, startTimeMinutes);
-  console.log('Scheduled tasks:', scheduledTasks);
-  console.log('Errors:', errors);
-  
-  // Check if our new task appears in the errors
-  const taskError = errors.find(error => error.includes(`"${newTask.description}"`));
-  if (taskError) {
-    console.log('❌ Task cannot be scheduled - appears in errors:', taskError);
+  if (taskPositions.has(newTask.id)) {
+    const position = taskPositions.get(newTask.id).position;
+    console.log(`✅ Task can be scheduled at position: ${position}`);
     console.log('=== END canScheduleTask DEBUG ===');
-    return 0;
+    return position;
   }
   
-  // Check if our new task is anywhere in the scheduled tasks (not just before first gap)
-  const scheduledNewTask = scheduledTasks.find(t => t.id === newTask.id);
-  console.log('Scheduled new task:', scheduledNewTask);
-  
-  if (!scheduledNewTask) {
-    console.log('❌ Task cannot be scheduled - not found in scheduled tasks');
-    console.log('=== END canScheduleTask DEBUG ===');
-    return 0; // Task cannot be scheduled
-  }
-  
-  // Calculate the position based on the task's position in the schedule
-  const taskIndex = scheduledTasks.indexOf(scheduledNewTask);
-  let position = 1; // Start from block 1
-  
-  // Calculate position by going through all tasks before this one
-  for (let i = 0; i < taskIndex; i++) {
-    const item = scheduledTasks[i];
-    if (item.type === 'gap') {
-      // Skip gaps when calculating position
-      continue;
-    }
-    const length = Math.ceil(item.estimated_duration / 15);
-    position += length;
-  }
-  
-  console.log('✅ Task can be scheduled at position:', position);
+  console.log('❌ Task cannot be scheduled - no position assigned');
   console.log('=== END canScheduleTask DEBUG ===');
-  return position;
+  return 0;
 } 

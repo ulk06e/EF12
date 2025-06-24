@@ -291,31 +291,18 @@ export default function PlanFactColumns({
               <div className="no-items-message">No planned tasks</div>
             ) : (
               (() => {
-                // Get all tasks that are actually scheduled (not gaps)
-                const scheduledTasks = scheduledOverview.scheduledTasks.filter(t => t.type !== 'gap');
-                const gaps = scheduledOverview.scheduledTasks.filter(t => t.type === 'gap');
-                
-                // Find tasks that are in planItems but not in scheduledTasks (these are unscheduled)
-                // OR tasks that appear in the errors array
-                const unscheduledTasks = planItems.filter(planItem => {
-                  // Check if task is in errors
-                  const isInErrors = scheduledOverview.errors.some(error => 
-                    error.includes(`"${planItem.description}"`)
-                  );
-                  
-                  // Check if task is not in scheduled tasks
-                  const isNotScheduled = !scheduledTasks.some(scheduledItem => 
-                    scheduledItem.id === planItem.id
-                  );
-                  
-                  return isInErrors || isNotScheduled;
-                });
-                
+                const unscheduledTasks = scheduledOverview.scheduledTasks.filter(
+                  item => item.isUnscheduled
+                );
+                const schedulableItems = scheduledOverview.scheduledTasks.filter(
+                  item => !item.isUnscheduled
+                );
+
                 return <>
-                  {scheduledOverview.scheduledTasks.map((item, idx) =>
+                  {schedulableItems.map((item, idx) =>
                     item.type === 'gap'
                       ? renderGapCard(item, idx)
-                      : renderTaskCard(item, true, idx)
+                      : renderTaskCard(item, true, idx, false)
                   )}
                   {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
                   {unscheduledTasks.map((item, idx) =>
