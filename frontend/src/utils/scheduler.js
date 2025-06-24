@@ -272,20 +272,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
  * @returns {number} - Starting block position if fits, or 0 if not
  */
 export function canScheduleTask(newTask, allTasks, startTimeMinutes) {
-  console.log('=== canScheduleTask DEBUG ===');
-  console.log('New task:', newTask);
-  console.log('All existing tasks:', allTasks);
-  
   const { taskPositions } = scheduleTasks([...allTasks, newTask], startTimeMinutes);
   
   if (taskPositions.has(newTask.id)) {
     const position = taskPositions.get(newTask.id).position;
-    console.log(`✅ Task can be scheduled at position: ${position}`);
-    console.log('=== END canScheduleTask DEBUG ===');
     return position;
   }
   
-  console.log('❌ Task cannot be scheduled - no position assigned');
-  console.log('=== END canScheduleTask DEBUG ===');
   return 0;
 } 
