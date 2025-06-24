@@ -22,7 +22,8 @@ function getColumnProjects(projects, items, parentId) {
         .filter(item => allProjectIds.includes(item.project_id))
         .reduce((sum, item) => sum + (item.actual_duration || 0), 0);
       return { ...p, totalActualDuration };
-    });
+    })
+    .sort((a, b) => b.totalActualDuration - a.totalActualDuration);
 }
 
 export default function ProjectsTime({ projects, items }) {

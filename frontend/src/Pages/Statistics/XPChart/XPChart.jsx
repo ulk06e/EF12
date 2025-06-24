@@ -4,12 +4,13 @@ import { fetchXPAndActualForLast7Days } from '../../Statistics/api/xp';
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { formatMinutesToHours } from '../../Plan/utils/time';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
-function getDayShortLabel(dateString) {
+function getDayFullLabel(dateString) {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { weekday: 'short' });
+  return date.toLocaleDateString('en-US', { weekday: 'long' });
 }
 
 // Helper to fetch actual duration for each day
@@ -39,7 +40,7 @@ export default function XPChart() {
     setError(null);
     fetchXPAndActualForLast7Days()
       .then(rawData => setData(rawData.map(d => ({
-        day: getDayShortLabel(d.day),
+        day: getDayFullLabel(d.day),
         xp: d.xp,
         actual: d.actual
       }))))
@@ -77,9 +78,30 @@ export default function XPChart() {
                 <LineChart data={data} margin={{ top: 0, right: 8, left: 0, bottom: 8 }}>
                   <XAxis dataKey="day" tick={{ fontSize: 14, fill: '#222' }} axisLine={false} tickLine={false} tickMargin={16} />
                   <YAxis tick={{ fontSize: 14, fill: '#222' }} axisLine={false} tickLine={false} tickMargin={16} />
-                  <Tooltip contentStyle={{ background: '#fff', border: '1px solid #eee', color: '#222' }} labelStyle={{ color: '#222' }} />
+                  <Tooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const actual = payload.find(p => p.dataKey === 'actual')?.value || 0;
+                        const xp = payload.find(p => p.dataKey === 'xp')?.value || 0;
+                        return (
+                          <div style={{ background: '#fff', border: '1px solid #eee', color: '#222', padding: 8, borderRadius: 6, fontWeight: 500, minWidth: 90 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <span style={{ display: 'inline-block', width: 12, height: 3, borderRadius: 2, background: '#e53935' }}></span>
+                              <span>{formatMinutesToHours(actual)}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <span style={{ display: 'inline-block', width: 12, height: 3, borderRadius: 2, background: '#007bff' }}></span>
+                              <span>{xp}XP</span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                    labelStyle={{ color: '#222' }}
+                  />
                   <Line type="monotone" dataKey="xp" stroke="#007bff" strokeWidth={3} dot={{ r: 5, fill: '#007bff', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 7 }} name="XP" />
-                  <Line type="monotone" dataKey="actual" stroke="#e53935" strokeWidth={3} dot={{ r: 5, fill: '#e53935', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 7 }} name="Actual Duration" />
+                  <Line type="monotone" dataKey="actual" stroke="#e53935" strokeWidth={3} dot={{ r: 5, fill: '#e53935', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 7 }} name="Tracked Time" />
                 </LineChart>
               </ResponsiveContainer>
             )}
