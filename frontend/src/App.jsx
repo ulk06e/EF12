@@ -31,7 +31,7 @@ function App() {
     selectedDay,
     setSelectedDay,
   } = useInitialData();
-  const [viewMode, setViewMode] = useState('target');
+  const [viewMode, setViewMode] = useState('overview');
   const [showStatistics, setShowStatistics] = useState(false);
 
   const getFilteredItems = () => {
@@ -81,6 +81,7 @@ function App() {
             selectedDay={selectedDay}
             viewMode={viewMode}
             setViewMode={setViewMode}
+            projects={projects}
           />
           <WeekSelector 
             selectedDay={selectedDay} 

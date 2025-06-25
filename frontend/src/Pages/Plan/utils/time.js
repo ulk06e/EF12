@@ -93,3 +93,22 @@ export function isApproximatePeriodInPast(period) {
   }
   return false;
 }
+
+/**
+ * Returns the breadcrumb (parent/project) for a given project id.
+ * @param {string} projectId - The id of the project.
+ * @param {Array} projects - The list of all projects.
+ * @returns {string} The breadcrumb string ("Parent / Project") or just "Project" if no parent.
+ */
+export function getProjectBreadcrumb(projectId, projects) {
+  if (!projects || !projectId) return '';
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return '';
+  if (project.parent_id) {
+    const parent = projects.find(p => p.id === project.parent_id);
+    if (parent) {
+      return `${parent.name} / ${project.name}`;
+    }
+  }
+  return project.name;
+}

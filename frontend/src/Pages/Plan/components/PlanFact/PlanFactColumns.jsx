@@ -24,7 +24,8 @@ export default function PlanFactColumns({
   selectedProjectIds,
   selectedDay,
   viewMode,
-  setViewMode
+  setViewMode,
+  projects
 }) {
   const [popupTask, setPopupTask] = useState(null);
   const [editTask, setEditTask] = useState(null);
@@ -78,7 +79,7 @@ export default function PlanFactColumns({
       }
       const showUnaccountedInline = item.unaccounted && item.unaccounted > 0 && item.unaccounted < 15;
       cards.push(
-        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} />
+        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />
       );
     }
     return cards.reverse();
@@ -156,11 +157,11 @@ export default function PlanFactColumns({
                   {schedulableItems.map((item, idx) =>
                     item.type === 'gap'
                       ? <GapCard key={idx} minutes={item.minutes} viewMode={viewMode} />
-                      : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={false} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} />
+                      : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={false} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
                   )}
                   {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
                   {unscheduledTasks.map((item, idx) =>
-                    <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={true} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} />
+                    <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={true} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
                   )}
                 </>;
               })()
@@ -169,7 +170,7 @@ export default function PlanFactColumns({
         ) : (
           <>
             {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
-            {planItems.map((item, idx) => <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} />)}
+            {planItems.map((item, idx) => <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />)}
           </>
         )}
       </div>
@@ -179,7 +180,7 @@ export default function PlanFactColumns({
           <h3>Fact</h3>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
-        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} />)}
+        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />)}
       </div>
     </div>
   );

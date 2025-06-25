@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatMinutesToHours } from '../../../utils/time';
+import { formatMinutesToHours, getProjectBreadcrumb } from '../../../utils/time';
 
 /**
  * TaskCard component for rendering a plan or fact task card.
@@ -11,8 +11,9 @@ import { formatMinutesToHours } from '../../../utils/time';
  * @param {boolean} props.isPastDate - Is this a past date?
  * @param {string} props.viewMode - Current view mode
  * @param {function} props.onClick - Click handler (optional)
+ * @param {Array} props.projects - The list of all projects
  */
-export default function TaskCard({ item, isPlan = false, index = 0, isUnscheduled = false, isPastDate = false, viewMode, onClick }) {
+export default function TaskCard({ item, isPlan = false, index = 0, isUnscheduled = false, isPastDate = false, viewMode, onClick, projects }) {
   // Get time information for overview mode
   const getTimeInfo = () => {
     if (item.planned_time) {
@@ -25,6 +26,9 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
     }
     return formatMinutesToHours(item.estimated_duration);
   };
+
+  // Get the project breadcrumb (Parent / Project)
+  const breadcrumb = getProjectBreadcrumb(item.project_id, projects);
 
   const duration = isPlan ? item.estimated_duration || 0 : item.actual_duration || 0;
   const cardStyle = viewMode === 'overview' && duration > 30
@@ -49,7 +53,8 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
             <span className="card-item-separator">-</span>
             <span className="card-item-quality">{item.task_quality}</span>
           </span>
-          <span className="item-description">: {item.description}</span>
+          {/* Show breadcrumb only in overview mode */}
+          <span className="item-description">: {item.description} {viewMode === 'overview' && breadcrumb ? `(${breadcrumb})` : ''}</span>
         </div>
       </div>
       <div className="card-item-block">
