@@ -1,7 +1,7 @@
 import React from 'react';
 import './WeekSelector.css';
-import { SETTINGS } from '../../../config';
-import { formatMinutesToHours, toLocalDateString } from '../utils/time';
+import { SETTINGS } from '../../../../config';
+import { formatMinutesToHours, toLocalDateString } from '../../utils/time';
 
 function getCurrentWeek() {
   const today = new Date();

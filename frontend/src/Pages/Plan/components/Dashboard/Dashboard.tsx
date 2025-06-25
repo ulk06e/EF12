@@ -1,7 +1,7 @@
 import React from 'react';
 import './Dashboard.css';
-import { SETTINGS } from '../../../config';
-import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../utils/time';
+import { SETTINGS } from '../../../../config';
+import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../../utils/time';
 
 export default function Dashboard({ items, selectedDay, onDetailsClick }) {
   // Calculate today's XP from completed tasks

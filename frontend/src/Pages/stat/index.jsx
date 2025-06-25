@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import ProjectsTime from './ProjectsTime/ProjectsTime';
-import XPChart from './XPChart/XPChart';
-import { API_URL } from '../Plan/api';
+import ProjectsTime from './components/ProjectsTime/ProjectsTime';
+import XPChart from './components/XPChart/XPChart';
 import { fetchStatisticsData } from './api/xp';
 import './index.css';
 

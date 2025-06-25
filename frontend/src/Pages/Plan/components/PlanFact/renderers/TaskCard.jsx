@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatMinutesToHours } from '../../utils/time';
+import { formatMinutesToHours } from '../../../utils/time';
 
 /**
  * TaskCard component for rendering a plan or fact task card.

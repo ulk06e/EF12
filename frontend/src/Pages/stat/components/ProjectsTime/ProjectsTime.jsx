@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../../Plan/Projects/Projects.css';
-import '../../Plan/shared/Card.css';
-import '../../Plan/shared/Column.css';
+import '../../../Plan/components/Projects/Projects.css';
+import '../../../Plan/shared/Card.css';
+import '../../../Plan/shared/Column.css';
 
 function getDescendantProjectIds(projects, parentId) {
   const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id);

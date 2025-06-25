@@ -1,6 +1,6 @@
 /* Dashboard Styles */
-@import '../shared/Column.css';
-@import '../shared/Card.css';
+@import '../../shared/Column.css';
+@import '../../shared/Card.css';
 
 .dashboard-cards {
   display: grid;

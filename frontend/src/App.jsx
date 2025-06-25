@@ -1,9 +1,9 @@
 import React from 'react'
 import { useState } from 'react'
-import ProjectColumns from './Pages/Plan/Projects/ProjectColumns'
-import WeekSelector from './Pages/Plan/Week/WeekSelector'
-import PlanFactColumns from './Pages/Plan/PlanFact/PlanFactColumns'
-import Dashboard from './Pages/Plan/Dashboard/Dashboard'
+import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
+import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
+import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
+import Dashboard from './Pages/Plan/components/Dashboard/Dashboard'
 import {
   handleAddProject,
   handleUpdateProject,

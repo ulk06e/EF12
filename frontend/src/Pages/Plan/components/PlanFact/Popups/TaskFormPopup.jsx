@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { scheduleTasks, canScheduleTask } from '../../utils/scheduler';
-import { isApproximatePeriodInPast } from '../../utils/time';
-import '../../shared/Popup.css';
+import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
+import { isApproximatePeriodInPast } from '../../../utils/time';
+import '../../../shared/Popup.css';
 
 function TaskFormPopup({ 
   mode, 
@@ -15,8 +15,8 @@ function TaskFormPopup({
   allPlanItems = []
 }) {
   const [description, setDescription] = useState('');
-  const [taskQuality, setTaskQuality] = useState('A');
-  const [priority, setPriority] = useState(1);
+  const [taskQuality, setTaskQuality] = useState('C');
+  const [priority, setPriority] = useState(4);
   const [estimatedDuration, setEstimatedDuration] = useState(30);
   const [plannedTime, setPlannedTime] = useState('');
   const [plannedHour, setPlannedHour] = useState('');
@@ -50,8 +50,8 @@ function TaskFormPopup({
 
   const resetForm = () => {
     setDescription('');
-    setTaskQuality('A');
-    setPriority(1);
+    setTaskQuality('C');
+    setPriority(4);
     setEstimatedDuration(30);
     setPlannedTime('');
     setPlannedHour('');

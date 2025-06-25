@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchXPAndActualForLast7Days } from '../api/xp';
+import { fetchXPAndActualForLast7Days } from '../../api/xp';
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { formatMinutesToHours } from '../../Plan/utils/time';
+import { formatMinutesToHours } from '../../../Plan/utils/time';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 

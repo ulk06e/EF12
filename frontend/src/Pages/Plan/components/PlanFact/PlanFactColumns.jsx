@@ -1,16 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import TaskPopup from './Popups/TaskPopup';
-import EditTaskPopup from './Popups/EditTaskPopup';
-import AddTaskPopup from './Popups/AddTaskPopup';
-import TaskTimerPopup from './Popups/TaskTimerPopup';
-import XPBreakdownPopup from './Popups/XPBreakdownPopup';
-import { scheduleTasks } from '../utils/scheduler.js';
+import TaskPopup from './Popups/TaskPopup.jsx';
+import EditTaskPopup from './Popups/EditTaskPopup.jsx';
+import AddTaskPopup from './Popups/AddTaskPopup.jsx';
+import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
+import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
+import { scheduleTasks } from '../../utils/scheduler.js';
 import './PlanFactColumns.css';
-import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../utils/time';
-import { sortPlanItems } from './utils/planUtils';
-import { prepareFactCards } from './utils/factUtils';
-import TaskCard from './renderers/TaskCard';
-import GapCard from './renderers/GapCard';
+import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
+import { sortPlanItems } from './utils/planUtils.js';
+import { prepareFactCards } from './utils/factUtils.js';
+import TaskCard from './renderers/TaskCard.jsx';
+import GapCard from './renderers/GapCard.jsx';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
