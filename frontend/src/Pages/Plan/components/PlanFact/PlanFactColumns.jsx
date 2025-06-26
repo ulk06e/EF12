@@ -5,6 +5,7 @@ import AddTaskPopup from './Popups/AddTaskPopup.jsx';
 import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
 import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
 import { scheduleTasks } from '../../utils/scheduler.js';
+import { getLocalTimeBlocks } from '../../../settings/timespan/localDb';
 import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
 import { sortPlanItems } from './utils/planUtils.js';
@@ -36,21 +37,40 @@ export default function PlanFactColumns({
   // Use utility for plan items
   const planItems = sortPlanItems(items);
 
+  // Attach approximate_start and approximate_end to plan items before scheduling
+  const timeBlocks = getLocalTimeBlocks();
+  const planItemsWithBlocks = planItems.map(item => {
+    if (item.approximate_planned_time && timeBlocks.length > 0) {
+      const block = timeBlocks.find(b => b.name === item.approximate_planned_time);
+      if (block) {
+        return {
+          ...item,
+          approximate_start: block.start,
+          approximate_end: block.end
+        };
+      }
+    }
+    return item;
+  });
+
   // Use utility for fact cards
   const factCards = prepareFactCards(items);
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
-    if (viewMode !== 'overview' || !planItems || planItems.length === 0) {
-      return { scheduledTasks: planItems, errors: [] };
+    if (viewMode !== 'overview' || !planItemsWithBlocks || planItemsWithBlocks.length === 0) {
+      return { scheduledTasks: planItemsWithBlocks, errors: [] };
     }
     const isToday = selectedDay === (new Date()).toISOString().split('T')[0];
     const now = new Date();
     const startTimeMinutes = now.getHours() * 60 + now.getMinutes();
-    return isToday
-      ? scheduleTasks(planItems, startTimeMinutes)
-      : scheduleTasks(planItems);
-  }, [planItems, viewMode, selectedDay]);
+    const result = isToday
+      ? scheduleTasks(planItemsWithBlocks, startTimeMinutes)
+      : scheduleTasks(planItemsWithBlocks);
+    console.log('[DEBUG][PlanFactColumns] planItemsWithBlocks:', planItemsWithBlocks);
+    console.log('[DEBUG][PlanFactColumns] scheduledOverview:', result);
+    return result;
+  }, [planItemsWithBlocks, viewMode, selectedDay]);
   
   const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
 

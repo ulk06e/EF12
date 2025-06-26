@@ -108,36 +108,29 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   });
   
   // --- Phase 2: Schedule approximate time tasks (approximate_planned_time) ---
-  const periods = [
-    { name: 'NIGHT', start: 1, end: 24 },      // 0-6 hours
-    { name: 'MORNING', start: 25, end: 48 },   // 6-12 hours
-    { name: 'AFTERNOON', start: 49, end: 72 }, // 12-18 hours
-    { name: 'EVENING', start: 73, end: 96 }    // 18-24 hours
-  ];
-  
-  const periodMap = { 'night': 0, 'morning': 1, 'afternoon': 2, 'evening': 3 };
-  
   const approximateTasks = sortTasks(tasks.filter(task => task.approximate_planned_time));
-  
   approximateTasks.forEach(task => {
-    const periodIndex = periodMap[task.approximate_planned_time];
-    if (periodIndex === undefined) {
-      errors.push(`Invalid approximate time for task "${task.description}"`);
+    // Use custom time block start/end
+    if (!task.approximate_start || !task.approximate_end) {
+      errors.push(`Invalid time block for task "${task.description}"`);
       return;
     }
-    
-    const period = periods[periodIndex];
+    // Parse start/end as HH:MM
+    const [startHour, startMinute] = task.approximate_start.split(':').map(Number);
+    const [endHour, endMinute] = task.approximate_end.split(':').map(Number);
+    const startBlock = Math.floor((startHour * 60 + startMinute) / 15) + 1;
+    let endBlock = Math.floor((endHour * 60 + endMinute) / 15) + 1;
+    // Handle crossing midnight
+    if (endBlock <= startBlock) {
+      endBlock += 96; // add 24h worth of blocks
+    }
     const length = Math.ceil(task.estimated_duration / 15);
-    
     // Try to find a position in the preferred period
-    const position = findAvailablePosition(period.start, period.end, length, occupiedBlocks);
-    
-    // If not found, log an error and do not try other periods
+    const position = findAvailablePosition(startBlock, endBlock, length, occupiedBlocks);
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot fit into the ${task.approximate_planned_time}`);
-      return; // Stop processing this task
+      return;
     }
-    
     // Check for collisions
     const collidingTasks = getCollidingTasks(position, length, occupiedBlocks, taskPositions, tasks);
     if (collidingTasks.size > 0) {
@@ -145,7 +138,6 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
       errors.push(`Task "${task.description}" collides with ${taskNames}`);
       return;
     }
-    
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
   });
   

@@ -1,0 +1,17 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export async function fetchSettings() {
+  const res = await fetch(`${API_URL}/settings/default`);
+  if (!res.ok) throw new Error('Failed to fetch settings');
+  return res.json();
+}
+
+export async function updateSettings(data) {
+  const res = await fetch(`${API_URL}/settings/default`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update settings');
+  return res.json();
+} 

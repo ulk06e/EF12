@@ -2,10 +2,12 @@
 import { API_URL } from './index';
 
 export function handleAddTask(item, setItems) {
+  // Remove frontend-only fields
+  const { approximate_start, approximate_end, ...itemToSend } = item;
   fetch(`${API_URL}/items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item)
+    body: JSON.stringify(itemToSend)
   })
     .then(res => res.json())
     .then(data => {
@@ -23,10 +25,12 @@ export function handleDeleteTask(taskId, setItems) {
 }
 
 export function handleUpdateTask(updatedTask, setItems, updateItemsState, setProjects) {
+  // Remove frontend-only fields
+  const { approximate_start, approximate_end, ...itemToSend } = updatedTask;
   fetch(`${API_URL}/items/${updatedTask.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedTask)
+    body: JSON.stringify(itemToSend)
   })
     .then(res => res.json())
     .then(data => {
@@ -51,10 +55,12 @@ export function handleUpdateTask(updatedTask, setItems, updateItemsState, setPro
 }
 
 export function handleCompleteTask(updatedTask, updateItemsState, setProjects) {
+  // Remove frontend-only fields
+  const { approximate_start, approximate_end, ...itemToSend } = updatedTask;
   fetch(`${API_URL}/items/${updatedTask.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedTask)
+    body: JSON.stringify(itemToSend)
   })
     .then(res => res.json())
     .then(data => {

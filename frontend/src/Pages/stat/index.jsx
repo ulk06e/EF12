@@ -31,8 +31,10 @@ export default function StatisticsPage({ onClose }) {
       ) : (
         <>
           <div className="columns-container">
-            <div className="column">
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div className="column sticky-column">
+              <div className="header-actions">
+                <button className="menu-button">Menu</button>
+                <span></span>
                 <button className="add-button" onClick={onClose}>Close</button>
               </div>
             </div>

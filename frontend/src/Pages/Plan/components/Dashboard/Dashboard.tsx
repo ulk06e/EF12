@@ -3,7 +3,7 @@ import './Dashboard.css';
 import { SETTINGS } from '../../../../config';
 import { formatMinutesToHours, getLocalDateFromCompletedTime } from '../../utils/time';
 
-export default function Dashboard({ items, selectedDay, onDetailsClick }) {
+export default function Dashboard({ items, selectedDay, onDetailsClick, onSettingsClick }) {
   // Calculate today's XP from completed tasks
   const todayXP = items
     .filter(item => {
@@ -24,7 +24,7 @@ export default function Dashboard({ items, selectedDay, onDetailsClick }) {
         <div className="column-header">
           <h3>Dashboard</h3>
           <div>
-            <button className="settings-button">Settings</button>
+            <button className="settings-button" onClick={onSettingsClick}>Settings</button>
             <button className="add-button" onClick={onDetailsClick}>Details</button>
           </div>
         </div>

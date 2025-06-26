@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
 import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
+import { getLocalTimeBlocks, setLocalTimeBlocks } from '../../../../settings/timespan/localDb';
+import { fetchSettings } from '../../../../settings/timespan/tapi';
 import '../../../shared/Popup.css';
 
 function TaskFormPopup({ 
@@ -24,7 +26,10 @@ function TaskFormPopup({
   const [plannedHour, setPlannedHour] = useState('');
   const [plannedMinute, setPlannedMinute] = useState('');
   const [approximatePlannedTime, setApproximatePlannedTime] = useState('');
+  const [approximateStart, setApproximateStart] = useState('');
+  const [approximateEnd, setApproximateEnd] = useState('');
   const [showPlanTime, setShowPlanTime] = useState(false);
+  const [timeBlocks, setTimeBlocks] = useState([]);
 
   const projectBreadcrumb = getProjectBreadcrumb(projectId, projects);
 
@@ -51,6 +56,33 @@ function TaskFormPopup({
       setShowPlanTime(!!(initialTask.planned_time || initialTask.approximate_planned_time));
     }
   }, [mode, initialTask]);
+
+  useEffect(() => {
+    // On open, check localDb, if empty fetch from backend
+    if (open) {
+      let localBlocks = getLocalTimeBlocks();
+      if (!localBlocks || localBlocks.length === 0) {
+        fetchSettings().then(data => {
+          setLocalTimeBlocks(data.time_blocks || []);
+          setTimeBlocks(data.time_blocks || []);
+        });
+      } else {
+        setTimeBlocks(localBlocks);
+      }
+    }
+  }, [open]);
+
+  // When approximatePlannedTime changes, set start/end
+  useEffect(() => {
+    if (approximatePlannedTime && timeBlocks.length > 0) {
+      const block = timeBlocks.find(b => b.name === approximatePlannedTime);
+      setApproximateStart(block ? block.start : '');
+      setApproximateEnd(block ? block.end : '');
+    } else {
+      setApproximateStart('');
+      setApproximateEnd('');
+    }
+  }, [approximatePlannedTime, timeBlocks]);
 
   const resetForm = () => {
     setDescription('');
@@ -83,10 +115,14 @@ function TaskFormPopup({
         completed_time: null,
         actual_duration: null,
         planned_time: combinedTime || null,
-        approximate_planned_time: approximatePlannedTime || null
+        approximate_planned_time: approximatePlannedTime || null,
+        approximate_start: approximateStart || null,
+        approximate_end: approximateEnd || null
       };
 
       // --- Use canScheduleTask helper ---
+      console.log('[DEBUG][Popup] canScheduleTask newTask:', newTask);
+      console.log('[DEBUG][Popup] canScheduleTask allPlanItems:', allPlanItems);
       if (!canScheduleTask(newTask, allPlanItems)) {
         alert('This task cannot be scheduled. Please adjust its time or duration, or check for conflicts.');
         return;
@@ -105,7 +141,9 @@ function TaskFormPopup({
         estimated_duration: estimatedDuration ? parseInt(estimatedDuration) : null,
         priority: priority ? parseInt(priority) : null,
         planned_time: combinedTime || null,
-        approximate_planned_time: approximatePlannedTime || null
+        approximate_planned_time: approximatePlannedTime || null,
+        approximate_start: approximateStart || null,
+        approximate_end: approximateEnd || null
       };
       onSubmit(updatedTask);
     }
@@ -254,10 +292,27 @@ function TaskFormPopup({
                     className="approximate-time-select"
                   >
                     <option value="">Select approximate time</option>
-                    <option value="night" disabled={isToday && isApproximatePeriodInPast('night')}>Night</option>
-                    <option value="morning" disabled={isToday && isApproximatePeriodInPast('morning')}>Morning</option>
-                    <option value="afternoon" disabled={isToday && isApproximatePeriodInPast('afternoon')}>Afternoon</option>
-                    <option value="evening">Evening</option>
+                    {timeBlocks.length > 0 &&
+                      [...timeBlocks]
+                        .sort((a, b) => (a.start || '').localeCompare(b.start || ''))
+                        .map((block, idx) => {
+                          // Disable if the block's end time has passed for today
+                          let disabled = false;
+                          if (isToday && block.end) {
+                            const [endHour, endMinute] = block.end.split(':').map(Number);
+                            if (
+                              endHour < currentHour ||
+                              (endHour === currentHour && endMinute <= currentMinute)
+                            ) {
+                              disabled = true;
+                            }
+                          }
+                          return (
+                            <option key={idx} value={block.name} disabled={disabled}>
+                              {block.name} ({block.start} - {block.end})
+                            </option>
+                          );
+                        })}
                   </select>
                 </div>
               </div>

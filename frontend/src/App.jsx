@@ -18,6 +18,7 @@ import useInitialData from './Pages/Plan/hooks/useInitialData'
 import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
 import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
 import StatisticsPage from './Pages/stat'
+import SettingsPage from './Pages/settings'
 
 function App() {
   const {
@@ -33,6 +34,7 @@ function App() {
   } = useInitialData();
   const [viewMode, setViewMode] = useState('overview');
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const getFilteredItems = () => {
     const itemsForDay = items.filter(item => (item.day_id || '').slice(0, 10) === selectedDay);
@@ -53,12 +55,22 @@ function App() {
   const filteredItems = getFilteredItems();
 
   return (
-    <div>
+    <div className="main-container">
       {showStatistics ? (
         <StatisticsPage onClose={() => setShowStatistics(false)} />
+      ) : showSettings ? (
+        <SettingsPage onClose={() => setShowSettings(false)} />
       ) : (
         <>
-          <Dashboard items={items} selectedDay={selectedDay} onDetailsClick={() => setShowStatistics(true)} />
+          <div className="columns-container">
+            <div className="column sticky-column">
+              <div className="header-actions">
+                <button className="menu-button">Menu</button>
+                <span></span>
+              </div>
+            </div>
+          </div>
+          <Dashboard items={items} selectedDay={selectedDay} onDetailsClick={() => setShowStatistics(true)} onSettingsClick={() => setShowSettings(true)} />
           <ProjectColumns 
             projects={projects} 
             setProjects={setProjects}
