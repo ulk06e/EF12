@@ -41,7 +41,9 @@ export default function PlanFactColumns({
   const timeBlocks = getLocalTimeBlocks();
   const planItemsWithBlocks = planItems.map(item => {
     if (item.approximate_planned_time && timeBlocks.length > 0) {
-      const block = timeBlocks.find(b => b.name === item.approximate_planned_time);
+      const block = timeBlocks.find(
+        b => b.name.trim().toLowerCase() === item.approximate_planned_time.trim().toLowerCase()
+      );
       if (block) {
         return {
           ...item,
@@ -67,8 +69,8 @@ export default function PlanFactColumns({
     const result = isToday
       ? scheduleTasks(planItemsWithBlocks, startTimeMinutes)
       : scheduleTasks(planItemsWithBlocks);
-    console.log('[DEBUG][PlanFactColumns] planItemsWithBlocks:', planItemsWithBlocks);
-    console.log('[DEBUG][PlanFactColumns] scheduledOverview:', result);
+    const gapItems = result.scheduledTasks.filter(item => item.type === 'gap');
+    const totalGapMinutes = gapItems.reduce((sum, g) => sum + (g.minutes || 0), 0);
     return result;
   }, [planItemsWithBlocks, viewMode, selectedDay]);
   

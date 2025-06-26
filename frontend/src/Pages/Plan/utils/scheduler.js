@@ -75,7 +75,10 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   const startBlock = (typeof startTimeMinutes === 'number')
     ? Math.floor(startTimeMinutes / 15) + 1
     : 1;
-  
+
+  // Determine if this is 'today' (startTimeMinutes is provided and > 0)
+  const isToday = typeof startTimeMinutes === 'number' && startTimeMinutes > 0;
+
   // --- Phase 1: Schedule fixed time tasks (planned_time) ---
   const fixedTimeTasks = tasks.filter(task => task.planned_time);
   fixedTimeTasks.forEach(task => {
@@ -118,15 +121,20 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     // Parse start/end as HH:MM
     const [startHour, startMinute] = task.approximate_start.split(':').map(Number);
     const [endHour, endMinute] = task.approximate_end.split(':').map(Number);
-    const startBlock = Math.floor((startHour * 60 + startMinute) / 15) + 1;
+    let blockStart = Math.floor((startHour * 60 + startMinute) / 15) + 1;
     let endBlock = Math.floor((endHour * 60 + endMinute) / 15) + 1;
     // Handle crossing midnight
-    if (endBlock <= startBlock) {
+    if (endBlock <= blockStart) {
       endBlock += 96; // add 24h worth of blocks
     }
     const length = Math.ceil(task.estimated_duration / 15);
+    // For today, only allow scheduling in the future part of the block
+    let effectiveStartBlock = blockStart;
+    if (isToday) {
+      effectiveStartBlock = Math.max(blockStart, startBlock);
+    }
     // Try to find a position in the preferred period
-    const position = findAvailablePosition(startBlock, endBlock, length, occupiedBlocks);
+    const position = findAvailablePosition(effectiveStartBlock, endBlock, length, occupiedBlocks);
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot fit into the ${task.approximate_planned_time}`);
       return;
