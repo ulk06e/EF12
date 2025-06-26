@@ -23,7 +23,10 @@ export default function Dashboard({ items, selectedDay, onDetailsClick }) {
       <div className="column">
         <div className="column-header">
           <h3>Dashboard</h3>
-          <button className="add-button" onClick={onDetailsClick}>Details</button>
+          <div>
+            <button className="settings-button">Settings</button>
+            <button className="add-button" onClick={onDetailsClick}>Details</button>
+          </div>
         </div>
         <div className="dashboard-cards">
           <div className="dashboard-card card">

@@ -53,6 +53,16 @@
   flex: 1;
 }
 
+.popup-breadcrumb {
+  text-align: left;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
 .popup-buttons {
   display: flex;
   justify-content: space-between;

@@ -111,6 +111,8 @@ export default function PlanFactColumns({
         projectId={selectedProjectId} 
         dayId={selectedDay}
         planItems={planItems}
+        projects={projects}
+        selectedProjectIds={selectedProjectIds}
       />
       <TaskTimerPopup 
         open={!!timerTask} 

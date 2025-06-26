@@ -28,6 +28,23 @@
   color: #6b7280;
 }
 
+.settings-button {
+  background-color: white;
+  color: black;
+  border: 1px solid #e5e7eb;
+  margin-right: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.settings-button:hover {
+  background-color: #f3f4f6;
+}
+
 .card-value {
   font-size: 1.3rem;
   font-weight: 600;

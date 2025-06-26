@@ -31,7 +31,7 @@ function getMultiplierLabel(name, value, breakdown) {
     return `Quality (${breakdown.quality_letter || ''})`;
   }
   if (name === 'Time Quality') {
-    return value === 1.5 ? 'Pure Time Bonus' : 'Time Quality';
+    return `Time Quality (${value === 1.5 ? 'pure' : 'not-pure'})`;
   }
   if (name === 'Priority') {
     return `Priority #${breakdown.priority_value || ''}`;

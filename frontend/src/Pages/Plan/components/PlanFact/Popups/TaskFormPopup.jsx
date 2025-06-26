@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
-import { isApproximatePeriodInPast } from '../../../utils/time';
+import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
 import '../../../shared/Popup.css';
 
 function TaskFormPopup({ 
@@ -12,7 +12,9 @@ function TaskFormPopup({
   initialTask = null, 
   projectId = null, 
   dayId = null,
-  allPlanItems = []
+  allPlanItems = [],
+  projects = [],
+  selectedProjectIds = []
 }) {
   const [description, setDescription] = useState('');
   const [taskQuality, setTaskQuality] = useState('C');
@@ -23,6 +25,8 @@ function TaskFormPopup({
   const [plannedMinute, setPlannedMinute] = useState('');
   const [approximatePlannedTime, setApproximatePlannedTime] = useState('');
   const [showPlanTime, setShowPlanTime] = useState(false);
+
+  const projectBreadcrumb = getProjectBreadcrumb(projectId, projects);
 
   // Initialize form with existing task data (edit mode)
   useEffect(() => {
@@ -83,10 +87,8 @@ function TaskFormPopup({
       };
 
       // --- Use canScheduleTask helper ---
-      const canFit = canScheduleTask(newTask, allPlanItems);
-
-      if (!canFit) {
-        alert('This task cannot be scheduled. Please adjust its time or duration.');
+      if (!canScheduleTask(newTask, allPlanItems)) {
+        alert('This task cannot be scheduled. Please adjust its time or duration, or check for conflicts.');
         return;
       }
       
@@ -139,6 +141,11 @@ function TaskFormPopup({
   return (
     <div className="add-task-popup-overlay">
       <div className="add-task-popup">
+        {projectBreadcrumb && (
+          <div className="popup-breadcrumb">
+            Adding to: {projectBreadcrumb}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="add-task-row">
             <input

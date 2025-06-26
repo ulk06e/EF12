@@ -130,19 +130,13 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     const length = Math.ceil(task.estimated_duration / 15);
     
     // Try to find a position in the preferred period
-    let position = findAvailablePosition(period.start, period.end, length, occupiedBlocks);
+    const position = findAvailablePosition(period.start, period.end, length, occupiedBlocks);
     
-    // If not found, try other periods
+    // If not found, log an error and do not try other periods
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot fit into the ${task.approximate_planned_time}`);
-      
-      for (const p of periods) {
-        position = findAvailablePosition(p.start, p.end, length, occupiedBlocks);
-        if (position !== -1) break;
-      }
+      return; // Stop processing this task
     }
-    
-    if (position === -1) return; // Error already logged
     
     // Check for collisions
     const collidingTasks = getCollidingTasks(position, length, occupiedBlocks, taskPositions, tasks);
@@ -269,15 +263,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
  * @param {Object} newTask - The task to check
  * @param {Array} allTasks - The current list of tasks (excluding newTask)
  * @param {number} [startTimeMinutes] - Optional, start time in minutes since midnight
- * @returns {number} - Starting block position if fits, or 0 if not
+ * @returns {boolean} - True if the task can be scheduled, false otherwise
  */
 export function canScheduleTask(newTask, allTasks, startTimeMinutes) {
-  const { taskPositions } = scheduleTasks([...allTasks, newTask], startTimeMinutes);
-  
-  if (taskPositions.has(newTask.id)) {
-    const position = taskPositions.get(newTask.id).position;
-    return position;
-  }
-  
-  return 0;
+  const tasks = [...allTasks, newTask];
+  const { scheduledTasks, errors } = scheduleTasks(tasks, startTimeMinutes);
+  // Check if the new task was successfully scheduled (i.e., not marked as unscheduled)
+  const scheduledNewTask = scheduledTasks.find(t => t.id === newTask.id);
+  return !!scheduledNewTask && !scheduledNewTask.isUnscheduled;
 } 
