@@ -5,7 +5,7 @@ import AddTaskPopup from './Popups/AddTaskPopup.jsx';
 import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
 import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
 import { scheduleTasks } from '../../utils/scheduler.js';
-import { getLocalTimeBlocks } from '../../../settings/timespan/localDb';
+import { getLocalTimeBlocks } from '../../../settings/first3/timespan/localDb';
 import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
 import { sortPlanItems } from './utils/planUtils.js';

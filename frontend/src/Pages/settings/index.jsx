@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import TimespanBlock from './timespan/TimespanBlock';
+import FirstThreeColumns from './first3/first3';
 import '../Plan/shared/Column.css';
 
 export default function SettingsPage({ onClose }) {
@@ -15,7 +15,7 @@ export default function SettingsPage({ onClose }) {
           </div>
         </div>
       </div>
-      <TimespanBlock />
+      <FirstThreeColumns />
     </div>
   );
 } 

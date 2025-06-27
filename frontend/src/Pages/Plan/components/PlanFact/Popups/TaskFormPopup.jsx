@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
 import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
-import { getLocalTimeBlocks, setLocalTimeBlocks } from '../../../../settings/timespan/localDb';
-import { fetchSettings } from '../../../../settings/timespan/tapi';
+import { getLocalTimeBlocks, setLocalTimeBlocks } from '../../../../settings/first3/timespan/localDb';
+import { fetchSettings } from '../../../../settings/first3/timespan/tapi';
 import '../../../shared/Popup.css';
 
 function TaskFormPopup({ 

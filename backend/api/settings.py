@@ -13,6 +13,7 @@ def get_settings(user_id: str, db: Session = Depends(get_db)):
     return {
         "user_id": settings.user_id,
         "time_blocks": settings.time_blocks,
+        "routine_tasks": settings.routine_tasks,
         "last_synced": settings.last_synced
     }
 
@@ -25,6 +26,8 @@ def update_settings(user_id: str, data: dict, db: Session = Depends(get_db)):
     # Update fields
     if "time_blocks" in data:
         settings.time_blocks = data["time_blocks"]
+    if "routine_tasks" in data:
+        settings.routine_tasks = data["routine_tasks"]
     if "last_synced" in data:
         settings.last_synced = data["last_synced"]
     db.commit()
@@ -32,5 +35,6 @@ def update_settings(user_id: str, data: dict, db: Session = Depends(get_db)):
     return {
         "user_id": settings.user_id,
         "time_blocks": settings.time_blocks,
+        "routine_tasks": settings.routine_tasks,
         "last_synced": settings.last_synced
     }

@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import '../../Plan/shared/Card.css';
-import '../../Plan/shared/Popup.css';
+import '../../../Plan/shared/Card.css';
+import '../../../Plan/shared/Popup.css';
 
-export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
+export default function AddRoutineTaskPopup({ open, onClose, onAdd }) {
   const [name, setName] = useState('');
+  const [priority, setPriority] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
 
   const resetForm = () => {
     setName('');
+    setPriority('');
     setStart('');
     setEnd('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd({ name, start, end });
+    onAdd({ id: Date.now(), name, priority: Number(priority), start, end });
     resetForm();
   };
 
@@ -28,13 +30,22 @@ export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
           <div className="add-task-row">
             <input
               type="text"
-              placeholder="Block name"
+              placeholder="Routine name"
               value={name}
               onChange={e => setName(e.target.value)}
               required
             />
           </div>
           <div className="add-task-row">
+            <input
+              type="number"
+              placeholder="Priority"
+              value={priority}
+              min={1}
+              onChange={e => setPriority(e.target.value)}
+              required
+              style={{ width: 80 }}
+            />
             <input
               type="time"
               value={start}
@@ -56,9 +67,9 @@ export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
             <button
               type="submit"
               className="submit-button"
-              disabled={!name || !start || !end}
+              disabled={!name || !priority || !start || !end}
             >
-              Add Time Block
+              Add Routine
             </button>
           </div>
         </form>

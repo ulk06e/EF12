@@ -35,4 +35,36 @@ def test_settings_lifecycle():
     response = client.post(SETTINGS_URL, json={"time_blocks": []})
     assert response.status_code == 200
     result = response.json()
-    assert result["time_blocks"] == [] 
+    assert result["time_blocks"] == []
+
+    # 5. Delete all routine_tasks
+    response = client.post(SETTINGS_URL, json={"routine_tasks": []})
+    assert response.status_code == 200
+    result = response.json()
+    assert result["routine_tasks"] == []
+
+    # 2. Create/update settings with routine_tasks and last_synced
+    routine_data = {
+        "routine_tasks": [
+            {"priority": 1, "name": "Sleep", "start": "23:00", "end": "07:00"},
+            {"priority": 2, "name": "Breakfast", "start": "07:30", "end": "08:00"}
+        ],
+        "last_synced": "2023-01-01T00:00:00Z"
+    }
+
+    response = client.post(SETTINGS_URL, json=routine_data)
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert result["routine_tasks"] == routine_data["routine_tasks"]
+
+    # 3. Set last_synced to null (simulate sync/erasure)
+    response = client.post(SETTINGS_URL, json={"last_synced": None})
+    assert response.status_code == 200
+    result = response.json()
+    assert result["last_synced"] is None
+
+    # 4. Delete all routine_tasks
+    response = client.post(SETTINGS_URL, json={"routine_tasks": []})
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert result["routine_tasks"] == [] 
