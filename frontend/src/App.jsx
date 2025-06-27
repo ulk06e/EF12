@@ -19,6 +19,8 @@ import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
 import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
 import StatisticsPage from './Pages/stat'
 import SettingsPage from './Pages/settings'
+import { getTodayDateString, toLocalDateString } from './Pages/Plan/utils/time'
+import { rescheduleFutureDailyBasics } from './Pages/settings/first3/daily_basics/tapi'
 
 function App() {
   const {
@@ -59,7 +61,12 @@ function App() {
       {showStatistics ? (
         <StatisticsPage onClose={() => setShowStatistics(false)} />
       ) : showSettings ? (
-        <SettingsPage onClose={() => setShowSettings(false)} />
+        <SettingsPage onClose={async () => {
+          setShowSettings(false);
+          setSelectedDay(getTodayDateString());
+          await rescheduleFutureDailyBasics();
+          window.location.reload();
+        }} />
       ) : (
         <>
           <div className="columns-container">

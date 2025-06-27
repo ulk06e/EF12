@@ -7,17 +7,19 @@ export default function AddRoutineTaskPopup({ open, onClose, onAdd }) {
   const [priority, setPriority] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
+  const [duration, setDuration] = useState('');
 
   const resetForm = () => {
     setName('');
     setPriority('');
     setStart('');
     setEnd('');
+    setDuration('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd({ id: Date.now(), name, priority: Number(priority), start, end });
+    onAdd({ id: Date.now(), name, priority: Number(priority), start, end, duration: duration ? Number(duration) : undefined });
     resetForm();
   };
 
@@ -45,6 +47,15 @@ export default function AddRoutineTaskPopup({ open, onClose, onAdd }) {
               onChange={e => setPriority(e.target.value)}
               required
               style={{ width: 80 }}
+            />
+            <input
+              type="number"
+              placeholder="Duration (min)"
+              value={duration}
+              min={1}
+              onChange={e => setDuration(e.target.value)}
+              required
+              style={{ width: 120 }}
             />
             <input
               type="time"

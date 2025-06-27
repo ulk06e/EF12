@@ -7,6 +7,7 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
   const [editedPriority, setEditedPriority] = useState(routineTask?.priority || 1);
   const [editedStart, setEditedStart] = useState(routineTask?.start || '');
   const [editedEnd, setEditedEnd] = useState(routineTask?.end || '');
+  const [editedDuration, setEditedDuration] = useState(routineTask?.duration || 0);
 
   useEffect(() => {
     if (routineTask) {
@@ -14,6 +15,7 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
       setEditedPriority(routineTask.priority);
       setEditedStart(routineTask.start);
       setEditedEnd(routineTask.end);
+      setEditedDuration(routineTask.duration);
     }
   }, [routineTask]);
 
@@ -28,7 +30,7 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
   const handleEdit = () => setIsEditing(true);
   const handleSave = () => {
     if (onEdit) {
-      onEdit({ ...routineTask, name: editedName, priority: Number(editedPriority), start: editedStart, end: editedEnd });
+      onEdit({ ...routineTask, name: editedName, priority: Number(editedPriority), start: editedStart, end: editedEnd, duration: Number(editedDuration) });
     }
     setIsEditing(false);
   };
@@ -37,6 +39,7 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
     setEditedPriority(routineTask.priority);
     setEditedStart(routineTask.start);
     setEditedEnd(routineTask.end);
+    setEditedDuration(routineTask.duration);
     setIsEditing(false);
   };
   const handleDelete = () => {
@@ -52,42 +55,59 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
         <div className="task-popup-content">
           {isEditing ? (
             <>
-              <input
-                type="text"
-                value={editedName}
-                onChange={e => setEditedName(e.target.value)}
-                className="edit-input"
-                autoFocus
-                maxLength={50}
-              />
+              <div className="add-task-row">
+                <input
+                  type="text"
+                  placeholder="Routine name"
+                  value={editedName}
+                  onChange={e => setEditedName(e.target.value)}
+                  required
+                  autoFocus
+                  maxLength={50}
+                />
+              </div>
               <div className="add-task-row">
                 <input
                   type="number"
+                  placeholder="Priority"
                   value={editedPriority}
                   min={1}
                   onChange={e => setEditedPriority(e.target.value)}
-                  className="edit-input"
+                  required
                   style={{ width: 80 }}
+                />
+                <input
+                  type="number"
+                  placeholder="Duration (min)"
+                  value={editedDuration}
+                  min={1}
+                  onChange={e => setEditedDuration(e.target.value)}
+                  required
+                  style={{ width: 120 }}
                 />
                 <input
                   type="time"
                   value={editedStart}
                   onChange={e => setEditedStart(e.target.value)}
-                  className="edit-input"
+                  required
                 />
                 <span style={{ alignSelf: 'center' }}>–</span>
                 <input
                   type="time"
                   value={editedEnd}
                   onChange={e => setEditedEnd(e.target.value)}
-                  className="edit-input"
+                  required
                 />
               </div>
               <div className="add-task-buttons">
                 <button onClick={handleCancel} className="cancel-button">
                   Cancel
                 </button>
-                <button onClick={handleSave} className="add-button">
+                <button 
+                  onClick={handleSave} 
+                  className="submit-button"
+                  disabled={!editedName || !editedPriority || !editedStart || !editedEnd}
+                >
                   Save
                 </button>
               </div>
@@ -95,7 +115,7 @@ export default function RoutineTaskPopup({ open, onClose, routineTask, onEdit, o
           ) : (
             <>
               <div className="time-block-row">
-                <span style={{ fontWeight: 600 }}>{routineTask.priority}: {routineTask.name}</span>
+                <span>{routineTask.priority}: {routineTask.name}</span>
                 <span>{routineTask.start} - {routineTask.end}</span>
               </div>
               <div className="add-task-buttons">

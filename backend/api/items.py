@@ -60,6 +60,10 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
             db.add(new_day)
             db.commit()
     
+    # If type is daily_basic, force xp_value to 0
+    if item.get("type") == "daily_basic":
+        item["xp_value"] = 0
+
     new_item = Item(**item)
     db.add(new_item)
     db.commit()
@@ -121,19 +125,21 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
             setattr(db_item, key, value)
     
     if db_item.completed:
-        xp = calculate_xp(
-            actual_duration=db_item.actual_duration,
-            estimated_duration=db_item.estimated_duration,
-            task_quality=db_item.task_quality.value,
-            time_quality=db_item.time_quality.value,
-            priority=db_item.priority
-        )
-        db_item.xp_value = xp
-        
-        # Update project XP and levels
-        if db_item.project_id:
-            from utils.xp import update_project_xp
-            update_project_xp(db_item.project_id, xp, db_item.actual_duration, db)
+        if getattr(db_item, "type", None) == "daily_basic":
+            db_item.xp_value = 0
+        else:
+            xp = calculate_xp(
+                actual_duration=db_item.actual_duration,
+                estimated_duration=db_item.estimated_duration,
+                task_quality=db_item.task_quality.value,
+                time_quality=db_item.time_quality.value,
+                priority=db_item.priority
+            )
+            db_item.xp_value = xp
+            # Update project XP and levels
+            if db_item.project_id:
+                from utils.xp import update_project_xp
+                update_project_xp(db_item.project_id, xp, db_item.actual_duration, db)
 
     db.commit()
     db.refresh(db_item)
@@ -146,3 +152,13 @@ def get_item_xp_breakdown(item_id: str, db: Session = Depends(get_db)):
         return {"error": "Item not found"}, 404
     breakdown = get_xp_breakdown(item)
     return breakdown
+
+@router.delete("/bulk/daily_basics/future")
+def delete_future_daily_basics(db: Session = Depends(get_db)):
+    today = datetime.date.today().isoformat()
+    deleted = db.query(Item).filter(
+        Item.type == 'daily_basic',
+        Item.day_id >= today
+    ).delete(synchronize_session=False)
+    db.commit()
+    return {"deleted": deleted}

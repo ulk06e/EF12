@@ -117,7 +117,8 @@ function TaskFormPopup({
         planned_time: combinedTime || null,
         approximate_planned_time: approximatePlannedTime || null,
         approximate_start: approximateStart || null,
-        approximate_end: approximateEnd || null
+        approximate_end: approximateEnd || null,
+        type: 'plan_task',
       };
 
       // --- Use canScheduleTask helper ---

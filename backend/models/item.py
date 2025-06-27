@@ -34,4 +34,5 @@ class Item(Base):
     day_id = Column(String, ForeignKey("days.id"))
     completed_time = Column(DateTime, nullable=True)
     planned_time = Column(DateTime, nullable=True, default=None)
-    approximate_planned_time = Column(String, nullable=True, default=None) 
+    approximate_planned_time = Column(String, nullable=True, default=None)
+    type = Column(String, nullable=True)  # 'daily_basic' or 'plan_task' 

@@ -80,7 +80,7 @@ export default function TimespanBlock({ addOpen, setAddOpen }) {
             onDoubleClick={() => { setSelectedBlock(block); setBlockPopupOpen(true); }}
           >
             <div className="card-content time-block-row">
-              <span style={{ fontWeight: 600 }}>{block.name}</span>
+              <span>{block.name}</span>
               <span>{block.start} - {block.end}</span>
             </div>
           </div>

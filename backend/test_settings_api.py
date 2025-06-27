@@ -46,8 +46,8 @@ def test_settings_lifecycle():
     # 2. Create/update settings with routine_tasks and last_synced
     routine_data = {
         "routine_tasks": [
-            {"priority": 1, "name": "Sleep", "start": "23:00", "end": "07:00"},
-            {"priority": 2, "name": "Breakfast", "start": "07:30", "end": "08:00"}
+            {"priority": 1, "name": "Sleep", "start": "23:00", "end": "07:00", "duration": 480},
+            {"priority": 2, "name": "Breakfast", "start": "07:30", "end": "08:00", "duration": 30}
         ],
         "last_synced": "2023-01-01T00:00:00Z"
     }

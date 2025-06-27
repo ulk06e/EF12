@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../api';
 import { getTodayDateString } from '../utils/time';
+import { getLocalSettings } from '../../settings/first3/shared/localDb';
+import { handleAddTask } from '../api/items';
 
 export default function useInitialData() {
   const [items, setItems] = useState([]);
