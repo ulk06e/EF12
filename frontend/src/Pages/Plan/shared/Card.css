@@ -97,6 +97,35 @@
   background-color: #dcfce7;
 }
 
+/* Daily Basic Card Styles */
+.daily-basic-card {
+  background-color: #ececec; /* Grey background between normal card (#f9fafb) and darker grey */
+  border: 1px solid #ececec;
+}
+
+.daily-basic-card:hover {
+  background-color: #ececec;
+}
+
+.daily-basic-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-basic-name {
+  font-weight: 500;
+  color: #374151;
+  flex: 1;
+}
+
+.daily-basic-time {
+  font-size: 0.9em;
+  color: #6b7280;
+  font-weight: 400;
+}
+
 /* Card Header */
 .card-header {
   display: flex;

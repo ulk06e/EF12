@@ -86,9 +86,8 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
               onDoubleClick={() => { setSelectedTask(task); setTaskPopupOpen(true); }}
             >
               <div className="card-content time-block-row">
-                <span>{task.priority}: {task.name}</span>
+                <span>{task.priority}: {task.name} ({formatMinutesToHours(task.duration || 0)})</span>
                 <span>{task.start} - {task.end}</span>
-                <span>{formatMinutesToHours(task.duration || 0)}</span>
               </div>
             </div>
           ))

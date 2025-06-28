@@ -14,6 +14,9 @@ import { formatMinutesToHours, getProjectBreadcrumb } from '../../../utils/time'
  * @param {Array} props.projects - The list of all projects
  */
 export default function TaskCard({ item, isPlan = false, index = 0, isUnscheduled = false, isPastDate = false, viewMode, onClick, projects }) {
+  // Check if this is a daily basic task
+  const isDailyBasic = item.type === 'daily_basic';
+  
   // Get time information for overview mode
   const getTimeInfo = () => {
     if (item.planned_time) {
@@ -39,6 +42,38 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
       }
     : {};
 
+  // Special rendering for daily basics - simplified with only name and time
+  if (isDailyBasic) {
+    return (
+      <div
+        key={item.id}
+        className={`card daily-basic-card ${isPlan && index === 0 ? 'priority-task' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
+        style={cardStyle}
+        onClick={onClick}
+      >
+        <div className="card-item-block">
+          <div className="card-item-header">
+            <span className="item-description">{item.description}</span>
+          </div>
+        </div>
+        <div className="card-item-block">
+          <div className="card-item-details">
+            {isPlan ? (
+              viewMode === 'overview' ? (
+                <span>{getTimeInfo()}</span>
+              ) : (
+                <span>{formatMinutesToHours(item.estimated_duration)}</span>
+              )
+            ) : (
+              <span>{formatMinutesToHours(item.actual_duration || 0)}/{formatMinutesToHours(item.estimated_duration || 0)}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular task rendering
   return (
     <div
       key={item.id}

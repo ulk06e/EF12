@@ -33,8 +33,10 @@ function createDailyBasicTask(basic, day) {
     completed: false,
     completed_time: null,
     actual_duration: null,
-    planned_time: basic.start || null,
-    approximate_planned_time: null,
+    planned_time: null,
+    approximate_planned_time: `${basic.start} - ${basic.end}`,
+    approximate_start: basic.start,
+    approximate_end: basic.end,
     type: 'daily_basic',
     xp_value: 0,
   };
