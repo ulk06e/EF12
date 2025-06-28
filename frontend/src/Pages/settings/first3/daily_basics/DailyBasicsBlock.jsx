@@ -6,7 +6,7 @@ import AddRoutineTaskPopup from './AddRoutineTaskPopup';
 import RoutineTaskPopup from './RoutineTaskPopup';
 import { fetchSettings, updateSettings, rescheduleDailyBasics } from './tapi';
 import { getLocalSettings, setLocalSettings } from '../shared/localDb';
-import { getTodayDateString } from '../../../Plan/utils/time';
+import { getTodayDateString, formatMinutesToHours } from '../../../Plan/utils/time';
 
 export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
   const [routineTasks, setRoutineTasks] = useState([]);
@@ -88,7 +88,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
               <div className="card-content time-block-row">
                 <span>{task.priority}: {task.name}</span>
                 <span>{task.start} - {task.end}</span>
-                <span>{task.duration} min</span>
+                <span>{formatMinutesToHours(task.duration || 0)}</span>
               </div>
             </div>
           ))
