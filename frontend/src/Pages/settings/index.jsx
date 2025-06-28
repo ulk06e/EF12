@@ -2,8 +2,18 @@ import React from 'react';
 import './index.css';
 import FirstThreeColumns from './first3/first3';
 import '../Plan/shared/Column.css';
+import { rescheduleDailyBasics } from './first3/daily_basics/tapi';
 
 export default function SettingsPage({ onClose }) {
+  const handleClose = async () => {
+    try {
+      await rescheduleDailyBasics();
+    } catch (error) {
+      console.error('[Settings] Error rescheduling daily basics:', error);
+    }
+    onClose();
+  };
+
   return (
     <div className="settings-page">
       <div className="columns-container">
@@ -11,7 +21,7 @@ export default function SettingsPage({ onClose }) {
           <div className="header-actions">
             <button className="menu-button">Menu</button>
             <span></span>
-            <button className="add-button" onClick={onClose}>Close</button>
+            <button className="add-button" onClick={handleClose}>Close</button>
           </div>
         </div>
       </div>

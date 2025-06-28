@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
 import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
 import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
@@ -19,8 +19,8 @@ import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
 import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
 import StatisticsPage from './Pages/stat'
 import SettingsPage from './Pages/settings'
-import { getTodayDateString, toLocalDateString } from './Pages/Plan/utils/time'
-import { rescheduleFutureDailyBasics } from './Pages/settings/first3/daily_basics/tapi'
+import { getTodayDateString } from './Pages/Plan/utils/time'
+import autoUpdateService from './services/autoUpdate'
 
 function App() {
   const {
@@ -37,6 +37,16 @@ function App() {
   const [viewMode, setViewMode] = useState('overview');
   const [showStatistics, setShowStatistics] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  // Initialize auto-update service on app start
+  useEffect(() => {
+    autoUpdateService.init();
+    
+    // Cleanup on unmount
+    return () => {
+      autoUpdateService.stop();
+    };
+  }, []);
 
   const getFilteredItems = () => {
     const itemsForDay = items.filter(item => (item.day_id || '').slice(0, 10) === selectedDay);
@@ -64,8 +74,15 @@ function App() {
         <SettingsPage onClose={async () => {
           setShowSettings(false);
           setSelectedDay(getTodayDateString());
-          await rescheduleFutureDailyBasics();
-          window.location.reload();
+          // Refresh items from the backend to show any updates
+          try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${API_URL}/items`);
+            const updatedItems = await res.json();
+            setItems(updatedItems);
+          } catch (error) {
+            console.error('[App] Error refreshing items:', error);
+          }
         }} />
       ) : (
         <>
@@ -106,6 +123,7 @@ function App() {
             selectedDay={selectedDay} 
             onSelect={setSelectedDay} 
             items={items} 
+            setItems={setItems}
           />
         </>
       )}

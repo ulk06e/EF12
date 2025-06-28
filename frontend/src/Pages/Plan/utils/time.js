@@ -112,3 +112,16 @@ export function getProjectBreadcrumb(projectId, projects) {
   }
   return project.name;
 }
+
+/**
+ * Calculate the total estimated duration for a specific day
+ * @param {string} dayIso - The day in ISO format (YYYY-MM-DD)
+ * @param {Array} items - Array of all items
+ * @returns {number} - Total estimated duration in minutes
+ */
+export function getDayEstimatedDuration(dayIso, items) {
+  if (!items || !Array.isArray(items)) return 0;
+  
+  const dayItems = items.filter(item => (item.day_id || '').slice(0, 10) === dayIso);
+  return dayItems.reduce((sum, item) => sum + (item.estimated_duration || 0), 0);
+}

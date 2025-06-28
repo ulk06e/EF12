@@ -16,4 +16,28 @@ export function getLocalSettings() {
     console.error('Failed to load settings from localStorage', e);
     return {};
   }
+}
+
+export async function checkAndUpdateLocalSettingsIfEmpty() {
+  const currentSettings = getLocalSettings();
+  
+  // Check if routine_tasks exist and have data
+  if (currentSettings.routine_tasks && currentSettings.routine_tasks.length > 0) {
+    return false; // No update needed
+  }
+  
+  // Fetch from backend
+  try {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const res = await fetch(`${API_URL}/settings/default`);
+    if (!res.ok) throw new Error('Failed to fetch settings');
+    const settings = await res.json();
+    
+    // Update local storage
+    setLocalSettings(settings);
+    return true; // Settings were updated
+  } catch (error) {
+    console.error('Failed to fetch settings:', error);
+    return false; // Failed to update
+  }
 } 
