@@ -58,17 +58,17 @@ function TaskFormPopup({
   }, [mode, initialTask]);
 
   useEffect(() => {
-    // On open, check localDb, if empty fetch from backend
+    // Always fetch fresh time blocks from backend when popup opens
     if (open) {
-      let localBlocks = getLocalTimeBlocks();
-      if (!localBlocks || localBlocks.length === 0) {
-        fetchSettings().then(data => {
-          setLocalTimeBlocks(data.time_blocks || []);
-          setTimeBlocks(data.time_blocks || []);
-        });
-      } else {
-        setTimeBlocks(localBlocks);
-      }
+      fetchSettings().then(data => {
+        setLocalTimeBlocks(data.time_blocks || []);
+        setTimeBlocks(data.time_blocks || []);
+      }).catch(err => {
+        console.error('Failed to fetch time blocks:', err);
+        // Fallback to local storage if fetch fails
+        let localBlocks = getLocalTimeBlocks();
+        setTimeBlocks(localBlocks || []);
+      });
     }
   }, [open]);
 

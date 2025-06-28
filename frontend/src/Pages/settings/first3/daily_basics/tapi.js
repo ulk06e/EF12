@@ -21,7 +21,7 @@ export async function updateSettings(data) {
 
 function createDailyBasicTask(basic, day) {
   const duration = basic.duration ? Number(basic.duration) : 30;
-  return {
+  const task = {
     id: `${basic.id || Date.now()}_${day}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     description: basic.name,
     task_quality: 'D',
@@ -35,11 +35,11 @@ function createDailyBasicTask(basic, day) {
     actual_duration: null,
     planned_time: null,
     approximate_planned_time: `${basic.start} - ${basic.end}`,
-    approximate_start: basic.start,
-    approximate_end: basic.end,
     type: 'daily_basic',
     xp_value: 0,
   };
+  console.log('[DEBUG] Created daily basic task:', task.description, 'planned_time:', task.planned_time, 'approximate_planned_time:', task.approximate_planned_time, 'type:', task.type);
+  return task;
 }
 
 export async function rescheduleDailyBasics() {
