@@ -37,29 +37,20 @@ export default function PlanFactColumns({
   // Use utility for plan items
   const planItems = sortPlanItems(items);
   
-  console.log('[DEBUG] All items received:', items.map(item => ({ description: item.description, type: item.type, planned_time: item.planned_time, approximate_planned_time: item.approximate_planned_time })));
-  console.log('[DEBUG] Plan items after sorting:', planItems.map(item => ({ description: item.description, type: item.type, planned_time: item.planned_time, approximate_planned_time: item.approximate_planned_time })));
-
   // Attach approximate_start and approximate_end to plan items before scheduling
   const timeBlocks = getLocalTimeBlocks();
   const planItemsWithBlocks = planItems.map(item => {
-    console.log('[DEBUG] Processing item:', item.description, 'type:', item.type, 'planned_time:', item.planned_time, 'approximate_planned_time:', item.approximate_planned_time);
-    
     if (item.approximate_planned_time && timeBlocks.length > 0) {
       // Handle daily basics - they have time ranges like "13:00 - 16:00"
       if (item.type === 'daily_basic') {
-        console.log('[DEBUG] Processing daily basic:', item.description);
         const timeRange = item.approximate_planned_time;
         const match = timeRange.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
         if (match) {
-          console.log('[DEBUG] Daily basic parsed successfully:', item.description, 'start:', match[1], 'end:', match[2]);
           return {
             ...item,
             approximate_start: match[1],
             approximate_end: match[2]
           };
-        } else {
-          console.log('[DEBUG] Failed to parse daily basic time range:', item.description, 'timeRange:', timeRange);
         }
       }
       
@@ -68,7 +59,6 @@ export default function PlanFactColumns({
         b => b.name.trim().toLowerCase() === item.approximate_planned_time.trim().toLowerCase()
       );
       if (block) {
-        console.log('[DEBUG] Regular approximate task parsed:', item.description, 'start:', block.start, 'end:', block.end);
         return {
           ...item,
           approximate_start: block.start,
@@ -76,7 +66,6 @@ export default function PlanFactColumns({
         };
       }
     }
-    console.log('[DEBUG] Item not processed for approximate time:', item.description);
     return item;
   });
 
@@ -154,7 +143,15 @@ export default function PlanFactColumns({
       <AddTaskPopup 
         open={addOpen} 
         onClose={() => setAddOpen(false)} 
-        onAdd={(item) => { onAddTask(item); setAddOpen(false); }} 
+        onAdd={(item) => {
+          if (viewMode === 'target') {
+            item.day_id = null;
+            item.type = 'not planned';
+            item.priority = (parseInt(item.priority, 10) || 0) + 10;
+          }
+          onAddTask(item);
+          setAddOpen(false);
+        }} 
         projectId={selectedProjectId} 
         dayId={selectedDay}
         planItems={planItems}

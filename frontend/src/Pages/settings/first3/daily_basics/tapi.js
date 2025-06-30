@@ -38,7 +38,6 @@ function createDailyBasicTask(basic, day) {
     type: 'daily_basic',
     xp_value: 0,
   };
-  console.log('[DEBUG] Created daily basic task:', task.description, 'planned_time:', task.planned_time, 'approximate_planned_time:', task.approximate_planned_time, 'type:', task.type);
   return task;
 }
 

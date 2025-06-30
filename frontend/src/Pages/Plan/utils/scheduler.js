@@ -67,8 +67,6 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     return { scheduledTasks: tasks, errors: [] };
   }
   
-  console.log('[DEBUG] Scheduler called with tasks:', tasks.map(t => ({ description: t.description, type: t.type, planned_time: t.planned_time, approximate_planned_time: t.approximate_planned_time, approximate_start: t.approximate_start, approximate_end: t.approximate_end })));
-  
   const errors = [];
   const occupiedBlocks = new Set(); // Track occupied blocks 1-96
   const taskPositions = new Map(); // task.id -> {position, length}
@@ -83,9 +81,7 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
 
   // --- Phase 1: Schedule fixed time tasks (planned_time) ---
   const fixedTimeTasks = tasks.filter(task => task.planned_time);
-  console.log('[DEBUG] Phase 1 - Fixed time tasks:', fixedTimeTasks.map(t => ({ description: t.description, type: t.type, planned_time: t.planned_time })));
   fixedTimeTasks.forEach(task => {
-    console.log('[DEBUG] Processing fixed time task:', task.description, 'planned_time:', task.planned_time);
     // Parse planned_time as HH:MM
     const timeMatch = task.planned_time.match(/(\d{1,2}):(\d{2})/);
     if (!timeMatch) {
@@ -116,9 +112,7 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   
   // --- Phase 2: Schedule approximate time tasks (approximate_planned_time) ---
   const approximateTasks = sortTasks(tasks.filter(task => task.approximate_planned_time));
-  console.log('[DEBUG] Phase 2 - Approximate time tasks:', approximateTasks.map(t => ({ description: t.description, type: t.type, approximate_planned_time: t.approximate_planned_time, approximate_start: t.approximate_start, approximate_end: t.approximate_end })));
   approximateTasks.forEach(task => {
-    console.log('[DEBUG] Processing approximate time task:', task.description, 'type:', task.type, 'approximate_start:', task.approximate_start, 'approximate_end:', task.approximate_end);
     // Use custom time block start/end
     if (!task.approximate_start || !task.approximate_end) {
       errors.push(`Invalid time block for task "${task.description}"`);

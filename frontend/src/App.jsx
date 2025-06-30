@@ -54,11 +54,16 @@ function App() {
     if (viewMode === 'target') {
       const lastSelected = selectedProjectIds.slice().reverse().find(id => id);
       if (lastSelected) {
-        const descendantIds = [lastSelected, ...getDescendantProjectIds(projects, lastSelected)];
-        return itemsForDay.filter(item => descendantIds.includes(item.project_id));
+        const descendantIds = [
+          lastSelected,
+          ...getDescendantProjectIds(projects, lastSelected)
+        ];
+        // ← use `items` here instead of `itemsForDay`
+        return items.filter(item => descendantIds.includes(item.project_id));
       }
-      return []; // In target mode with no project, show nothing
+      return []; // no project selected → nothing
     }
+    
     
     // Overview mode shows all tasks for the day
     return itemsForDay;
@@ -119,12 +124,14 @@ function App() {
             setViewMode={setViewMode}
             projects={projects}
           />
-          <WeekSelector 
-            selectedDay={selectedDay} 
-            onSelect={setSelectedDay} 
-            items={items} 
-            setItems={setItems}
-          />
+          {viewMode !== 'target' && (
+            <WeekSelector 
+              selectedDay={selectedDay} 
+              onSelect={setSelectedDay} 
+              items={items} 
+              setItems={setItems}
+            />
+          )}
         </>
       )}
     </div>
