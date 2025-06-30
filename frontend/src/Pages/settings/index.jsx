@@ -20,8 +20,6 @@ export default function SettingsPage({ onClose }) {
       <div className="columns-container">
         <div className="column sticky-column">
           <div className="header-actions">
-            <button className="menu-button">Menu</button>
-            <span></span>
             <button className="add-button" onClick={handleClose}>Close</button>
           </div>
         </div>

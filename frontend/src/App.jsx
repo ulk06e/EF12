@@ -94,12 +94,22 @@ function App() {
           <div className="columns-container">
             <div className="column sticky-column">
               <div className="header-actions">
-                <button className="menu-button">Menu</button>
-                <span></span>
+                <div style={{ flex: 1 }}></div>
+                <div className="header-buttons">
+                  <button className="settings-button" onClick={() => setShowSettings(true)}>Settings</button>
+                  <button className="add-button" onClick={() => setShowStatistics(true)}>Details</button>
+                </div>
               </div>
             </div>
           </div>
-          <Dashboard items={items} selectedDay={selectedDay} onDetailsClick={() => setShowStatistics(true)} onSettingsClick={() => setShowSettings(true)} />
+          {viewMode !== 'target' && (
+            <WeekSelector 
+              selectedDay={selectedDay} 
+              onSelect={setSelectedDay} 
+              items={items} 
+              setItems={setItems}
+            />
+          )}
           <ProjectColumns 
             projects={projects} 
             setProjects={setProjects}
@@ -111,6 +121,7 @@ function App() {
             items={items}
             selectedDay={selectedDay}
           />
+          
           <PlanFactColumns 
             items={filteredItems} 
             onAddTask={(item) => handleAddTask(item, setItems)}
@@ -124,14 +135,7 @@ function App() {
             setViewMode={setViewMode}
             projects={projects}
           />
-          {viewMode !== 'target' && (
-            <WeekSelector 
-              selectedDay={selectedDay} 
-              onSelect={setSelectedDay} 
-              items={items} 
-              setItems={setItems}
-            />
-          )}
+          
         </>
       )}
     </div>

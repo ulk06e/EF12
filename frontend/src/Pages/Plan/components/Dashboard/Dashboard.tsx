@@ -23,10 +23,6 @@ export default function Dashboard({ items, selectedDay, onDetailsClick, onSettin
       <div className="column">
         <div className="column-header">
           <h3>Dashboard</h3>
-          <div>
-            <button className="settings-button" onClick={onSettingsClick}>Settings</button>
-            <button className="add-button" onClick={onDetailsClick}>Details</button>
-          </div>
         </div>
         <div className="dashboard-cards">
           <div className="dashboard-card card">
