@@ -4,7 +4,9 @@ import ProjectPopup from './Popups/ProjectPopup';
 import './Projects.css'; // Import the new CSS file
 
 function getColumnProjects(projects, parentId) {
-  return projects.filter(p => (parentId ? p.parent_id === parentId : !p.parent_id))
+  return projects
+    .filter(p => (parentId ? p.parent_id === parentId : !p.parent_id))
+    .filter(p => !p.completed)
     .sort((a, b) => {
       // Sort by current_level (descending)
       if (b.current_level !== a.current_level) {
@@ -75,6 +77,12 @@ export default function ProjectColumns({
   const handleEditProject = (updatedProject) => {
     onUpdateProject(updatedProject);
     setProjectPopup(null); // Close the popup after edit
+  };
+
+  const handleCompleteProject = (completedProject) => {
+    onUpdateProject(completedProject);
+    setProjects(projects => projects.map(p => p.id === completedProject.id ? { ...p, completed: true } : p));
+    setProjectPopup(null);
   };
 
   const labels = ['Area', 'Project', 'Sub-project'];
@@ -149,6 +157,7 @@ export default function ProjectColumns({
         project={projectPopup} 
         onDelete={handleDeleteProjectClick}
         onEdit={handleEditProject}
+        onComplete={handleCompleteProject}
       />
     </div>
   );

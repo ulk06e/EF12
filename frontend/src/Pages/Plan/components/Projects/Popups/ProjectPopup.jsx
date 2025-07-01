@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../../shared/Popup.css';
 
-export default function ProjectPopup({ open, onClose, project, onEdit, onDelete }) {
+export default function ProjectPopup({ open, onClose, project, onEdit, onComplete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(project?.name || '');
 
@@ -36,9 +36,9 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onDelete 
     setIsEditing(false);
   };
 
-  const handleDeleteProject = () => {
-    if (onDelete && typeof onDelete === 'function') {
-      onDelete(project.id);
+  const handleCompleteProject = () => {
+    if (onComplete && typeof onComplete === 'function') {
+      onComplete({ ...project, completed: true });
     }
     onClose();
   };
@@ -73,8 +73,8 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onDelete 
                 <button onClick={handleEdit} className="cancel-button">
                   Edit
                 </button>
-                <button onClick={handleDeleteProject} className="delete-button">
-                  Delete
+                <button onClick={handleCompleteProject} className="add-button">
+                  Complete
                 </button>
               </div>
             </>

@@ -21,6 +21,8 @@ import StatisticsPage from './Pages/stat'
 import SettingsPage from './Pages/settings'
 import { getTodayDateString } from './Pages/Plan/utils/time'
 import autoUpdateService from './services/autoUpdate'
+import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
+import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
 
 function App() {
   const {
@@ -101,6 +103,10 @@ function App() {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="columns-container">
+            <GoalsColumn />
+            <ChallengesColumn />
           </div>
           {viewMode !== 'target' && (
             <WeekSelector 
