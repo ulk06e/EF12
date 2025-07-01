@@ -30,6 +30,8 @@ function TaskFormPopup({
   const [approximateEnd, setApproximateEnd] = useState('');
   const [showPlanTime, setShowPlanTime] = useState(false);
   const [timeBlocks, setTimeBlocks] = useState([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [fullDescription, setFullDescription] = useState('');
 
   const projectBreadcrumb = getProjectBreadcrumb(projectId, projects);
 
@@ -119,6 +121,8 @@ function TaskFormPopup({
         approximate_start: approximateStart || null,
         approximate_end: approximateEnd || null,
         type: 'plan_task',
+        full_description: fullDescription,
+        created_time: new Date().toISOString(),
       };
 
       // --- Use canScheduleTask helper ---
@@ -152,6 +156,13 @@ function TaskFormPopup({
 
   if (!open) return null;
 
+  // Handler to close popup when clicking outside
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   // Generate hour and minute options, filtering for today
   const today = new Date();
   const todayDateString = today.toISOString().split('T')[0];
@@ -178,7 +189,7 @@ function TaskFormPopup({
   const inputClassName = isEditMode ? 'edit-input' : '';
 
   return (
-    <div className="add-task-popup-overlay">
+    <div className="add-task-popup-overlay" onClick={handleOverlayClick}>
       <div className="add-task-popup">
         {projectBreadcrumb && (
           <div className="popup-breadcrumb">
@@ -196,7 +207,6 @@ function TaskFormPopup({
               required
             />
           </div>
-          
           <div className="add-task-row">
             <select 
               value={priority} 
@@ -231,97 +241,102 @@ function TaskFormPopup({
               <option value="D">D</option>
             </select>
           </div>
-
-          <div className="plan-time-divider"></div>
-
-          <div className="plan-time-section">
-            <div 
-              className="plan-time-toggle"
-              onClick={() => setShowPlanTime(!showPlanTime)}
-            >
-              Plan Time ∨
-            </div>
-            
-            {showPlanTime && (
-              <div className="plan-time-content">
-                <div className="plan-time-row">
-                  <div className="time-selectors">
+          {showAdvanced && (
+            <>
+              <div className="plan-time-divider"></div>
+              <div className="add-task-row" style={{ marginBottom: 0 }}>
+                <input
+                  type="text"
+                  placeholder="Full Description"
+                  value={fullDescription}
+                  onChange={(e) => setFullDescription(e.target.value)}
+                  className={inputClassName}
+                />
+              </div>
+              <div className="plan-time-section">
+                <div className="plan-time-content">
+                  <div className="plan-time-row">
+                    <div className="time-selectors">
+                      <select
+                        value={plannedHour}
+                        onChange={(e) => {
+                          setPlannedHour(e.target.value);
+                          if (e.target.value) setApproximatePlannedTime('');
+                        }}
+                        className={`hour-select ${hasIncompleteTime ? 'input-error' : ''}`}
+                      >
+                        <option value="">Hour</option>
+                        {hourOptions.map(hour => (
+                          <option key={hour.value} value={hour.value} disabled={hour.disabled}>
+                            {hour.value}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="time-separator">:</span>
+                      <select
+                        value={plannedMinute}
+                        onChange={(e) => {
+                          setPlannedMinute(e.target.value);
+                          if (e.target.value) setApproximatePlannedTime('');
+                        }}
+                        className={`minute-select ${hasIncompleteTime ? 'input-error' : ''}`}
+                      >
+                        <option value="">Min</option>
+                        {minuteOptions.map(minute => (
+                          <option key={minute.value} value={minute.value} disabled={minute.disabled}>
+                            {minute.value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="plan-time-or">or</div>
                     <select
-                      value={plannedHour}
+                      value={approximatePlannedTime}
                       onChange={(e) => {
-                        setPlannedHour(e.target.value);
-                        if (e.target.value) setApproximatePlannedTime('');
+                        setApproximatePlannedTime(e.target.value);
+                        if (e.target.value) {
+                          setPlannedHour('');
+                          setPlannedMinute('');
+                        }
                       }}
-                      className={`hour-select ${hasIncompleteTime ? 'input-error' : ''}`}
+                      className="approximate-time-select"
                     >
-                      <option value="">Hour</option>
-                      {hourOptions.map(hour => (
-                        <option key={hour.value} value={hour.value} disabled={hour.disabled}>
-                          {hour.value}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="time-separator">:</span>
-                    <select
-                      value={plannedMinute}
-                      onChange={(e) => {
-                        setPlannedMinute(e.target.value);
-                        if (e.target.value) setApproximatePlannedTime('');
-                      }}
-                      className={`minute-select ${hasIncompleteTime ? 'input-error' : ''}`}
-                    >
-                      <option value="">Min</option>
-                      {minuteOptions.map(minute => (
-                        <option key={minute.value} value={minute.value} disabled={minute.disabled}>
-                          {minute.value}
-                        </option>
-                      ))}
+                      <option value="">Time Block</option>
+                      {timeBlocks.length > 0 &&
+                        [...timeBlocks]
+                          .sort((a, b) => (a.start || '').localeCompare(b.start || ''))
+                          .map((block, idx) => {
+                            // Disable if the block's end time has passed for today
+                            let disabled = false;
+                            if (isToday && block.end) {
+                              const [endHour, endMinute] = block.end.split(':').map(Number);
+                              if (
+                                endHour < currentHour ||
+                                (endHour === currentHour && endMinute <= currentMinute)
+                              ) {
+                                disabled = true;
+                              }
+                            }
+                            return (
+                              <option key={idx} value={block.name} disabled={disabled}>
+                                {block.name} ({block.start} - {block.end})
+                              </option>
+                            );
+                          })}
                     </select>
                   </div>
                 </div>
-                <div className="plan-time-or">or</div>
-                <div className="plan-time-row">
-                  <select
-                    value={approximatePlannedTime}
-                    onChange={(e) => {
-                      setApproximatePlannedTime(e.target.value);
-                      if (e.target.value) {
-                        setPlannedHour('');
-                        setPlannedMinute('');
-                      }
-                    }}
-                    className="approximate-time-select"
-                  >
-                    <option value="">Select approximate time</option>
-                    {timeBlocks.length > 0 &&
-                      [...timeBlocks]
-                        .sort((a, b) => (a.start || '').localeCompare(b.start || ''))
-                        .map((block, idx) => {
-                          // Disable if the block's end time has passed for today
-                          let disabled = false;
-                          if (isToday && block.end) {
-                            const [endHour, endMinute] = block.end.split(':').map(Number);
-                            if (
-                              endHour < currentHour ||
-                              (endHour === currentHour && endMinute <= currentMinute)
-                            ) {
-                              disabled = true;
-                            }
-                          }
-                          return (
-                            <option key={idx} value={block.name} disabled={disabled}>
-                              {block.name} ({block.start} - {block.end})
-                            </option>
-                          );
-                        })}
-                  </select>
-                </div>
               </div>
-            )}
-          </div>
-          <div className="add-task-buttons">
-            <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
+            </>
+          )}
+          <div className="add-task-buttons" style={{ marginTop: 32 }}>
+            <button
+              type="button"
+              className="cancel-button"
+              style={{ marginRight: 8 }}
+              onClick={() => setShowAdvanced((v) => !v)}
+            >
+              {showAdvanced ? 'Hide' : 'Advanced'}
             </button>
             <button
               type="submit"

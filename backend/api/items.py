@@ -22,9 +22,25 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     if "time_quality" in item and item["time_quality"]:
         item["time_quality"] = TimeQualityEnum(item["time_quality"])
     
-    # Remove created_time and completed_time if present
-    item.pop("created_time", None)
-    item.pop("completed_time", None)
+    # Parse created_time if present and is a string
+    if "created_time" in item and item["created_time"]:
+        if not isinstance(item["created_time"], datetime.datetime):
+            try:
+                item["created_time"] = datetime.datetime.fromisoformat(str(item["created_time"]).replace('Z', '+00:00'))
+            except Exception:
+                item["created_time"] = datetime.datetime.utcnow()
+    else:
+        item["created_time"] = datetime.datetime.utcnow()
+    
+    # Parse completed_time if present and is a string
+    if "completed_time" in item and item["completed_time"]:
+        if not isinstance(item["completed_time"], datetime.datetime):
+            try:
+                item["completed_time"] = datetime.datetime.fromisoformat(str(item["completed_time"]).replace('Z', '+00:00'))
+            except Exception:
+                item["completed_time"] = None
+    else:
+        item["completed_time"] = None
     
     # Handle planned_time - convert time string to datetime if provided
     if "planned_time" in item and item["planned_time"]:
@@ -85,12 +101,25 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
     if not db_item:
         return {"error": "Item not found"}, 404
     
-    # Parse completed_time if present
+    # Parse created_time if present and is a string
+    if "created_time" in item and item["created_time"]:
+        if not isinstance(item["created_time"], datetime.datetime):
+            try:
+                db_item.created_time = datetime.datetime.fromisoformat(str(item["created_time"]).replace('Z', '+00:00'))
+            except Exception:
+                db_item.created_time = datetime.datetime.utcnow()
+        else:
+            db_item.created_time = item["created_time"]
+    
+    # Parse completed_time if present and is a string
     if "completed_time" in item and item["completed_time"]:
-        try:
-            db_item.completed_time = datetime.datetime.fromisoformat(item["completed_time"].replace('Z', '+00:00'))
-        except Exception as e:
-            db_item.completed_time = None
+        if not isinstance(item["completed_time"], datetime.datetime):
+            try:
+                db_item.completed_time = datetime.datetime.fromisoformat(str(item["completed_time"]).replace('Z', '+00:00'))
+            except Exception:
+                db_item.completed_time = None
+        else:
+            db_item.completed_time = item["completed_time"]
     
     # Handle planned_time - convert time string to datetime if provided
     if "planned_time" in item:
@@ -124,6 +153,15 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
         if key not in ["task_quality", "column_location", "time_quality", "completed_time", "planned_time", "approximate_planned_time"]:
             setattr(db_item, key, value)
     
+    # Always ensure db_item.created_time is a datetime object
+    if isinstance(db_item.created_time, str):
+        try:
+            db_item.created_time = datetime.datetime.fromisoformat(db_item.created_time.replace('Z', '+00:00'))
+        except Exception:
+            db_item.created_time = datetime.datetime.utcnow()
+    elif db_item.created_time is None:
+        db_item.created_time = datetime.datetime.utcnow()
+    
     if db_item.completed:
         if getattr(db_item, "type", None) == "daily_basic":
             db_item.xp_value = 0
@@ -133,7 +171,8 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
                 estimated_duration=db_item.estimated_duration,
                 task_quality=db_item.task_quality.value,
                 time_quality=db_item.time_quality.value,
-                priority=db_item.priority
+                priority=db_item.priority,
+                created_time=getattr(db_item, 'created_time', None)
             )
             db_item.xp_value = xp
             # Update project XP and levels

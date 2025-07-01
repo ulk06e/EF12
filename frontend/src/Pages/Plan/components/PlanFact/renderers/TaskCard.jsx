@@ -44,12 +44,14 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
 
   // Special rendering for daily basics - simplified with only name and time
   if (isDailyBasic) {
+    // Only attach onClick if provided and not in fact column (isPlan === false means fact column)
+    const clickable = !!onClick && isPlan;
     return (
       <div
         key={item.id}
         className={`card daily-basic-card daily-basic-task${isPlan && index === 0 ? ' priority-task' : ''}${isUnscheduled ? ' unscheduled-task' : ''}`}
         style={cardStyle}
-        onClick={onClick}
+        {...(clickable ? { onClick } : {})}
       >
         <div className="card-item-block">
           <div className="card-item-header">

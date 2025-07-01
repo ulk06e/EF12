@@ -1,4 +1,5 @@
 import math
+import datetime
 
 def calculate_level_from_xp(total_xp):
     """Calculate level based on total XP using a square root progression."""
@@ -8,7 +9,7 @@ def calculate_next_level_xp(level):
     """Calculate XP needed for next level using quadratic progression."""
     return 100 * (level + 1) ** 2
 
-def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality, priority):
+def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality, priority, created_time=None):
     base_xp = actual_duration / 10
 
     quality_map = {"A": 4, "B": 3, "C": 2, "D": 1}
@@ -47,8 +48,20 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
             elif ratio > 1.5 or ratio < 0.5:
                 penalty_multiplier = 0.5
 
+    # New: Multiplier for tasks not created today
+    created_multiplier = 1.0
+    if created_time is not None:
+        today = datetime.datetime.utcnow().date()
+        if isinstance(created_time, str):
+            try:
+                created_time = datetime.datetime.fromisoformat(created_time)
+            except Exception:
+                pass
+        if hasattr(created_time, 'date') and created_time.date() != today:
+            created_multiplier = 1.4
+
     # Calculate final XP
-    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier 
+    xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier * created_multiplier
     return math.floor(xp)
 
 
@@ -97,6 +110,7 @@ def get_xp_breakdown(task):
     task_quality = get_field(task, 'task_quality')
     time_quality = get_field(task, 'time_quality')
     priority = get_field(task, 'priority')
+    created_time = get_field(task, 'created_time')
 
     base_xp = actual_duration / 10 if actual_duration is not None else 0
 
@@ -134,14 +148,27 @@ def get_xp_breakdown(task):
             elif ratio > 1.5 or ratio < 0.5:
                 penalty_multiplier = 0.5
 
+    # New: Multiplier for tasks not created today
+    created_multiplier = 1.0
+    if created_time is not None:
+        today = datetime.datetime.utcnow().date()
+        if isinstance(created_time, str):
+            try:
+                created_time = datetime.datetime.fromisoformat(created_time)
+            except Exception:
+                pass
+        if hasattr(created_time, 'date') and created_time.date() != today:
+            created_multiplier = 1.4
+
     multipliers = [
         {"name": "Quality", "value": quality_multiplier},
         {"name": "Time Quality", "value": time_quality_multiplier},
         {"name": "Priority", "value": priority_multiplier},
         {"name": "Penalty", "value": penalty_multiplier},
+        {"name": "Created Not Today", "value": created_multiplier},
     ]
 
-    total_xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier
+    total_xp = base_xp * quality_multiplier * time_quality_multiplier * priority_multiplier * penalty_multiplier * created_multiplier
     return {
         "base_xp": base_xp,
         "multipliers": multipliers,

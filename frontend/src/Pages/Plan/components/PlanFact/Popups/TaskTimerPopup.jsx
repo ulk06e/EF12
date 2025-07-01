@@ -89,7 +89,13 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   return (
     <div className="task-time-popup">
       <div className="task-time-content">
-        <h2 className="task-time-title">{task.description}</h2>
+        <div className="task-name">{task.description}</div>
+        {task.full_description && (
+          <>
+            <div className="task-full-description">{task.full_description}</div>
+            <hr className="task-popup-divider" />
+          </>
+        )}
         <div className={`task-time-display ${remainingTime < 0 ? 'negative' : ''}`}>
           {formatTime(remainingTime)}
         </div>

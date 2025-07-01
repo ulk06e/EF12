@@ -8,7 +8,7 @@ router = APIRouter(prefix="/projects")
 
 @router.get("")
 def get_projects(db: Session = Depends(get_db)):
-    return db.query(Project).all()
+    return db.query(Project).filter(Project.completed == False).all()
 
 @router.post("")
 def create_project(project: dict, db: Session = Depends(get_db)):

@@ -24,6 +24,9 @@ function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate
       <div className="add-task-popup">
         <div className="task-popup-content">
           <div className="task-name">{task.description}</div>
+          {task.full_description && (
+            <div className="task-full-description">{task.full_description}</div>
+          )}
           <div className="popup-buttons">
             <button onClick={() => onDelete(task)} className="delete-button">Delete</button>
             

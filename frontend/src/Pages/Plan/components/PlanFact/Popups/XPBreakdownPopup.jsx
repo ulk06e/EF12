@@ -23,6 +23,10 @@ function getMultiplierClass(name, value) {
     if (value === 0.5) return 'xp-multiplier-red';
     return '';
   }
+  if (name === 'Created Not Today') {
+    if (value === 1.4) return 'xp-multiplier-green';
+    if (value === 1.0) return 'xp-multiplier-red';
+  }
   return '';
 }
 

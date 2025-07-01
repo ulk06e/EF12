@@ -22,6 +22,7 @@ class Item(Base):
     __tablename__ = "items"
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     description = Column(String)
+    full_description = Column(String, nullable=True)
     task_quality = Column(Enum(TaskQualityEnum), nullable=True)
     estimated_duration = Column(Integer, nullable=True)
     actual_duration = Column(Integer, nullable=True)
@@ -33,6 +34,9 @@ class Item(Base):
     project_id = Column(String, ForeignKey("projects.id"))
     day_id = Column(String, ForeignKey("days.id"))
     completed_time = Column(DateTime, nullable=True)
+    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False) 
     planned_time = Column(DateTime, nullable=True, default=None)
     approximate_planned_time = Column(String, nullable=True, default=None)
-    type = Column(String, nullable=True)  # 'daily_basic' or 'plan_task' 
+    type = Column(String, nullable=True) 
+    
+  
