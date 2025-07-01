@@ -47,7 +47,7 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
     return (
       <div
         key={item.id}
-        className={`card daily-basic-card ${isPlan && index === 0 ? 'priority-task' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
+        className={`card daily-basic-card daily-basic-task${isPlan && index === 0 ? ' priority-task' : ''}${isUnscheduled ? ' unscheduled-task' : ''}`}
         style={cardStyle}
         onClick={onClick}
       >
@@ -77,7 +77,7 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
   return (
     <div
       key={item.id}
-      className={`card ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
+      className={`card${item.type === 'not planned' ? ' not-planned-task' : ''} ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
       style={cardStyle}
       onClick={onClick}
     >

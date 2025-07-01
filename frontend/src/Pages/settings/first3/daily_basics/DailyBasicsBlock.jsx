@@ -78,7 +78,11 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
         <div className="no-items-message">No routine tasks yet</div>
       ) : (
         [...routineTasks]
-          .sort((a, b) => (a.priority || 0) - (b.priority || 0))
+          .sort((a, b) => {
+            if (!a.end) return 1;
+            if (!b.end) return -1;
+            return a.end.localeCompare(b.end);
+          })
           .map((task) => (
             <div
               className="card-relative"

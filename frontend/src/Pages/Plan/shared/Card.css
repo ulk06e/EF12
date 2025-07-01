@@ -248,4 +248,26 @@
   background-color: #000;
   border-radius: 50%;
   z-index: 1;
-} 
+}
+
+/* Not Planned Task Card */
+.not-planned-task {
+  background: #f3e8ff !important; /* Muted purple */
+}
+
+/* Daily Basic Task Card */
+.daily-basic-task {
+  background: #fef8e3 !important; /* Soft yellow */
+
+}
+
+.not-planned-task.unscheduled-task,
+.daily-basic-task.unscheduled-task,
+.card.unscheduled-task {
+  background: #ffeaea !important;
+}
+
+.card.unscheduled-task,
+.card.unscheduled-task.priority-task {
+  border: none;
+}
