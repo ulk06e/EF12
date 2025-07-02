@@ -4,6 +4,7 @@ import { SETTINGS } from '../../../../config';
 import { formatMinutesToHours, toLocalDateString, getDayEstimatedDuration } from '../../utils/time';
 import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from '../../../settings/first3/shared/localDb';
 import { populateWeekWithDailyBasics } from '../../../settings/first3/daily_basics/tapi';
+import { API_URL } from 'api/index';
 
 function getCurrentWeek() {
   const today = new Date();
@@ -61,7 +62,6 @@ export default function WeekSelector({ selectedDay, onSelect, items, setItems })
       // Refresh items from the backend to show the newly created daily basics
       if (setItems) {
         try {
-          const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
           const res = await fetch(`${API_URL}/items`);
           const updatedItems = await res.json();
           setItems(updatedItems);

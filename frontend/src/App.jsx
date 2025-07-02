@@ -4,6 +4,7 @@ import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
 import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
 import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
 import Dashboard from './Pages/Plan/components/Dashboard/Dashboard'
+import { API_URL } from 'api/index';
 import {
   handleAddProject,
   handleUpdateProject,
@@ -83,7 +84,6 @@ function App() {
           setSelectedDay(getTodayDateString());
           // Refresh items from the backend to show any updates
           try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const res = await fetch(`${API_URL}/items`);
             const updatedItems = await res.json();
             setItems(updatedItems);

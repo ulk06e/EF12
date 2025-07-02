@@ -1,4 +1,5 @@
 const LOCAL_KEY = 'settings_all';
+import { API_URL } from 'api/index';
 
 export function setLocalSettings(settings) {
   try {
@@ -28,7 +29,6 @@ export async function checkAndUpdateLocalSettingsIfEmpty() {
   
   // Fetch from backend
   try {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     const res = await fetch(`${API_URL}/settings/default`);
     if (!res.ok) throw new Error('Failed to fetch settings');
     const settings = await res.json();
