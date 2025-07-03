@@ -8,6 +8,10 @@ from api.settings import router as settings_router
 
 app = FastAPI()
 
+@app.get("/")
+def root():
+    return {"status": "ok"}
+
 # Allow requests from your frontend (localhost:5173)
 app.add_middleware(
     CORSMiddleware,
