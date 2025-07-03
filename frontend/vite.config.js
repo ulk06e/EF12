@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'api': path.resolve(__dirname, 'src/Pages/Plan/api'),
+      'src': path.resolve(__dirname, 'src'),
     },
   }
 })

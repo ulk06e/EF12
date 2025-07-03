@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import TimespanBlock from './timespan/TimespanBlock';
-import DailyBasicsBlock from './daily_basics/DailyBasicsBlock';
+import TimespanBlock from './components/timespan/TimespanBlock';
+import DailyBasicsBlock from './components/daily_basics/DailyBasicsBlock';
 // import OtherBlock from './other/OtherBlock';
 
 export default function FirstThreeColumns() {

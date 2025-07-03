@@ -1,4 +1,4 @@
-import { API_URL } from '../../Plan/api/index';
+import { API_URL } from 'src/config/api';
 
 function getLast7Days() {
   const days = [];

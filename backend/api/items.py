@@ -79,7 +79,7 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     # If type is daily_basic, force xp_value to 0
     if item.get("type") == "daily_basic":
         item["xp_value"] = 0
-
+    
     new_item = Item(**item)
     db.add(new_item)
     db.commit()

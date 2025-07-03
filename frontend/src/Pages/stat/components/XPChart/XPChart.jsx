@@ -4,7 +4,7 @@ import { fetchXPAndActualForLast7Days } from '../../api/xp';
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { formatMinutesToHours } from '../../../Plan/utils/time';
+import { formatMinutesToHours } from 'src/pages/plan/utils/time';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 

@@ -1,24 +1,10 @@
 import React from 'react';
 import './WeekSelector.css';
-import { SETTINGS } from '../../../../config';
 import { formatMinutesToHours, toLocalDateString, getDayEstimatedDuration } from '../../utils/time';
-import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from '../../../settings/first3/shared/localDb';
-import { populateWeekWithDailyBasics } from '../../../settings/first3/daily_basics/tapi';
-import { API_URL } from 'api/index';
-
-function getCurrentWeek() {
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-  // Calculate Monday of this week
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-  // Build week array
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
-  });
-}
+import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from 'src/pages/settings/first3/shared/localDb';
+import { populateWeekWithDailyBasics } from 'src/pages/settings/first3/api/daily_basics';
+import { getCurrentWeek, formatDayName, formatDate, getDurationClass } from '../../utils/weekUtils';
+import { fetchItems } from '../../api/weeks';
 
 export default function WeekSelector({ selectedDay, onSelect, items, setItems }) {
   const [currentWeek, setCurrentWeek] = React.useState(getCurrentWeek());
@@ -49,44 +35,26 @@ export default function WeekSelector({ selectedDay, onSelect, items, setItems })
     });
     setCurrentWeek(newWeek);
     
-    // Check and update local database if needed
-    await checkAndUpdateLocalSettingsIfEmpty();
-    
-    // Check Monday's estimated duration
-    const nextMondayIso = toLocalDateString(newWeek[0]);
-    const mondayDuration = getDayEstimatedDuration(nextMondayIso, items);
-    
-    // If Monday has zero duration, populate the week
-    if (mondayDuration === 0) {
+    // Check if the new week has any items before populating
+    const weekHasItems = newWeek.some(date => 
+      items.some(item => (item.day_id || '').slice(0, 10) === toLocalDateString(date))
+    );
+
+    if (!weekHasItems) {
+      await checkAndUpdateLocalSettingsIfEmpty();
+      const nextMondayIso = toLocalDateString(newWeek[0]);
       await populateWeekWithDailyBasics(nextMondayIso);
-      // Refresh items from the backend to show the newly created daily basics
+
+      // Refresh items from the backend
       if (setItems) {
         try {
-          const res = await fetch(`${API_URL}/items`);
-          const updatedItems = await res.json();
+          const updatedItems = await fetchItems();
           setItems(updatedItems);
         } catch (error) {
           console.error('[WeekSelector] Failed to refresh items:', error);
         }
       }
     }
-  };
-
-  const formatDayName = (date) => {
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getDurationClass = (duration) => {
-    if (duration < SETTINGS.WEEK_SELECTOR.DURATION_LOW_MINUTES) return 'duration-low';
-    if (duration <= SETTINGS.WEEK_SELECTOR.DURATION_MEDIUM_MINUTES) return 'duration-medium';
-    return 'duration-high';
   };
 
   return (

@@ -1,10 +1,9 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
-import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
-import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
-import Dashboard from './Pages/Plan/components/Dashboard/Dashboard'
-import { API_URL } from 'api/index';
+import ProjectColumns from './pages/plan/components/Projects/ProjectColumns'
+import WeekSelector from './pages/plan/components/Week/WeekSelector'
+import PlanFactColumns from './pages/plan/components/PlanFact/PlanFactColumns'
+import { API_URL } from 'src/config/api';
 import {
   handleAddProject,
   handleUpdateProject,
@@ -14,16 +13,16 @@ import {
   handleUpdateTask,
   handleCompleteTask,
   updateItemsState
-} from './Pages/Plan/api'
-import useInitialData from './Pages/Plan/hooks/useInitialData'
-import { getDescendantProjectIds } from './Pages/Plan/hooks/useProjects'
-import { filterItemsByProjectAndDay } from './Pages/Plan/api/items'
-import StatisticsPage from './Pages/stat'
-import SettingsPage from './Pages/settings'
-import { getTodayDateString } from './Pages/Plan/utils/time'
+} 
+from 'src/pages/plan/api'
+import useInitialData from './pages/plan/hooks/useInitialData'
+import { getDescendantProjectIds } from './pages/plan/hooks/useProjects'
+import StatisticsPage from './pages/stat'
+import SettingsPage from './pages/settings'
+import { getTodayDateString } from './pages/plan/utils/time'
 import autoUpdateService from './services/autoUpdate'
-import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
-import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
+import GoalsColumn from './pages/plan/components/Growth/Goals/GoalsColumn'
+import ChallengesColumn from './pages/plan/components/Growth/Challenges/ChallengesColumn'
 
 function App() {
   const {

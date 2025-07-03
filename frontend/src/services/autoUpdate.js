@@ -1,6 +1,6 @@
-import { checkAndUpdateLocalSettingsIfEmpty } from '../Pages/settings/first3/shared/localDb';
-import { populateWeekWithDailyBasics } from '../Pages/settings/first3/daily_basics/tapi';
-import { toLocalDateString } from '../Pages/Plan/utils/time';
+import { checkAndUpdateLocalSettingsIfEmpty } from 'src/pages/settings/first3/shared/localDb';
+import { populateWeekWithDailyBasics } from 'src/pages/settings/first3/api/daily_basics';
+import { toLocalDateString } from '../pages/plan/utils/time';
 import { isWeeklyUpdateTime, getCurrentWeekMonday } from './timeUtils';
 
 class AutoUpdateService {

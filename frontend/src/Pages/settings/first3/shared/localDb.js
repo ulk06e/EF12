@@ -1,5 +1,5 @@
 const LOCAL_KEY = 'settings_all';
-import { API_URL } from 'api/index';
+import { API_URL } from 'src/config/api';
 
 export function setLocalSettings(settings) {
   try {
@@ -39,5 +39,24 @@ export async function checkAndUpdateLocalSettingsIfEmpty() {
   } catch (error) {
     console.error('Failed to fetch settings:', error);
     return false; // Failed to update
+  }
+} 
+
+export function setLocalTimeBlocks(timeBlocks) {
+  try {
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(timeBlocks));
+  } catch (e) {
+    // handle quota or other errors
+    console.error('Failed to save time blocks to localStorage', e);
+  }
+}
+
+export function getLocalTimeBlocks() {
+  try {
+    const data = localStorage.getItem(LOCAL_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('Failed to load time blocks from localStorage', e);
+    return [];
   }
 } 

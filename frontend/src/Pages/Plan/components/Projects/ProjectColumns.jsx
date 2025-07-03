@@ -1,21 +1,8 @@
 import React, { useState } from 'react';
 import AddProjectPopup from './Popups/AddProjectPopup';
 import ProjectPopup from './Popups/ProjectPopup';
-import './Projects.css'; // Import the new CSS file
-
-function getColumnProjects(projects, parentId) {
-  return projects
-    .filter(p => (parentId ? p.parent_id === parentId : !p.parent_id))
-    .filter(p => !p.completed)
-    .sort((a, b) => {
-      // Sort by current_level (descending)
-      if (b.current_level !== a.current_level) {
-        return b.current_level - a.current_level;
-      }
-      // Then by current_xp (descending)
-      return b.current_xp - a.current_xp;
-    });
-}
+import './Projects.css';
+import { getColumnProjects, getDescendantProjectIds, getPrevLevelXP } from '../../utils/projectUtils';
 
 export default function ProjectColumns({ 
   projects, 
@@ -39,19 +26,9 @@ export default function ProjectColumns({
   // Determine parentId for each column
   const parentIds = [null, selected1, selected2];
 
-  // Helper function to get all descendant project IDs
-  const getDescendantProjectIds = (parentId) => {
-    const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id);
-    let all = [...direct];
-    for (const id of direct) {
-      all = all.concat(getDescendantProjectIds(id));
-    }
-    return all;
-  };
-
   // Check if a project or its descendants have tasks in the plan column for the selected date
   const hasTasks = (projectId) => {
-    const allProjectIds = [projectId, ...getDescendantProjectIds(projectId)];
+    const allProjectIds = [projectId, ...getDescendantProjectIds(projects, projectId)];
     return items.some(item => 
       allProjectIds.includes(item.project_id) && 
       item.column_location === 'plan' &&
@@ -106,7 +83,6 @@ export default function ProjectColumns({
           {col.length === 0 && <div className="no-items-message">Select / Create {i === 0 ? '' : `Project ${i}`}</div>}
           {col.map(p => {
             // Utility to get previous level XP threshold
-            const getPrevLevelXP = (level) => 100 * Math.pow(level, 2);
             const prevLevelXP = getPrevLevelXP(p.current_level);
             const progress = (p.current_xp - prevLevelXP) / (p.next_level_xp - prevLevelXP);
             const progressPercentage = p.next_level_xp > prevLevelXP

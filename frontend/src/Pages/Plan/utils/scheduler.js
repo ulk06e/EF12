@@ -75,7 +75,7 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   const startBlock = (typeof startTimeMinutes === 'number')
     ? Math.floor(startTimeMinutes / 15) + 1
     : 1;
-
+  
   // Determine if this is 'today' (startTimeMinutes is provided and > 0)
   const isToday = typeof startTimeMinutes === 'number' && startTimeMinutes > 0;
 

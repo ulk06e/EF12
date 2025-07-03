@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import '../../../Plan/shared/Card.css';
-import '../../../Plan/shared/Popup.css';
+import 'src/pages/plan/shared/Card.css';
+import 'src/pages/plan/shared/Popup.css';
 
 export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
   const [name, setName] = useState('');

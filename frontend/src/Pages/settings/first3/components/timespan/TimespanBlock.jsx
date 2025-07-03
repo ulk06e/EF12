@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import '../../../Plan/shared/Column.css';
-import '../../../Plan/shared/Card.css';
+import 'src/pages/plan/shared/Column.css';
+import 'src/pages/plan/shared/Card.css';
 import './TimespanBlock.css';
-import AddTimeBlockPopup from './AddTimeBlockPopup';
-import TimeBlockPopup from './TimeBlockPopup';
-import { fetchSettings, updateSettings } from './tapi';
-import { getLocalSettings, setLocalSettings } from '../shared/localDb';
+import AddTimeBlockPopup from './Popups/AddTimeBlockPopup';
+import TimeBlockPopup from './Popups/TimeBlockPopup';
+import { fetchSettings, updateSettings } from '../../api/timespan';
+import { getLocalSettings, setLocalSettings } from '../../shared/localDb';
 
 export default function TimespanBlock({ addOpen, setAddOpen }) {
   const [timeBlocks, setTimeBlocks] = useState([]);

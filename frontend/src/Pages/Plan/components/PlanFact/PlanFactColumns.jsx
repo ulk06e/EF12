@@ -5,15 +5,12 @@ import AddTaskPopup from './Popups/AddTaskPopup.jsx';
 import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
 import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
 import { scheduleTasks } from '../../utils/scheduler.js';
-import { getLocalTimeBlocks } from '../../../settings/first3/timespan/localDb';
+import { getLocalTimeBlocks } from 'src/pages/settings/first3/shared/localDb.js';
 import './PlanFactColumns.css';
-import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
-import { sortPlanItems } from './utils/planUtils.js';
+import { sortPlanItems, attachTimeBlocksToPlanItems, handleDuplicateTask } from './utils/planUtils.js';
 import { prepareFactCards } from './utils/factUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
-
-const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
 export default function PlanFactColumns({ 
   items, 
@@ -39,35 +36,7 @@ export default function PlanFactColumns({
   
   // Attach approximate_start and approximate_end to plan items before scheduling
   const timeBlocks = getLocalTimeBlocks();
-  const planItemsWithBlocks = planItems.map(item => {
-    if (item.approximate_planned_time && timeBlocks.length > 0) {
-      // Handle daily basics - they have time ranges like "13:00 - 16:00"
-      if (item.type === 'daily_basic') {
-        const timeRange = item.approximate_planned_time;
-        const match = timeRange.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
-        if (match) {
-          return {
-            ...item,
-            approximate_start: match[1],
-            approximate_end: match[2]
-          };
-        }
-      }
-      
-      // Handle regular approximate time tasks that use time blocks
-      const block = timeBlocks.find(
-        b => b.name.trim().toLowerCase() === item.approximate_planned_time.trim().toLowerCase()
-      );
-      if (block) {
-        return {
-          ...item,
-          approximate_start: block.start,
-          approximate_end: block.end
-        };
-      }
-    }
-    return item;
-  });
+  const planItemsWithBlocks = attachTimeBlocksToPlanItems(planItems, timeBlocks);
 
   // Use utility for fact cards
   const factCards = prepareFactCards(items);
@@ -90,18 +59,7 @@ export default function PlanFactColumns({
   
   const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
 
-  const handleDuplicateTask = (task) => {
-    const { id, completed_time, actual_duration, time_quality, project, ...rest } = task;
-    const today = getTodayDateString();
-    const taskDate = new Date(task.day_id);
-    const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-    
-    const newTask = {
-      ...rest,
-      day_id: taskDate < startOfToday ? today : task.day_id,
-    };
-    onAddTask(newTask);
-  };
+  // Use imported handleDuplicateTask
 
   // Render fact column in overview mode with unaccounted time as grey cards (>=15m) and as red text (<15m)
   const renderFactColumnOverview = () => {
@@ -130,7 +88,7 @@ export default function PlanFactColumns({
         onDelete={(task) => { onDeleteTask(task.id); setPopupTask(null); }}
         onEdit={(task) => { setEditTask(task); setPopupTask(null); }}
         onStart={(task) => { setTimerTask(task); setPopupTask(null); }}
-        onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
+        onDuplicate={(task) => { handleDuplicateTask(task, onAddTask); setPopupTask(null); }}
         selectedDay={selectedDay}
       />
       <EditTaskPopup 
@@ -138,7 +96,7 @@ export default function PlanFactColumns({
         onClose={() => setEditTask(null)} 
         task={editTask} 
         onSave={(updatedTask) => { onUpdateTask(updatedTask); setEditTask(null); }}
-        onDuplicate={(task) => { handleDuplicateTask(task); setEditTask(null); }}
+        onDuplicate={(task) => { handleDuplicateTask(task, onAddTask); setEditTask(null); }}
       />
       <AddTaskPopup 
         open={addOpen} 

@@ -1,17 +1,17 @@
 import React from 'react';
 import './index.css';
 import FirstThreeColumns from './first3/first3';
-import '../Plan/shared/Column.css';
-import { rescheduleDailyBasics } from './first3/daily_basics/tapi';
+import '../plan/shared/Column.css';
+
 
 export default function SettingsPage({ onClose }) {
   const handleClose = async () => {
     // TEMPORARILY DISABLED - testing if this causes reloads
-    // try {
-    //   await rescheduleDailyBasics();
-    // } catch (error) {
-    //   console.error('[Settings] Error rescheduling daily basics:', error);
-    // }
+    try {
+      await rescheduleDailyBasics();
+    } catch (error) {
+      console.error('[Settings] Error rescheduling daily basics:', error);
+    }
     onClose();
   };
 
