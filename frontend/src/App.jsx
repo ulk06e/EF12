@@ -20,7 +20,7 @@ import { getDescendantProjectIds } from 'src/pages/plan/hooks/useProjects'
 import StatisticsPage from 'src/pages/stat'
 import SettingsPage from 'src/pages/settings'
 import { getTodayDateString } from 'src/pages/plan/utils/time'
-import autoUpdateService from 'stc/services/autoUpdate'
+import autoUpdateService from 'src/services/autoUpdate'
 import GoalsColumn from 'src/pages/plan/components/Growth/Goals/GoalsColumn'
 import ChallengesColumn from 'src/pages/plan/components/Growth/Challenges/ChallengesColumn'
 
