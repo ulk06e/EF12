@@ -1,8 +1,8 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import ProjectColumns from './pages/plan/components/Projects/ProjectColumns'
-import WeekSelector from './pages/plan/components/Week/WeekSelector'
-import PlanFactColumns from './pages/plan/components/PlanFact/PlanFactColumns'
+import ProjectColumns from 'src/pages/plan/components/Projects/ProjectColumns'
+import WeekSelector from 'src/pages/plan/components/Week/WeekSelector'
+import PlanFactColumns from 'src/pages/plan/components/PlanFact/PlanFactColumns'
 import { API_URL } from 'src/config/api';
 import {
   handleAddProject,
