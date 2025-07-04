@@ -15,14 +15,14 @@ import {
   updateItemsState
 } 
 from 'src/pages/plan/api'
-import useInitialData from './pages/plan/hooks/useInitialData'
-import { getDescendantProjectIds } from './pages/plan/hooks/useProjects'
-import StatisticsPage from './pages/stat'
+import useInitialData from 'src/pages/plan/hooks/useInitialData'
+import { getDescendantProjectIds } from 'src/pages/plan/hooks/useProjects'
+import StatisticsPage from 'src/pages/stat'
 import SettingsPage from 'src/pages/settings'
 import { getTodayDateString } from 'src/pages/plan/utils/time'
-import autoUpdateService from './services/autoUpdate'
-import GoalsColumn from './pages/plan/components/Growth/Goals/GoalsColumn'
-import ChallengesColumn from './pages/plan/components/Growth/Challenges/ChallengesColumn'
+import autoUpdateService from 'stc/services/autoUpdate'
+import GoalsColumn from 'src/pages/plan/components/Growth/Goals/GoalsColumn'
+import ChallengesColumn from 'src/pages/plan/components/Growth/Challenges/ChallengesColumn'
 
 function App() {
   const {
