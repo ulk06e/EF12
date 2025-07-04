@@ -1,16 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import TaskPopup from './Popups/TaskPopup.jsx';
 import EditTaskPopup from './Popups/EditTaskPopup.jsx';
 import AddTaskPopup from './Popups/AddTaskPopup.jsx';
 import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
 import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
-import { scheduleTasks } from '../../utils/scheduler.js';
+import { scheduleTasks, mergeSchedule } from '../../utils/schedule/index.js';
 import { getLocalTimeBlocks } from 'src/pages/settings/first3/shared/localDb.js';
 import './PlanFactColumns.css';
-import { sortPlanItems, attachTimeBlocksToPlanItems, handleDuplicateTask } from './utils/planUtils.js';
-import { prepareFactCards } from './utils/factUtils.js';
+import { sortPlanItems, attachTimeBlocksToPlanItems, handleDuplicateTask } from 'src/pages/plan/components/PlanFact/utils/planUtils.js';
+import { prepareFactCards } from 'src/pages/plan/components/PlanFact/utils/factUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
+import { fetchXPForLast7Days } from 'src/pages/stat/api/xp.js';
 
 export default function PlanFactColumns({ 
   items, 
@@ -30,6 +31,19 @@ export default function PlanFactColumns({
   const [addOpen, setAddOpen] = useState(false);
   const [timerTask, setTimerTask] = useState(null);
   const [xpPopupTaskId, setXpPopupTaskId] = useState(null);
+  const [xpStats, setXpStats] = useState({ today: 0, yesterday: 0, weekAvg: 0, weekBest: 0 });
+
+  useEffect(() => {
+    fetchXPForLast7Days().then(days => {
+      const today = days[days.length - 1]?.xp || 0;
+      const yesterday = days[days.length - 2]?.xp || 0;
+      const weekAvg = days.length ? Math.round(days.reduce((sum, d) => sum + d.xp, 0) / days.length) : 0;
+      const weekBest = days.length ? Math.max(...days.map(d => d.xp)) : 0;
+      setXpStats({ today, yesterday, weekAvg, weekBest });
+    });
+  }, []);
+
+  const minTarget = Math.min(xpStats.yesterday, xpStats.weekAvg, xpStats.weekBest);
 
   // Use utility for plan items
   const planItems = sortPlanItems(items);
@@ -52,9 +66,9 @@ export default function PlanFactColumns({
     const result = isToday
       ? scheduleTasks(planItemsWithBlocks, startTimeMinutes)
       : scheduleTasks(planItemsWithBlocks);
-    const gapItems = result.scheduledTasks.filter(item => item.type === 'gap');
-    const totalGapMinutes = gapItems.reduce((sum, g) => sum + (g.minutes || 0), 0);
-    return result;
+    const mergedTimeline = mergeSchedule(result.scheduledTasks, result.gaps);
+    const scheduledTasks = [...mergedTimeline, ...result.unscheduledTasks];
+    return { ...result, scheduledTasks };
   }, [planItemsWithBlocks, viewMode, selectedDay]);
   
   const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
@@ -78,6 +92,16 @@ export default function PlanFactColumns({
     }
     return cards.reverse();
   };
+
+  // Determine which label to show for minTarget, prioritizing best > week avg. > y'day
+  let minLabel = '';
+  if (minTarget === xpStats.weekBest) {
+    minLabel = 'best';
+  } else if (minTarget === xpStats.weekAvg) {
+    minLabel = 'week avg.';
+  } else if (minTarget === xpStats.yesterday) {
+    minLabel = "y'day";
+  }
 
   return (
     <div className={`columns-container ${viewMode === 'overview' ? 'overview-mode' : ''}`}>
@@ -159,8 +183,8 @@ export default function PlanFactColumns({
 
                 return <>
                   {schedulableItems.map((item, idx) =>
-                    item.type === 'gap'
-                      ? <GapCard key={idx} minutes={item.minutes} viewMode={viewMode} />
+                    item.type === 'unaccounted'
+                      ? <GapCard key={`gap-${item.startBlock}-${item.endBlock}`} minutes={item.minutes} viewMode={viewMode} />
                       : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={false} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
                   )}
                   {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
@@ -182,6 +206,11 @@ export default function PlanFactColumns({
       <div className="column">
         <div className="column-header">
           <h3>Fact</h3>
+          <div className="column-header-actions">
+            <span className="fact-xp-stats">
+              {xpStats.today} XP / {minTarget} XP {minLabel && ` ${minLabel}`}
+            </span>
+          </div>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
         {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />)}

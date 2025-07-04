@@ -10,14 +10,22 @@ def get_settings(user_id: str, db: Session = Depends(get_db)):
     settings = db.query(Settings).filter_by(user_id=user_id).first()
     if not settings:
         # Auto-create default settings if not found
-        settings = Settings(user_id=user_id, time_blocks=[], routine_tasks=[], last_synced=None)
+        settings = Settings(user_id=user_id, time_blocks=[], routine_tasks=[], habits=[], last_synced=None)
         db.add(settings)
         db.commit()
         db.refresh(settings)
+    # Ensure all fields are present
+    if settings.time_blocks is None:
+        settings.time_blocks = []
+    if settings.routine_tasks is None:
+        settings.routine_tasks = []
+    if settings.habits is None:
+        settings.habits = []
     return {
         "user_id": settings.user_id,
         "time_blocks": settings.time_blocks,
         "routine_tasks": settings.routine_tasks,
+        "habits": settings.habits,
         "last_synced": settings.last_synced
     }
 
@@ -25,13 +33,15 @@ def get_settings(user_id: str, db: Session = Depends(get_db)):
 def update_settings(user_id: str, data: dict, db: Session = Depends(get_db)):
     settings = db.query(Settings).filter_by(user_id=user_id).first()
     if not settings:
-        settings = Settings(user_id=user_id)
+        settings = Settings(user_id=user_id, time_blocks=[], routine_tasks=[], habits=[], last_synced=None)
         db.add(settings)
     # Update fields
     if "time_blocks" in data:
         settings.time_blocks = data["time_blocks"]
     if "routine_tasks" in data:
         settings.routine_tasks = data["routine_tasks"]
+    if "habits" in data:
+        settings.habits = data["habits"]
     if "last_synced" in data:
         settings.last_synced = data["last_synced"]
     db.commit()
@@ -40,5 +50,6 @@ def update_settings(user_id: str, data: dict, db: Session = Depends(get_db)):
         "user_id": settings.user_id,
         "time_blocks": settings.time_blocks,
         "routine_tasks": settings.routine_tasks,
+        "habits": settings.habits,
         "last_synced": settings.last_synced
     }

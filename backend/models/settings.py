@@ -15,4 +15,5 @@ class Settings(Base):
     user_id = Column(String, primary_key=True, default="default")
     time_blocks = Column(JSONType, default=[])
     routine_tasks = Column(JSONType, default=[])
+    habits = Column(JSONType, default=[])
     last_synced = Column(String, nullable=True)  # or DateTime if you prefer

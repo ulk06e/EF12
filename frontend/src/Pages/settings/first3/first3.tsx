@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import TimespanBlock from './components/timespan/TimespanBlock';
 import DailyBasicsBlock from './components/daily_basics/DailyBasicsBlock';
+import HabitsBlock from './components/habits/HabitsBlock';
 // import OtherBlock from './other/OtherBlock';
 
 export default function FirstThreeColumns() {
   const [addCol, setAddCol] = useState<number | null>(null);
 
-  const labels = ['Time Blocks', 'Daily Basics', 'Other'];
+  const labels = ['Time Blocks', 'Daily Basics', 'Habits'];
 
   return (
     <div className="columns-container">
@@ -27,7 +28,7 @@ export default function FirstThreeColumns() {
           ) : i === 1 ? (
             <DailyBasicsBlock addOpen={addCol === 2} setAddOpen={open => setAddCol(open ? 2 : null)} />
           ) : (
-            <div className="no-items-message">No items yet</div>
+            <HabitsBlock addOpen={addCol === 3} setAddOpen={open => setAddCol(open ? 3 : null)} />
           )}
         </div>
       ))}

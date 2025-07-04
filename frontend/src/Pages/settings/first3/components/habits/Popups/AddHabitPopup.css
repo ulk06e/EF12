@@ -1,0 +1,21 @@
+.add-habit-type-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.add-habit-type-btn {
+  flex: 1;
+  box-sizing: border-box;
+  /* inherit .add-button styles */
+}
+
+.add-habit-type-btn.selected {
+  border: 2px solid #000;
+}
+
+.add-habit-type-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border: 2px solid transparent;
+} 

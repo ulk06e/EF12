@@ -1,3 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
+import { getTodayDateString } from '../../../utils/time';
+
 // Plan-related utility functions will go here
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
@@ -49,14 +52,23 @@ export function attachTimeBlocksToPlanItems(planItems, timeBlocks) {
 }
 
 export function handleDuplicateTask(task, onAddTask) {
-  const { id, completed_time, actual_duration, time_quality, project, ...rest } = task;
+  const { id, completed_time, actual_duration, time_quality, project, xp_value, type, position, ...rest } = task;
   const today = getTodayDateString();
   const taskDate = new Date(task.day_id);
   const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
 
   const newTask = {
     ...rest,
+    id: uuidv4(),
     day_id: taskDate < startOfToday ? today : task.day_id,
+    created_time: new Date().toISOString(),
+    completed: false,
+    column_location: 'plan',
+    completed_time: null,
+    actual_duration: null,
+    time_quality: null,
+    xp_value: null,
+    type: 'plan_task',
   };
   onAddTask(newTask);
 } 

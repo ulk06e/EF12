@@ -2,6 +2,7 @@ import React from 'react';
 import './index.css';
 import FirstThreeColumns from './first3/first3';
 import '../plan/shared/Column.css';
+import { rescheduleDailyBasics } from 'src/Pages/settings/first3/api/daily_basics.js';
 
 
 export default function SettingsPage({ onClose }) {

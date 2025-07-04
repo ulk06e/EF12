@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
-from models import Day, Item, Project, Settings, Habit, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
+from models import Day, Item, Project, Settings, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
 from models.base import Base  # Use the shared Base
 
 SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL") or "sqlite:///./app.db"

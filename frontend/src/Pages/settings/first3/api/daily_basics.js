@@ -1,6 +1,6 @@
 import { API_URL } from 'src/config/api';
 
-import { getLocalSettings } from '../shared/localDb';
+import { getLocalSettings } from 'src/pages/settings/first3/shared/localDb';
 import { toLocalDateString } from 'src/pages/plan/utils/time';
 
 export async function fetchSettings() {
@@ -41,18 +41,49 @@ function createDailyBasicTask(basic, day) {
   return task;
 }
 
+function createHabitTask(habit, day, planned_time = null) {
+  const duration = habit.duration ? Number(habit.duration) : 30;
+  return {
+    id: `${habit.id || Date.now()}_${day}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    description: habit.description,
+    task_quality: 'D',
+    priority: 1,
+    estimated_duration: duration,
+    project_id: habit.parent_project_id || null,
+    day_id: day,
+    column_location: 'plan',
+    completed: false,
+    completed_time: null,
+    actual_duration: null,
+    planned_time: planned_time,
+    approximate_planned_time: null,
+    type: 'habit',
+    xp_value: 0,
+  };
+}
+
 export async function rescheduleDailyBasics() {
   try {
-    // Use bulk deletion endpoint
+    // Use bulk deletion endpoint for daily basics
     const deleteRes = await fetch(`${API_URL}/items/bulk/daily_basics/future`, { 
       method: 'DELETE' 
     });
     if (!deleteRes.ok) {
       throw new Error(`Failed to delete future daily basics: ${deleteRes.status}`);
     }
+    // Remove habit deletion
+    // const deleteHabitsRes = await fetch(`${API_URL}/items/bulk/habits/future`, { 
+    //   method: 'DELETE' 
+    // });
+    // if (!deleteHabitsRes.ok) {
+    //   throw new Error(`Failed to delete future habits: ${deleteHabitsRes.status}`);
+    // }
     
     const settings = getLocalSettings();
     const basics = settings.routine_tasks || [];
+    // Remove habits loading and logs
+    // const habits = settings.habits || [];
+    // console.log('[Scheduler] Habits loaded:', JSON.stringify(habits, null, 2));
     
     if (basics.length === 0) {
       return;
@@ -76,13 +107,11 @@ export async function rescheduleDailyBasics() {
     for (const day of futureDates) {
       for (const basic of basics) {
         const newTask = createDailyBasicTask(basic, day);
-        
         const createRes = await fetch(`${API_URL}/items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTask)
         });
-        
         if (!createRes.ok) {
           throw new Error(`Failed to create daily basic task: ${createRes.status}`);
         }

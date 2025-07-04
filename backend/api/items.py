@@ -201,3 +201,13 @@ def delete_future_daily_basics(db: Session = Depends(get_db)):
     ).delete(synchronize_session=False)
     db.commit()
     return {"deleted": deleted}
+
+@router.delete("/bulk/habits/future")
+def delete_future_habits(db: Session = Depends(get_db)):
+    today = datetime.date.today().isoformat()
+    deleted = db.query(Item).filter(
+        Item.type == 'habit',
+        Item.day_id >= today
+    ).delete(synchronize_session=False)
+    db.commit()
+    return {"deleted": deleted}

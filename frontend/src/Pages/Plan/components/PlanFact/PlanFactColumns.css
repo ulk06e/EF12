@@ -131,4 +131,14 @@
   border: none;
   border-top: 2px dashed #dc2626;
   margin: 4px 0 12px 0;
+}
+
+.fact-xp-stats {
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: default;
+  transition: background-color 0.2s ease;
 } 

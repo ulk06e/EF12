@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
+import { canScheduleTask } from '../../../utils/schedule/index.js';
 import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
 import { getLocalTimeBlocks, setLocalTimeBlocks } from 'src/pages/settings/first3/shared/localDb';
 import { fetchSettings } from 'src/pages/settings/first3/api/timespan';
@@ -56,6 +56,7 @@ function TaskFormPopup({
       
       setApproximatePlannedTime(initialTask.approximate_planned_time || '');
       setShowPlanTime(!!(initialTask.planned_time || initialTask.approximate_planned_time));
+      setFullDescription(initialTask.full_description || '');
     }
   }, [mode, initialTask]);
 
@@ -148,7 +149,8 @@ function TaskFormPopup({
         planned_time: combinedTime || null,
         approximate_planned_time: approximatePlannedTime || null,
         approximate_start: approximateStart || null,
-        approximate_end: approximateEnd || null
+        approximate_end: approximateEnd || null,
+        full_description: fullDescription,
       };
       onSubmit(updatedTask);
     }
@@ -183,6 +185,21 @@ function TaskFormPopup({
 
   // Check for incomplete time selection
   const hasIncompleteTime = (plannedHour && !plannedMinute) || (!plannedHour && plannedMinute);
+
+  // Calculate selected time block duration (in minutes)
+  let blockDuration = null;
+  if (approximatePlannedTime && timeBlocks.length > 0) {
+    const block = timeBlocks.find(b => b.name === approximatePlannedTime);
+    if (block && block.start && block.end) {
+      const [startHour, startMinute] = block.start.split(':').map(Number);
+      const [endHour, endMinute] = block.end.split(':').map(Number);
+      let start = startHour * 60 + startMinute;
+      let end = endHour * 60 + endMinute;
+      if (end <= start) end += 24 * 60; // handle overnight blocks
+      blockDuration = end - start;
+    }
+  }
+  const durationExceedsBlock = blockDuration !== null && estimatedDuration > blockDuration;
 
   const isEditMode = mode === 'edit';
   const buttonText = isEditMode ? 'Save' : 'Add Task';
@@ -341,7 +358,7 @@ function TaskFormPopup({
             <button
               type="submit"
               className="submit-button"
-              disabled={hasIncompleteTime || !description || !estimatedDuration || !priority || !taskQuality}
+              disabled={hasIncompleteTime || !description || !estimatedDuration || !priority || !taskQuality || durationExceedsBlock}
             >
               {buttonText}
             </button>

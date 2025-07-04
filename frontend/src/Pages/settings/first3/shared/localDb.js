@@ -59,4 +59,15 @@ export function getLocalTimeBlocks() {
     console.error('Failed to load time blocks from localStorage', e);
     return [];
   }
+}
+
+export function setLocalHabits(habits) {
+  const settings = getLocalSettings();
+  settings.habits = habits;
+  setLocalSettings(settings);
+}
+
+export function getLocalHabits() {
+  const settings = getLocalSettings();
+  return settings.habits || [];
 } 

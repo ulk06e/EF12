@@ -18,8 +18,8 @@ from 'src/pages/plan/api'
 import useInitialData from './pages/plan/hooks/useInitialData'
 import { getDescendantProjectIds } from './pages/plan/hooks/useProjects'
 import StatisticsPage from './pages/stat'
-import SettingsPage from './pages/settings'
-import { getTodayDateString } from './pages/plan/utils/time'
+import SettingsPage from 'src/pages/settings'
+import { getTodayDateString } from 'src/pages/plan/utils/time'
 import autoUpdateService from './services/autoUpdate'
 import GoalsColumn from './pages/plan/components/Growth/Goals/GoalsColumn'
 import ChallengesColumn from './pages/plan/components/Growth/Challenges/ChallengesColumn'
@@ -103,10 +103,10 @@ function App() {
               </div>
             </div>
           </div>
-          <div className="columns-container">
+          {/* <div className="columns-container">
             <GoalsColumn />
             <ChallengesColumn />
-          </div>
+          </div> */}
           {viewMode !== 'target' && (
             <WeekSelector 
               selectedDay={selectedDay} 

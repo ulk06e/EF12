@@ -4,7 +4,7 @@ import 'src/pages/plan/shared/Card.css';
 import '../timespan/TimespanBlock.css';
 import AddRoutineTaskPopup from 'src/pages/settings/first3/components/daily_basics/Popups/AddRoutineTaskPopup';
 import RoutineTaskPopup from 'src/pages/settings/first3/components/daily_basics/Popups/RoutineTaskPopup';
-import { fetchSettings, updateSettings, rescheduleDailyBasics } from '../../api/daily_basics';
+import { fetchSettings, updateSettings, rescheduleDailyBasics } from 'src/pages/settings/first3/api/daily_basics';
 import { getLocalSettings, setLocalSettings } from '../../shared/localDb';
 import { getTodayDateString, formatMinutesToHours } from 'src/pages/plan/utils/time';
 
