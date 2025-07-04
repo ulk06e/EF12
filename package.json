@@ -2,5 +2,9 @@
   "dependencies": {
     "react-grid-layout": "^1.5.1",
     "recharts": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint-plugin-import": "^2.32.0",
+    "vite-plugin-checker": "^0.9.3"
   }
 }
