@@ -104,10 +104,10 @@ function App() {
               </div>
             </div>
           </div>
-          <div className="columns-container">
+          {/* <div className="columns-container">
             <GoalsColumn />
             <ChallengesColumn />
-          </div>
+          </div> */}
           {viewMode !== 'target' && (
             <WeekSelector 
               selectedDay={selectedDay} 

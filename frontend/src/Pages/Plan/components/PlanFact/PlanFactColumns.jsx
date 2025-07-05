@@ -72,6 +72,13 @@ export default function PlanFactColumns({
   // Use utility for fact cards
   const factCards = prepareFactCards(items);
 
+  // Calculate today's XP from completed tasks
+  const todayXP = items
+    .filter(item => {
+      return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
+    })
+    .reduce((sum, item) => sum + (item.xp_value || 0), 0);
+
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
     if (viewMode !== 'overview' || !planItemsWithBlocks || planItemsWithBlocks.length === 0) {
@@ -224,6 +231,11 @@ export default function PlanFactColumns({
       <div className="column">
         <div className="column-header">
           <h3>Fact</h3>
+          <div className="column-header-actions">
+            <span className="add-button" style={{ cursor: 'default' }}>
+              {todayXP}XP
+            </span>
+          </div>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
         {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />)}
