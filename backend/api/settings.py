@@ -9,7 +9,11 @@ router = APIRouter(prefix="/settings")
 def get_settings(user_id: str, db: Session = Depends(get_db)):
     settings = db.query(Settings).filter_by(user_id=user_id).first()
     if not settings:
-        raise HTTPException(status_code=404, detail="Settings not found")
+        # Create default settings if they don't exist
+        settings = Settings(user_id=user_id)
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
     return {
         "user_id": settings.user_id,
         "time_blocks": settings.time_blocks,

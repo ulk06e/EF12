@@ -1,4 +1,9 @@
 export const formatMinutesToHours = (minutes) => {
+  // Handle null, undefined, NaN, or invalid values
+  if (minutes == null || isNaN(minutes) || minutes < 0) {
+    return '0m';
+  }
+  
   if (minutes < 60) {
     return `${minutes}m`;
   }
@@ -56,8 +61,8 @@ export const getLocalDateObjectFromCompletedTime = (completedTime) => {
   if (!completedTime) return null;
   try {
     const utcDate = new Date(completedTime);
-    // Add 6 hours to convert from UTC to local timezone
-    return new Date(utcDate.getTime() + 6 * 60 * 60 * 1000);
+    // Add 3 hours to convert from UTC to local timezone (same as formatCompletedTimeForDisplay)
+    return new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
   } catch (error) {
     return null;
   }

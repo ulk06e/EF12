@@ -43,6 +43,7 @@ function TaskFormPopup({
       setEstimatedDuration(initialTask.estimated_duration || '');
       setPriority(initialTask.priority || '');
       setPlannedTime(initialTask.planned_time || '');
+      setFullDescription(initialTask.full_description || '');
       
       // Parse planned_time into hour and minute
       if (initialTask.planned_time) {
@@ -56,6 +57,7 @@ function TaskFormPopup({
       
       setApproximatePlannedTime(initialTask.approximate_planned_time || '');
       setShowPlanTime(!!(initialTask.planned_time || initialTask.approximate_planned_time));
+      setShowAdvanced(!!(initialTask.full_description || initialTask.planned_time || initialTask.approximate_planned_time));
     }
   }, [mode, initialTask]);
 
@@ -96,6 +98,8 @@ function TaskFormPopup({
     setPlannedMinute('');
     setApproximatePlannedTime('');
     setShowPlanTime(false);
+    setShowAdvanced(false);
+    setFullDescription('');
   };
 
   const handleSubmit = (e) => {
@@ -148,7 +152,8 @@ function TaskFormPopup({
         planned_time: combinedTime || null,
         approximate_planned_time: approximatePlannedTime || null,
         approximate_start: approximateStart || null,
-        approximate_end: approximateEnd || null
+        approximate_end: approximateEnd || null,
+        full_description: fullDescription
       };
       onSubmit(updatedTask);
     }
@@ -193,7 +198,7 @@ function TaskFormPopup({
       <div className="add-task-popup">
         {projectBreadcrumb && (
           <div className="popup-breadcrumb">
-            Adding to: {projectBreadcrumb}
+            {isEditMode ? 'Editing in: ' : 'Adding to: '}{projectBreadcrumb}
           </div>
         )}
         <form onSubmit={handleSubmit}>

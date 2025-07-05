@@ -56,6 +56,93 @@ const findAvailablePosition = (start, end, length, occupiedBlocks) => {
   return -1;
 };
 
+// --- Helper: Convert block position to minutes since midnight ---
+const blockToMinutes = (block) => {
+  return (block - 1) * 15;
+};
+
+// --- Helper: Convert minutes since midnight to block position ---
+const minutesToBlock = (minutes) => {
+  return Math.floor(minutes / 15) + 1;
+};
+
+// --- Helper: Calculate precise time gaps between tasks ---
+const calculatePreciseGaps = (sortedTasks, taskPositions, startTimeMinutes = 0) => {
+  const gaps = [];
+  
+  // Convert start time to minutes
+  const startMinutes = startTimeMinutes || 0;
+  
+  // If there are no tasks, create one gap from start to end of day
+  if (sortedTasks.length === 0) {
+    const gapMinutes = 24 * 60 - startMinutes;
+    if (gapMinutes > 0) {
+      gaps.push({
+        type: 'gap',
+        startMinutes: startMinutes,
+        endMinutes: 24 * 60,
+        minutes: gapMinutes
+      });
+    }
+    return gaps;
+  }
+  
+  // Calculate gap before first task
+  const firstTask = sortedTasks[0];
+  const firstTaskPosition = taskPositions.get(firstTask.id);
+  if (firstTaskPosition) {
+    const firstTaskStartMinutes = blockToMinutes(firstTaskPosition.position);
+    if (firstTaskStartMinutes > startMinutes) {
+      gaps.push({
+        type: 'gap',
+        startMinutes: startMinutes,
+        endMinutes: firstTaskStartMinutes,
+        minutes: firstTaskStartMinutes - startMinutes
+      });
+    }
+  }
+  
+  // Calculate gaps between tasks
+  for (let i = 0; i < sortedTasks.length - 1; i++) {
+    const currentTask = sortedTasks[i];
+    const nextTask = sortedTasks[i + 1];
+    
+    const currentTaskPosition = taskPositions.get(currentTask.id);
+    const nextTaskPosition = taskPositions.get(nextTask.id);
+    
+    if (currentTaskPosition && nextTaskPosition) {
+      const currentTaskEndMinutes = blockToMinutes(currentTaskPosition.position) + (currentTask.estimated_duration || 0);
+      const nextTaskStartMinutes = blockToMinutes(nextTaskPosition.position);
+      
+      if (nextTaskStartMinutes > currentTaskEndMinutes) {
+        gaps.push({
+          type: 'gap',
+          startMinutes: currentTaskEndMinutes,
+          endMinutes: nextTaskStartMinutes,
+          minutes: nextTaskStartMinutes - currentTaskEndMinutes
+        });
+      }
+    }
+  }
+  
+  // Calculate gap after last task
+  const lastTask = sortedTasks[sortedTasks.length - 1];
+  const lastTaskPosition = taskPositions.get(lastTask.id);
+  if (lastTaskPosition) {
+    const lastTaskEndMinutes = blockToMinutes(lastTaskPosition.position) + (lastTask.estimated_duration || 0);
+    if (lastTaskEndMinutes < 24 * 60) {
+      gaps.push({
+        type: 'gap',
+        startMinutes: lastTaskEndMinutes,
+        endMinutes: 24 * 60,
+        minutes: 24 * 60 - lastTaskEndMinutes
+      });
+    }
+  }
+  
+  return gaps;
+};
+
 /**
  * Schedule tasks in a 24-hour day using 15-minute blocks
  * @param {Array} tasks - Array of task objects
@@ -185,42 +272,7 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     .map(task => ({ ...task, isUnscheduled: true }));
   
   // --- Find unaccounted time periods (gaps) ---
-  const gaps = [];
-  let currentGapStart = -1;
-  let currentGapLength = 0;
-  
-  for (let block = startBlock; block <= 96; block++) {
-    if (!occupiedBlocks.has(block)) {
-      if (currentGapStart === -1) {
-        currentGapStart = block;
-      }
-      currentGapLength++;
-    } else {
-      if (currentGapStart !== -1 && currentGapLength > 0) {
-        // Convert blocks to minutes (15 minutes per block)
-        const gapMinutes = currentGapLength * 15;
-        gaps.push({
-          type: 'gap',
-          startBlock: currentGapStart,
-          endBlock: block - 1,
-          minutes: gapMinutes
-        });
-      }
-      currentGapStart = -1;
-      currentGapLength = 0;
-    }
-  }
-  
-  // Handle gap at the end of the day
-  if (currentGapStart !== -1 && currentGapLength > 0) {
-    const gapMinutes = currentGapLength * 15;
-    gaps.push({
-      type: 'gap',
-      startBlock: currentGapStart,
-      endBlock: 96,
-      minutes: gapMinutes
-    });
-  }
+  const gaps = calculatePreciseGaps(sortedTasks, taskPositions, startTimeMinutes);
   
   // --- Merge tasks and gaps in chronological order ---
   const finalSchedule = [];
@@ -233,7 +285,8 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     
     if (nextTask && nextGap) {
       const taskPosition = taskPositions.get(nextTask.id).position;
-      if (nextGap.startBlock < taskPosition) {
+      const taskStartMinutes = blockToMinutes(taskPosition);
+      if (nextGap.startMinutes < taskStartMinutes) {
         finalSchedule.push(nextGap);
         gapIndex++;
       } else {

@@ -6,9 +6,13 @@ import { formatMinutesToHours } from '../../../utils/time';
  * @param {object} props
  * @param {number} props.minutes - The gap duration in minutes
  * @param {string} props.viewMode - Current view mode
+ * @param {number} [props.startMinutes] - Start time in minutes since midnight
+ * @param {number} [props.endMinutes] - End time in minutes since midnight
  */
-export default function GapCard({ minutes, viewMode }) {
+export default function GapCard({ minutes, viewMode, startMinutes, endMinutes }) {
   const duration = minutes || 0;
+  
+  // Calculate precise styling based on actual minutes
   const cardStyle = viewMode === 'overview' && duration > 30
     ? {
         display: 'flex',
@@ -17,11 +21,24 @@ export default function GapCard({ minutes, viewMode }) {
       }
     : {};
 
+  // Format start and end times for display
+  const formatTimeFromMinutes = (minutes) => {
+    if (minutes == null || minutes < 0) return '';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  };
+
+  const startTime = startMinutes != null ? formatTimeFromMinutes(startMinutes) : '';
+  const endTime = endMinutes != null ? formatTimeFromMinutes(endMinutes) : '';
+  const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : '';
+
   return (
     <div className="card gap-card" style={cardStyle}>
       <div className="card-item-block">
         <div className="card-item-header">
           <span className="gap-label">Unaccounted Time</span>
+          {timeRange && <span className="gap-time-range">({timeRange})</span>}
         </div>
       </div>
       <div className="card-item-block">

@@ -10,6 +10,7 @@ import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
 import { sortPlanItems } from './utils/planUtils.js';
 import { prepareFactCards } from './utils/factUtils.js';
+import { getClosestHigherXP } from './utils/xpUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
 
@@ -72,12 +73,14 @@ export default function PlanFactColumns({
   // Use utility for fact cards
   const factCards = prepareFactCards(items);
 
-  // Calculate today's XP from completed tasks
+  // Calculate today's XP and get closest higher comparison
   const todayXP = items
     .filter(item => {
       return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
     })
     .reduce((sum, item) => sum + (item.xp_value || 0), 0);
+  
+  const closestHigher = getClosestHigherXP(items, selectedDay);
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
@@ -115,12 +118,13 @@ export default function PlanFactColumns({
     const cards = [];
     for (let i = factCards.length - 1; i >= 0; i--) {
       const item = factCards[i];
-      if (item.unaccounted && item.unaccounted >= 15) {
+
+      if (item.unaccounted != null && item.unaccounted >= 15) {
         cards.push(
           <GapCard key={`fact-gap-${i}`} minutes={Math.round(item.unaccounted)} viewMode={viewMode} />
         );
       }
-      const showUnaccountedInline = item.unaccounted && item.unaccounted > 0 && item.unaccounted < 15;
+      const showUnaccountedInline = item.unaccounted != null && item.unaccounted > 0 && item.unaccounted < 15;
       cards.push(
         <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />
       );
@@ -146,6 +150,7 @@ export default function PlanFactColumns({
         task={editTask} 
         onSave={(updatedTask) => { onUpdateTask(updatedTask); setEditTask(null); }}
         onDuplicate={(task) => { handleDuplicateTask(task); setEditTask(null); }}
+        projects={projects}
       />
       <AddTaskPopup 
         open={addOpen} 
@@ -232,9 +237,9 @@ export default function PlanFactColumns({
         <div className="column-header">
           <h3>Fact</h3>
           <div className="column-header-actions">
-            <span className="add-button" style={{ cursor: 'default' }}>
-              {todayXP}XP
-            </span>
+            <button className="add-button" style={{ cursor: 'default' }}>
+              {todayXP} XP{closestHigher ? ` / ${closestHigher.value} XP ${closestHigher.label}` : ''}
+            </button>
           </div>
         </div>
         {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}

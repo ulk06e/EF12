@@ -27,9 +27,11 @@ export function prepareFactCards(items) {
         unaccounted = Math.max(0, timeBetweenTasks - (item.actual_duration || 0));
       } else {
         const startOfDay = new Date(currentTime);
-        startOfDay.setHours(3, 0, 0, 0);
+        startOfDay.setHours(0, 0, 0, 0);
         const timeSinceStartOfDay = (currentTime.getTime() - startOfDay.getTime()) / (1000 * 60);
-        unaccounted = Math.max(0, timeSinceStartOfDay - (item.actual_duration || 0));
+        // For the first task, unaccounted time is the time from start of day until task completion
+        // Don't subtract task duration as this represents time BEFORE the task
+        unaccounted = Math.max(0, timeSinceStartOfDay);
       }
     }
     const formatted_time = formatCompletedTimeForDisplay(item.completed_time);
