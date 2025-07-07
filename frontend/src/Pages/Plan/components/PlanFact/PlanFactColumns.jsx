@@ -39,6 +39,7 @@ export default function PlanFactColumns({
   const [editTask, setEditTask] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [timerTask, setTimerTask] = useState(null);
+  const [timerMinimized, setTimerMinimized] = useState(false);
   const [xpPopupTaskId, setXpPopupTaskId] = useState(null);
   const [xpData, setXpData] = useState(null);
 
@@ -157,8 +158,11 @@ export default function PlanFactColumns({
         selectedProjectIds={selectedProjectIds}
       />
       <TaskTimerPopup 
-        open={!!timerTask} 
-        onClose={() => setTimerTask(null)} 
+        open={!!timerTask && !timerMinimized} 
+        minimized={timerMinimized}
+        onMinimize={() => setTimerMinimized(true)}
+        onRestore={() => setTimerMinimized(false)}
+        onClose={() => { setTimerTask(null); setTimerMinimized(false); }} 
         task={timerTask} 
         onComplete={onCompleteTask}
       />

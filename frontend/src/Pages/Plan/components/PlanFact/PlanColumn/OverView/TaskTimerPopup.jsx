@@ -3,29 +3,17 @@ import 'src/shared/styles/Popup.css';
 
 // TaskTimerPopup: A robust timer popup that always shows the correct remaining time
 // regardless of tab inactivity, system sleep, or interval delays.
-export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
-  if (!open || !task) return null; // Render nothing if popup is closed or no task
-
-  // Parse the estimated duration in minutes from the task
-  const estimatedMinutesNum = typeof task.estimated_duration === 'string'
+export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore, onClose, task, onComplete }) {
+  // All hooks at the top
+  const estimatedMinutesNum = typeof task?.estimated_duration === 'string'
     ? parseInt(task.estimated_duration)
-    : task.estimated_duration;
-
+    : task?.estimated_duration;
   const [isPure, setIsPure] = useState(true); // True if timer was never paused
   const [isRunning, setIsRunning] = useState(true); // True if timer is running
   const [startTime] = useState(Date.now()); // Start time in ms since epoch
   const [totalPausedTime, setTotalPausedTime] = useState(0); // Total paused ms
   const [pauseStartTime, setPauseStartTime] = useState(null); // When pause started
   const [tick, setTick] = useState(0); // Dummy state to trigger re-renders
-
-  // Set up an interval to trigger a re-render every second while running
-  useEffect(() => {
-    if (!isRunning) return;
-    const interval = setInterval(() => {
-      setTick(t => t + 1); // Just trigger a re-render
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isRunning]);
 
   // Calculate the remaining time (in seconds) based on wall clock time
   let now = Date.now(); // Current time in ms
@@ -37,6 +25,62 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
   const remainingTime = Math.round(
     estimatedMinutesNum * 60 - (now - startTime - effectivePaused) / 1000
   );
+
+  // Play a beep using the Web Audio API
+  function playBeep(frequency = 440, duration = 200, volume = 0.5) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    gain.gain.value = volume;
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    setTimeout(() => {
+      oscillator.stop();
+      ctx.close();
+    }, duration);
+  }
+
+  // Track if we've already played the 15-min and 0 beeps
+  const [beep15Played, setBeep15Played] = useState(false);
+  const [beep0Played, setBeep0Played] = useState(false);
+
+  useEffect(() => {
+    if (open && minimized) {
+      onRestore && onRestore();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const interval = setInterval(() => {
+      setTick(t => t + 1); // Just trigger a re-render
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  useEffect(() => {
+    // 15 minutes = 900 seconds
+    if (remainingTime <= 900 && !beep15Played && remainingTime > 0) {
+      playBeep(660, 200, 0.5); // warning beep
+      setBeep15Played(true);
+    }
+    if (remainingTime <= 0 && !beep0Played) {
+      playBeep(440, 500, 0.8); // end beep
+      setBeep0Played(true);
+    }
+    // Reset beeps if timer is reset
+    if (remainingTime > 900 && (beep15Played || beep0Played)) {
+      setBeep15Played(false);
+      setBeep0Played(false);
+    }
+  }, [remainingTime, beep15Played, beep0Played]);
+
+  if ((!open && !minimized) || !task) {
+    return null;
+  }
 
   // Format seconds as MM:SS, with a leading '-' if negative
   const formatTime = (seconds) => {
@@ -85,30 +129,68 @@ export default function TaskTimerPopup({ open, onClose, task, onComplete }) {
     onClose();
   };
 
-  // Render the timer popup UI
-  return (
-    <div className="task-time-popup">
-      <div className="task-time-content">
-        <div className="task-name">{task.description}</div>
-        {task.full_description && (
-          <>
-            <div className="task-full-description">{task.full_description}</div>
-            <hr className="task-popup-divider" />
-          </>
-        )}
-        <div className={`task-time-display ${remainingTime < 0 ? 'negative' : ''}`}>
-          {formatTime(remainingTime)}
-        </div>
-        <div className="task-time-buttons">
+  // Overlay click handler
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onMinimize && onMinimize();
+    }
+  };
+
+  // Minimized sticky widget click handler
+  const handleStickyClick = () => {
+    onRestore && onRestore();
+  };
+
+  if (minimized) {
+    const isNegative = remainingTime < 0;
+    return (
+      <div
+        className={`sticky-timer-widget${isNegative ? ' negative-bg' : ''}`}
+        onClick={handleStickyClick}
+      >
+        <span className="sticky-timer-time">{formatTime(remainingTime)}</span>
+        <div className="sticky-timer-buttons">
           <button
-            onClick={isRunning ? handlePause : handleContinue}
-            className={`task-time-button ${!isRunning ? 'bold' : ''}`}
+            onClick={e => { e.stopPropagation(); isRunning ? handlePause() : handleContinue(); }}
+            className={`task-time-button ${!isRunning ? 'bold' : ''} sticky-timer-btn`}
           >
             {isRunning ? 'Pause' : 'Continue'}
           </button>
-          <button onClick={handleFinish} className="task-time-button primary">
+          <button
+            onClick={e => { e.stopPropagation(); handleFinish(); }}
+            className="task-time-button primary sticky-timer-btn"
+          >
             Complete
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Full popup overlay
+  return (
+    <div className="task-time-popup-overlay" onClick={handleOverlayClick}>
+      <div className="task-time-popup" onClick={e => e.stopPropagation()}>
+        <div className="task-time-content">
+          <div className="task-name">{task.description}</div>
+          {task.full_description && (
+            <>
+              <div className="task-full-description">{task.full_description}</div>
+              <hr className="task-popup-divider" />
+            </>
+          )}
+          <div className={`task-time-display ${remainingTime < 0 ? 'negative' : ''}`}>{formatTime(remainingTime)}</div>
+          <div className="task-time-buttons">
+            <button
+              onClick={isRunning ? handlePause : handleContinue}
+              className={`task-time-button ${!isRunning ? 'bold' : ''}`}
+            >
+              {isRunning ? 'Pause' : 'Continue'}
+            </button>
+            <button onClick={handleFinish} className="task-time-button primary">
+              Complete
+            </button>
+          </div>
         </div>
       </div>
     </div>

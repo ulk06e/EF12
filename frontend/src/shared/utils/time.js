@@ -73,7 +73,7 @@ export const formatCompletedTimeForDisplay = (completedTime) => {
   if (!completedTime) return 'Invalid Date';
   try {
     const originalDate = new Date(completedTime);
-    const adjustedDate = new Date(originalDate.getTime() + 3 * 60 * 60 * 1000); // +3 часа
+    const adjustedDate = new Date(originalDate.getTime() + 0 * 60 * 60 * 1000); // +3 часа
     return adjustedDate.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',

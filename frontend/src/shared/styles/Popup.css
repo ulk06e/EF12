@@ -148,25 +148,22 @@
 }
 
 /* Task Timer Popup styles */
-.task-time-popup {
+.task-time-popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.3);
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
 }
 
-
-.task-time-content {
+.task-time-popup {
   background: #fff;
   padding: 24px;
   border-radius: 8px;
   min-width: 30vw;
+  max-width: 40vw;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -437,5 +434,52 @@
   border: none;
   border-top: 1px solid #e5e7eb;
   margin: 10px 0 16px 0;
+}
+
+.sticky-timer-widget {
+  position: fixed;
+  top: 16px;
+  left: 2rem;
+  z-index: 9999;
+  background: #fff;
+  /* border: 2px solid #059669; */
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  cursor: pointer;
+}
+
+.sticky-timer-time {
+  font-weight: 600;
+  font-size: 18px;
+  min-width: 72px;
+  text-align: center;
+  display: inline-block;
+}
+
+.sticky-timer-btn {
+  min-width: 60px;
+}
+
+.sticky-timer-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.negative-bg {
+  background: #fee2e2 !important;
+}
+
+.negative-bg .task-time-button {
+  border: none !important;
+}
+
+.settings-button,
+.details-button {
+  min-width: 110px;
 }
 

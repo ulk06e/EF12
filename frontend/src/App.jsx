@@ -97,7 +97,7 @@ function App() {
                 <div style={{ flex: 1 }}></div>
                 <div className="header-buttons">
                   <button className="settings-button" onClick={() => setShowSettings(true)}>Settings</button>
-                  <button className="add-button" onClick={() => setShowStatistics(true)}>Details</button>
+                  <button className="add-button details-button" onClick={() => setShowStatistics(true)}>Details</button>
                 </div>
               </div>
             </div>
