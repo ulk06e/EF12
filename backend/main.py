@@ -20,6 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"message": "EF12 API is running", "status": "ok"}
+
 app.include_router(projects_router)
 app.include_router(items_router)
 app.include_router(days_router)

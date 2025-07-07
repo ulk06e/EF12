@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_URL } from '../api';
+import { API_URL } from '../api/index';
 import { getTodayDateString } from '../utils/time';
 import { getLocalSettings } from '../../settings/first3/shared/localDb';
 import { handleAddTask } from '../api/items';

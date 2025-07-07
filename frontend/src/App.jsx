@@ -67,7 +67,6 @@ function App() {
       return []; // no project selected → nothing
     }
     
-    
     // Overview mode shows all tasks for the day
     return itemsForDay;
   };

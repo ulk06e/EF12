@@ -10,7 +10,6 @@ import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
 import { sortPlanItems } from './utils/planUtils.js';
 import { prepareFactCards } from './utils/factUtils.js';
-import { getClosestHigherXP } from './utils/xpUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
 
@@ -79,8 +78,6 @@ export default function PlanFactColumns({
       return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
     })
     .reduce((sum, item) => sum + (item.xp_value || 0), 0);
-  
-  const closestHigher = getClosestHigherXP(items, selectedDay);
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
@@ -238,7 +235,7 @@ export default function PlanFactColumns({
           <h3>Fact</h3>
           <div className="column-header-actions">
             <button className="add-button" style={{ cursor: 'default' }}>
-              {todayXP} XP{closestHigher ? ` / ${closestHigher.value} XP ${closestHigher.label}` : ''}
+              {todayXP} XP
             </button>
           </div>
         </div>

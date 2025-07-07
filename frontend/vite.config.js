@@ -9,5 +9,10 @@ export default defineConfig({
     alias: {
       'api': path.resolve(__dirname, 'src/Pages/Plan/api'),
     },
+  },
+  server: {
+    watch: {
+      ignored: ['../backend/**', '**/node_modules/**', '**/.git/**']
+    }
   }
 })
