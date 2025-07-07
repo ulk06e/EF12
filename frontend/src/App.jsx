@@ -23,6 +23,7 @@ import { getTodayDateString } from './shared/utils/time'
 import autoUpdateService from './services/autoUpdate'
 import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
 import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
+import { rescheduleDailyBasics } from './Pages/settings/first3/daily_basics/tapi';
 
 function App() {
   const {
@@ -80,8 +81,10 @@ function App() {
         <SettingsPage onClose={async () => {
           setShowSettings(false);
           setSelectedDay(getTodayDateString());
-          // Refresh items from the backend to show any updates
           try {
+            // Remove and recreate daily basics for today and the rest of the week
+            await rescheduleDailyBasics();
+            // Refresh items from the backend to show any updates
             const res = await fetch(`${API_URL}/items`);
             const updatedItems = await res.json();
             setItems(updatedItems);

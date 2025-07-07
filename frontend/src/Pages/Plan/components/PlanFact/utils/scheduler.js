@@ -269,7 +269,9 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   // Add tasks that couldn't be scheduled, explicitly marking them
   const unscheduledTasks = tasks
     .filter(task => !taskPositions.has(task.id))
-    .map(task => ({ ...task, isUnscheduled: true }));
+    .map(task => {
+      return { ...task, isUnscheduled: true };
+    });
   
   // --- Find unaccounted time periods (gaps) ---
   const gaps = calculatePreciseGaps(sortedTasks, taskPositions, startTimeMinutes);
