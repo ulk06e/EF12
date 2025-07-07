@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
-import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
-import { getLocalTimeBlocks, setLocalTimeBlocks } from '../../../../settings/first3/timespan/localDb';
-import { fetchSettings } from '../../../../settings/first3/timespan/tapi';
+import { scheduleTasks, canScheduleTask } from 'src/Pages/Plan/components/PlanFact/utils/scheduler.js';
+import { isApproximatePeriodInPast, getProjectBreadcrumb } from 'src/shared/utils/time.js';
+import { getLocalTimeBlocks, setLocalTimeBlocks } from 'src/Pages/settings/first3/timespan/localDb.js';
+import { fetchSettings } from 'src/Pages/settings/first3/timespan/tapi.js';
 import 'src/shared/styles/Popup.css';
 
 function TaskFormPopup({ 

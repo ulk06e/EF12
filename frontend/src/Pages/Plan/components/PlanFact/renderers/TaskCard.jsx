@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatMinutesToHours, getProjectBreadcrumb } from '../../../utils/time';
+import { formatMinutesToHours, getProjectBreadcrumb } from 'src/shared/utils/time.js';
 
 /**
  * TaskCard component for rendering a plan or fact task card.

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchXPBreakdown } from '../../../api/items';
+import { fetchXPBreakdown } from 'src/Pages/Plan/api/items.js';
 import './XPBreakdownPopup.css';
 
 function getMultiplierClass(name, value) {

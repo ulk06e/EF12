@@ -13,9 +13,9 @@ export function getComparisonXP(todayXP, xpData) {
   const weekAvg = weekXPs.length > 0 ? Math.round(weekXPs.reduce((a, b) => a + b, 0) / weekXPs.length) : 0;
   const weekBest = weekXPs.length > 0 ? Math.max(...weekXPs) : 0;
   const candidates = [
-    { label: 'yest', value: yesterdayXP },
-    { label: 'week avg', value: weekAvg },
-    { label: 'week best', value: weekBest }
+    { label: 'Yest', value: yesterdayXP },
+    { label: 'W. Avg', value: weekAvg },
+    { label: 'W. Best', value: weekBest }
   ].filter(c => c.value > todayXP);
   if (candidates.length === 0) return null;
   return candidates.reduce((min, c) => c.value < min.value ? c : min, candidates[0]);

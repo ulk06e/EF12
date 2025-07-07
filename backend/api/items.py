@@ -80,6 +80,10 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     if item.get("type") == "daily_basic":
         item["xp_value"] = 0
 
+    # Handle parent_id
+    if "parent_id" not in item:
+        item["parent_id"] = None
+
     new_item = Item(**item)
     db.add(new_item)
     db.commit()
@@ -147,6 +151,10 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
         db_item.column_location = ColumnLocationEnum(item["column_location"])
     if "time_quality" in item and item["time_quality"]:
         db_item.time_quality = TimeQualityEnum(item["time_quality"])
+    
+    # Handle parent_id
+    if "parent_id" in item:
+        db_item.parent_id = item["parent_id"]
     
     # Update other fields
     for key, value in item.items():

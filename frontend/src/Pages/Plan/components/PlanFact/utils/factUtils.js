@@ -1,6 +1,6 @@
 // Fact-related utility functions will go here
 
-import { formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../../utils/time';
+import { formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from 'src/shared/utils/time.js';
 
 export function prepareFactCards(items) {
   // Sort fact items by completed_time descending (newest first)

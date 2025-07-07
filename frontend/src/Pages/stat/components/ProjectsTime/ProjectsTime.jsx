@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'src/Pages/Plan/components/Projects/Projects.css';
 import 'src/shared/styles/Card.css';
 import 'src/shared/styles/Column.css';
+import { fetchStatisticsData } from 'src/Pages/stat/api/xp';
 
 function getDescendantProjectIds(projects, parentId) {
   const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id);
@@ -26,14 +27,34 @@ function getColumnProjects(projects, items, parentId) {
     .sort((a, b) => b.totalActualDuration - a.totalActualDuration);
 }
 
-export default function ProjectsTime({ projects, items }) {
+export default function ProjectsTime() {
   const [selectedProjectIds, setSelectedProjectIds] = useState([null, null, null]);
+  const [projects, setProjects] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchStatisticsData()
+      .then(({ projects, items }) => {
+        setProjects(projects);
+        setItems(items);
+      })
+      .catch(() => setError('Failed to load data'))
+      .finally(() => setLoading(false));
+  }, []);
+
   const [selected1, selected2, selected3] = selectedProjectIds;
   const col1 = getColumnProjects(projects, items, null);
   const col2 = selected1 ? getColumnProjects(projects, items, selected1) : [];
   const col3 = selected2 ? getColumnProjects(projects, items, selected2) : [];
   const labels = ['Area Total Time', 'Project', 'Sub-project'];
   const cols = [col1, col2, col3];
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
     <div className="columns-container">

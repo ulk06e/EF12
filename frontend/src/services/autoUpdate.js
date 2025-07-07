@@ -1,6 +1,6 @@
 import { checkAndUpdateLocalSettingsIfEmpty } from 'src/shared/cache/localDb';
 import { populateWeekWithDailyBasics } from 'src/Pages/settings/first3/daily_basics/tapi';
-import { toLocalDateString } from 'src/Pages/Plan/utils/time';
+import { toLocalDateString } from 'src/shared/utils/time.js';
 import { isWeeklyUpdateTime, getCurrentWeekMonday } from './timeUtils';
 
 class AutoUpdateService {

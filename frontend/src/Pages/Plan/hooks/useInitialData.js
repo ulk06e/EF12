@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from 'src/shared/getApiUrl';
-import { getTodayDateString } from 'src/Pages/Plan/utils/time';
+import { getTodayDateString } from 'src/shared/utils/time.js';
 import { getLocalSettings } from 'src/shared/cache/localDb';
 import { handleAddTask } from 'src/Pages/Plan/api/items';
 

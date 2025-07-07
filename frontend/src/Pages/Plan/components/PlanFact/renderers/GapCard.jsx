@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatMinutesToHours } from '../../../utils/time';
+import { formatMinutesToHours } from 'src/shared/utils/time.js';
 
 /**
  * GapCard component for rendering unaccounted time gaps.
@@ -38,7 +38,6 @@ export default function GapCard({ minutes, viewMode, startMinutes, endMinutes })
       <div className="card-item-block">
         <div className="card-item-header">
           <span className="gap-label">Unaccounted Time</span>
-          {timeRange && <span className="gap-time-range">({timeRange})</span>}
         </div>
       </div>
       <div className="card-item-block">

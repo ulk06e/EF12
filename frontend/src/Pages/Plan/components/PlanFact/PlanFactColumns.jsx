@@ -1,20 +1,24 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import TaskPopup from './Popups/TaskPopup.jsx';
-import EditTaskPopup from './Popups/EditTaskPopup.jsx';
-import AddTaskPopup from './Popups/AddTaskPopup.jsx';
-import TaskTimerPopup from './Popups/TaskTimerPopup.jsx';
-import XPBreakdownPopup from './Popups/XPBreakdownPopup.jsx';
-import { scheduleTasks } from '../../utils/scheduler.js';
-import { getLocalTimeBlocks } from '../../../settings/first3/timespan/localDb';
-import './PlanFactColumns.css';
-import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
+import TaskPopup from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/TaskPopup.jsx';
+import EditTaskPopup from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/EditTaskPopup.jsx';
+import AddTaskPopup from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/AddTaskPopup.jsx';
+import TaskTimerPopup from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/TaskTimerPopup.jsx';
+import XPBreakdownPopup from 'src/Pages/Plan/components/PlanFact/FactColumn/FactPopups/XPBreakdownPopup.jsx';
+import { scheduleTasks } from 'src/Pages/Plan/components/PlanFact/utils/scheduler.js';
+import { getLocalTimeBlocks } from 'src/Pages/settings/first3/timespan/localDb';
+import 'src/Pages/Plan/components/PlanFact/PlanFactColumns.css';
+import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from 'src/shared/utils/time.js';
 import { sortPlanItems } from 'src/Pages/Plan/components/PlanFact/utils/planUtils.js';
 import { prepareFactCards } from 'src/Pages/Plan/components/PlanFact/utils/factUtils.js';
-import TaskCard from './renderers/TaskCard.jsx';
-import GapCard from './renderers/GapCard.jsx';
+import TaskCard from 'src/Pages/Plan/components/PlanFact/renderers/TaskCard.jsx';
+import GapCard from 'src/Pages/Plan/components/PlanFact/renderers/GapCard.jsx';
 import { getLocalXP, fetchAndCacheLast7DaysXP } from 'src/shared/cache/localDb';
-import { getComparisonXP } from '../../utils/xpUtils';
-import { attachTimeBlocks } from '../../utils/xpUtils';
+import { getComparisonXP } from 'src/Pages/Plan/components/PlanFact/utils/xpUtils.js';
+import { attachTimeBlocks } from 'src/Pages/Plan/components/PlanFact/utils/xpUtils.js';
+import PlanOverviewView from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/PlanOverviewView.jsx';
+import PlanTargetView from 'src/Pages/Plan/components/PlanFact/PlanColumn/TargetView/PlanTargetView.jsx';
+import PlanColumn from 'src/Pages/Plan/components/PlanFact/PlanColumn/PlanColumn.jsx';
+import FactColumn from 'src/Pages/Plan/components/PlanFact/FactColumn/FactColumn.jsx';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
@@ -40,8 +44,6 @@ export default function PlanFactColumns({
 
   // Use utility for plan items
   const planItems = sortPlanItems(items);
-  
-  // Utility for planItemsWithBlocks
   const timeBlocks = getLocalTimeBlocks();
   const planItemsWithBlocks = attachTimeBlocks(planItems, timeBlocks);
 
@@ -162,81 +164,26 @@ export default function PlanFactColumns({
       />
       <XPBreakdownPopup open={!!xpPopupTaskId} onClose={() => setXpPopupTaskId(null)} taskId={xpPopupTaskId} />
       
-      <div className="column">
-        <div className="column-header">
-          <h3>Plan</h3>
-          <div className="column-header-actions">
-            <button 
-              className="view-toggle-button" 
-              onClick={() => setViewMode(prev => prev === 'target' ? 'overview' : 'target')}
-            >
-              {viewMode === 'target' ? '🎯' : '🗓️'}
-            </button>
-            <button 
-              className="add-button" 
-              onClick={() => !isPastDate && setAddOpen(true)}
-              disabled={isPastDate || !selectedProjectId || !selectedProjectIds[2]}
-            >
-              Add Task
-            </button>
-          </div>
-        </div>
-        
-        {viewMode === 'overview' ? (
-          <>
-            {scheduledOverview.scheduledTasks.length === 0 ? (
-              <div className="no-items-message">No planned tasks</div>
-            ) : (
-              (() => {
-                const unscheduledTasks = scheduledOverview.scheduledTasks.filter(
-                  item => item.isUnscheduled
-                );
-                const schedulableItems = scheduledOverview.scheduledTasks.filter(
-                  item => !item.isUnscheduled
-                );
-
-                return <>
-                  {schedulableItems.map((item, idx) =>
-                    item.type === 'gap'
-                      ? <GapCard key={idx} minutes={item.minutes} viewMode={viewMode} />
-                      : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={false} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
-                  )}
-                  {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
-                  {unscheduledTasks.map((item, idx) =>
-                    <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={true} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
-                  )}
-                </>;
-              })()
-            )}
-          </>
-        ) : (
-          <>
-            {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
-            {planItems.map((item, idx) => <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />)}
-          </>
-        )}
-      </div>
-      
-      <div className="column">
-        <div className="column-header">
-          <h3>Fact</h3>
-          <div className="column-header-actions">
-            <button className="add-button" style={{ cursor: 'default' }}>
-              {todayXP} XP 
-              {(() => {
-                const comp = getComparisonXP(todayXP, xpData);
-                return comp ? (
-                  <span>
-                  &nbsp;/&nbsp;{comp.value} XP ({comp.label})
-                  </span>
-                ) : null;
-              })()}
-            </button>
-          </div>
-        </div>
-        {factCards.length === 0 && <div className="no-items-message">No completed tasks</div>}
-        {viewMode === 'overview' ? renderFactColumnOverview() : factCards.map((item) => <TaskCard key={item.id} item={item} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />)}
-      </div>
+      <PlanColumn
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        isPastDate={isPastDate}
+        setAddOpen={setAddOpen}
+        selectedProjectId={selectedProjectId}
+        selectedProjectIds={selectedProjectIds}
+        scheduledOverview={scheduledOverview}
+        setPopupTask={setPopupTask}
+        planItems={planItems}
+        projects={projects}
+      />
+      <FactColumn
+        todayXP={todayXP}
+        xpData={xpData}
+        viewMode={viewMode}
+        factCards={factCards}
+        setXpPopupTaskId={setXpPopupTaskId}
+        projects={projects}
+      />
     </div>
   );
 }

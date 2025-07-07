@@ -6,7 +6,7 @@ import AddRoutineTaskPopup from './Popups/AddRoutineTaskPopup';
 import RoutineTaskPopup from './Popups/RoutineTaskPopup';
 import { fetchSettings, updateSettings, rescheduleDailyBasics } from './tapi';
 import { getLocalSettings, setLocalSettings } from 'src/shared/cache/localDb.js';
-import { getTodayDateString, formatMinutesToHours } from '../../../Plan/utils/time';
+import { getTodayDateString, formatMinutesToHours } from '../../../../shared/utils/time';
 
 export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
   const [routineTasks, setRoutineTasks] = useState([]);
