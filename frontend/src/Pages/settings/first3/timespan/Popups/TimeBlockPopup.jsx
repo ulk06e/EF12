@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../../Plan/shared/Popup.css';
+import 'src/shared/styles/Popup.css';
 
 export default function TimeBlockPopup({ open, onClose, timeBlock, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);

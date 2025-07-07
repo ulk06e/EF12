@@ -110,7 +110,7 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
                   <span className="card-text-unaccounted"> (+{formatMinutesToHours(Math.round(item.unaccounted))})</span>
                 )}
               </div>
-              <div className="card-text-xp">+{item.xp_value} XP</div>
+              <div className="card-text-xp-bottom">+{item.xp_value} XP</div>
             </>
           )}
         </div>

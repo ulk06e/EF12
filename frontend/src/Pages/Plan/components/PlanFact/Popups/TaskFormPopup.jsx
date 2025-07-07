@@ -4,7 +4,7 @@ import { scheduleTasks, canScheduleTask } from '../../../utils/scheduler';
 import { isApproximatePeriodInPast, getProjectBreadcrumb } from '../../../utils/time';
 import { getLocalTimeBlocks, setLocalTimeBlocks } from '../../../../settings/first3/timespan/localDb';
 import { fetchSettings } from '../../../../settings/first3/timespan/tapi';
-import '../../../shared/Popup.css';
+import 'src/shared/styles/Popup.css';
 
 function TaskFormPopup({ 
   mode, 

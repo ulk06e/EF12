@@ -8,11 +8,11 @@ import { scheduleTasks } from '../../utils/scheduler.js';
 import { getLocalTimeBlocks } from '../../../settings/first3/timespan/localDb';
 import './PlanFactColumns.css';
 import { formatMinutesToHours, getTodayDateString, formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } from '../../utils/time.js';
-import { sortPlanItems } from './utils/planUtils.js';
-import { prepareFactCards } from './utils/factUtils.js';
+import { sortPlanItems } from 'src/Pages/Plan/components/PlanFact/utils/planUtils.js';
+import { prepareFactCards } from 'src/Pages/Plan/components/PlanFact/utils/factUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
-import { getLocalXP, fetchAndCacheLast7DaysXP } from '../../cache/localDb';
+import { getLocalXP, fetchAndCacheLast7DaysXP } from 'src/shared/cache/localDb';
 import { getComparisonXP } from '../../utils/xpUtils';
 import { attachTimeBlocks } from '../../utils/xpUtils';
 

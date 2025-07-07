@@ -1,4 +1,4 @@
-import { API_URL } from 'api/index';
+import { API_URL } from 'src/shared/getApiUrl';
 
 function getLast7Days() {
   const days = [];

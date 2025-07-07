@@ -1,6 +1,6 @@
 /* PlanFactColumns.jsx Styles */
-@import '../../shared/Column.css';
-@import '../../shared/Card.css';
+@import 'src/shared/styles/Column.css';
+@import 'src/shared/styles/Card.css';
 
 /* Task-specific styles */
 
@@ -131,4 +131,17 @@
   border: none;
   border-top: 2px dashed #dc2626;
   margin: 4px 0 12px 0;
+}
+
+.card-text-xp-bottom {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  color: #059669;
+  font-weight: 500;
+  font-size: 1em;
+}
+
+.card {
+  position: relative;
 } 

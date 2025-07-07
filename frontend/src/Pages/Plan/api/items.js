@@ -1,5 +1,5 @@
 // Item/task-related API functions
-import { API_URL } from './index';
+import { API_URL } from 'src/shared/getApiUrl';
 
 export function handleAddTask(item, setItems) {
   // Remove frontend-only fields

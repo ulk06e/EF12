@@ -1,6 +1,6 @@
 /* ProjectColumns.jsx Styles */
-@import '../../shared/Column.css';
-@import '../../shared/Card.css';
+@import 'src/shared/styles/Column.css';
+@import 'src/shared/styles/Card.css';
 
 /* Project-specific styles */
 

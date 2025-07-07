@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import ProjectsTime from './components/ProjectsTime/ProjectsTime';
-import XPChart from './components/XPChart/XPChart';
-import { fetchStatisticsData } from './api/xp';
-import './index.css';
+import ProjectsTime from 'src/Pages/stat/components/ProjectsTime/ProjectsTime';
+import XPChart from 'src/Pages/stat/components/XPChart/XPChart';
+import { fetchStatisticsData } from 'src/Pages/stat/api/xp';
+import 'src/Pages/stat/index.css';
 
 export default function StatisticsPage({ onClose }) {
   const [projects, setProjects] = useState([]);

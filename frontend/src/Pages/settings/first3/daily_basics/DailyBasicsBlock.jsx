@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import '../../../Plan/shared/Column.css';
-import '../../../Plan/shared/Card.css';
+import 'src/shared/styles/Column.css';
+import 'src/shared/styles/Card.css';
 import '../timespan/TimespanBlock.css';
-import AddRoutineTaskPopup from './AddRoutineTaskPopup';
-import RoutineTaskPopup from './RoutineTaskPopup';
+import AddRoutineTaskPopup from './Popups/AddRoutineTaskPopup';
+import RoutineTaskPopup from './Popups/RoutineTaskPopup';
 import { fetchSettings, updateSettings, rescheduleDailyBasics } from './tapi';
-import { getLocalSettings, setLocalSettings } from 'src/Pages/Plan/cache/localDb.js';
+import { getLocalSettings, setLocalSettings } from 'src/shared/cache/localDb.js';
 import { getTodayDateString, formatMinutesToHours } from '../../../Plan/utils/time';
 
 export default function DailyBasicsBlock({ addOpen, setAddOpen }) {

@@ -1,5 +1,5 @@
 const LOCAL_KEY = 'settings_all';
-import { API_URL } from 'api/index';
+import { API_URL } from 'src/shared/getApiUrl';
 
 const XP_CACHE_KEY = 'last7DaysXP';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import './index.css';
 import FirstThreeColumns from './first3/first3';
-import '../Plan/shared/Column.css';
+import 'src/shared/styles/Column.css';
 import { rescheduleDailyBasics } from './first3/daily_basics/tapi';
 
 export default function SettingsPage({ onClose }) {

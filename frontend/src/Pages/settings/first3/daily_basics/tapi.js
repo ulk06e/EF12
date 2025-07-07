@@ -1,7 +1,7 @@
-import { API_URL } from 'api/index';
+import { API_URL } from 'src/shared/getApiUrl';
 
-import { getLocalSettings } from '../../../Plan/cache/localDb';
-import { toLocalDateString } from '../../../Plan/utils/time';
+import { getLocalSettings } from 'src/shared/cache/localDb';
+import { toLocalDateString } from 'src/Pages/Plan/utils/time';
 
 export async function fetchSettings() {
   const res = await fetch(`${API_URL}/settings/default`);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../../shared/Popup.css';
+import 'src/shared/styles/Popup.css';
 
 // TaskTimerPopup: A robust timer popup that always shows the correct remaining time
 // regardless of tab inactivity, system sleep, or interval delays.

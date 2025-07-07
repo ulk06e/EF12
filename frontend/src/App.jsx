@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
 import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
 import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
-import Dashboard from './Pages/Plan/components/Dashboard/Dashboard'
-import { API_URL } from 'api/index';
+import { API_URL } from 'src/shared/getApiUrl';
 import {
   handleAddProject,
   handleUpdateProject,

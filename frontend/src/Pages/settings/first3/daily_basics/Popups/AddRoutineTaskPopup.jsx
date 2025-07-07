@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import '../../../Plan/shared/Card.css';
-import '../../../Plan/shared/Popup.css';
+import 'src/shared/styles/Card.css';
+import 'src/shared/styles/Popup.css';
 
-export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
+export default function AddRoutineTaskPopup({ open, onClose, onAdd }) {
   const [name, setName] = useState('');
+  const [priority, setPriority] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
+  const [duration, setDuration] = useState('');
 
   const resetForm = () => {
     setName('');
+    setPriority('');
     setStart('');
     setEnd('');
+    setDuration('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd({ id: Date.now(), name, start, end });
+    onAdd({ id: Date.now(), name, priority: Number(priority), start, end, duration: duration ? Number(duration) : undefined });
     resetForm();
   };
 
@@ -28,13 +32,31 @@ export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
           <div className="add-task-row">
             <input
               type="text"
-              placeholder="Block name"
+              placeholder="Routine name"
               value={name}
               onChange={e => setName(e.target.value)}
               required
             />
           </div>
           <div className="add-task-row">
+            <input
+              type="number"
+              placeholder="Priority"
+              value={priority}
+              min={1}
+              onChange={e => setPriority(e.target.value)}
+              required
+              style={{ width: 80 }}
+            />
+            <input
+              type="number"
+              placeholder="Duration (min)"
+              value={duration}
+              min={1}
+              onChange={e => setDuration(e.target.value)}
+              required
+              style={{ width: 120 }}
+            />
             <input
               type="time"
               value={start}
@@ -56,9 +78,9 @@ export default function AddTimeBlockPopup({ open, onClose, onAdd }) {
             <button
               type="submit"
               className="submit-button"
-              disabled={!name || !start || !end}
+              disabled={!name || !priority || !start || !end}
             >
-              Add Time Block
+              Add Routine
             </button>
           </div>
         </form>

@@ -1,10 +1,10 @@
 import React from 'react';
 import './WeekSelector.css';
-import { SETTINGS } from '../../../../config';
-import { formatMinutesToHours, toLocalDateString, getDayEstimatedDuration } from '../../utils/time';
-import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from '../../cache/localDb';
-import { populateWeekWithDailyBasics } from '../../../settings/first3/daily_basics/tapi';
-import { API_URL } from 'api/index';
+import { SETTINGS } from 'src/config';
+import { formatMinutesToHours, toLocalDateString, getDayEstimatedDuration } from 'src/Pages/Plan/utils/time';
+import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from 'src/shared/cache/localDb';
+import { populateWeekWithDailyBasics } from 'src/Pages/settings/first3/daily_basics/tapi';
+import { API_URL } from 'src/shared/getApiUrl';
 
 function getCurrentWeek() {
   const today = new Date();
