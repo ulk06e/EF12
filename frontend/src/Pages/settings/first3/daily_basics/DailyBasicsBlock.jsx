@@ -5,7 +5,7 @@ import '../timespan/TimespanBlock.css';
 import AddRoutineTaskPopup from './AddRoutineTaskPopup';
 import RoutineTaskPopup from './RoutineTaskPopup';
 import { fetchSettings, updateSettings, rescheduleDailyBasics } from './tapi';
-import { getLocalSettings, setLocalSettings } from '../shared/localDb';
+import { getLocalSettings, setLocalSettings } from 'src/Pages/Plan/cache/localDb.js';
 import { getTodayDateString, formatMinutesToHours } from '../../../Plan/utils/time';
 
 export default function DailyBasicsBlock({ addOpen, setAddOpen }) {

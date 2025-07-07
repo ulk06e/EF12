@@ -1,4 +1,4 @@
-import { checkAndUpdateLocalSettingsIfEmpty } from '../Pages/settings/first3/shared/localDb';
+import { checkAndUpdateLocalSettingsIfEmpty } from '../Pages/Plan/cache/localDb';
 import { populateWeekWithDailyBasics } from '../Pages/settings/first3/daily_basics/tapi';
 import { toLocalDateString } from '../Pages/Plan/utils/time';
 import { isWeeklyUpdateTime, getCurrentWeekMonday } from './timeUtils';

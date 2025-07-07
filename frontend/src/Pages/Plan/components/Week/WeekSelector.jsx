@@ -2,7 +2,7 @@ import React from 'react';
 import './WeekSelector.css';
 import { SETTINGS } from '../../../../config';
 import { formatMinutesToHours, toLocalDateString, getDayEstimatedDuration } from '../../utils/time';
-import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from '../../../settings/first3/shared/localDb';
+import { getLocalSettings, checkAndUpdateLocalSettingsIfEmpty } from '../../cache/localDb';
 import { populateWeekWithDailyBasics } from '../../../settings/first3/daily_basics/tapi';
 import { API_URL } from 'api/index';
 

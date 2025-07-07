@@ -1,6 +1,6 @@
 import { API_URL } from 'api/index';
 
-import { getLocalSettings } from '../shared/localDb';
+import { getLocalSettings } from '../../../Plan/cache/localDb';
 import { toLocalDateString } from '../../../Plan/utils/time';
 
 export async function fetchSettings() {

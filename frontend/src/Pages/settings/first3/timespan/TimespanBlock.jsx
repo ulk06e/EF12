@@ -5,7 +5,7 @@ import './TimespanBlock.css';
 import AddTimeBlockPopup from './AddTimeBlockPopup';
 import TimeBlockPopup from './TimeBlockPopup';
 import { fetchSettings, updateSettings } from './tapi';
-import { getLocalSettings, setLocalSettings } from '../shared/localDb';
+import { getLocalSettings, setLocalSettings } from 'src/Pages/Plan/cache/localDb'; 
 
 export default function TimespanBlock({ addOpen, setAddOpen }) {
   const [timeBlocks, setTimeBlocks] = useState([]);

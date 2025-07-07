@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'api': path.resolve(__dirname, 'src/Pages/Plan/api'),
+      'src': path.resolve(__dirname, 'src'),
     },
   },
   server: {

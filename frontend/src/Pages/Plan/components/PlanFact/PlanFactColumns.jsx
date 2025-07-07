@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import TaskPopup from './Popups/TaskPopup.jsx';
 import EditTaskPopup from './Popups/EditTaskPopup.jsx';
 import AddTaskPopup from './Popups/AddTaskPopup.jsx';
@@ -12,6 +12,9 @@ import { sortPlanItems } from './utils/planUtils.js';
 import { prepareFactCards } from './utils/factUtils.js';
 import TaskCard from './renderers/TaskCard.jsx';
 import GapCard from './renderers/GapCard.jsx';
+import { getLocalXP, fetchAndCacheLast7DaysXP } from '../../cache/localDb';
+import { getComparisonXP } from '../../utils/xpUtils';
+import { attachTimeBlocks } from '../../utils/xpUtils';
 
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
@@ -33,41 +36,14 @@ export default function PlanFactColumns({
   const [addOpen, setAddOpen] = useState(false);
   const [timerTask, setTimerTask] = useState(null);
   const [xpPopupTaskId, setXpPopupTaskId] = useState(null);
+  const [xpData, setXpData] = useState(null);
 
   // Use utility for plan items
   const planItems = sortPlanItems(items);
   
-  // Attach approximate_start and approximate_end to plan items before scheduling
+  // Utility for planItemsWithBlocks
   const timeBlocks = getLocalTimeBlocks();
-  const planItemsWithBlocks = planItems.map(item => {
-    if (item.approximate_planned_time && timeBlocks.length > 0) {
-      // Handle daily basics - they have time ranges like "13:00 - 16:00"
-      if (item.type === 'daily_basic') {
-        const timeRange = item.approximate_planned_time;
-        const match = timeRange.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
-        if (match) {
-          return {
-            ...item,
-            approximate_start: match[1],
-            approximate_end: match[2]
-          };
-        }
-      }
-      
-      // Handle regular approximate time tasks that use time blocks
-      const block = timeBlocks.find(
-        b => b.name.trim().toLowerCase() === item.approximate_planned_time.trim().toLowerCase()
-      );
-      if (block) {
-        return {
-          ...item,
-          approximate_start: block.start,
-          approximate_end: block.end
-        };
-      }
-    }
-    return item;
-  });
+  const planItemsWithBlocks = attachTimeBlocks(planItems, timeBlocks);
 
   // Use utility for fact cards
   const factCards = prepareFactCards(items);
@@ -78,6 +54,17 @@ export default function PlanFactColumns({
       return (item.day_id || '').slice(0, 10) === selectedDay && item.completed_time;
     })
     .reduce((sum, item) => sum + (item.xp_value || 0), 0);
+
+  useEffect(() => {
+    async function ensureXP() {
+      let data = getLocalXP();
+      if (!data) {
+        data = await fetchAndCacheLast7DaysXP();
+      }
+      setXpData(data);
+    }
+    ensureXP();
+  }, []);
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
@@ -235,7 +222,15 @@ export default function PlanFactColumns({
           <h3>Fact</h3>
           <div className="column-header-actions">
             <button className="add-button" style={{ cursor: 'default' }}>
-              {todayXP} XP
+              {todayXP} XP 
+              {(() => {
+                const comp = getComparisonXP(todayXP, xpData);
+                return comp ? (
+                  <span>
+                  &nbsp;/&nbsp;{comp.value} XP ({comp.label})
+                  </span>
+                ) : null;
+              })()}
             </button>
           </div>
         </div>
