@@ -19,9 +19,11 @@ export default function PlanOverviewView({
       ) : (
         <>
           {schedulableItems.map((item, idx) =>
-            item.type === 'gap'
-              ? <GapCard key={idx} minutes={item.minutes} viewMode={viewMode} startMinutes={item.startMinutes} endMinutes={item.endMinutes} />
-              : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={false} isPastDate={isPastDate} onClick={() => !isPastDate && setPopupTask(item)} projects={projects} />
+            isPastDate && item.type === 'gap'
+              ? null
+              : item.type === 'gap'
+                ? <GapCard key={idx} minutes={item.minutes} viewMode={viewMode} startMinutes={item.startMinutes} endMinutes={item.endMinutes} />
+                : <TaskCard key={item.id} item={item} isPlan={true} index={idx} viewMode={viewMode} isUnscheduled={isPastDate} isPastDate={isPastDate} onClick={() => setPopupTask(item)} projects={projects} />
           )}
           {unscheduledTasks.length > 0 && <hr className="unscheduled-separator" />}
           {unscheduledTasks.map((item, idx) =>

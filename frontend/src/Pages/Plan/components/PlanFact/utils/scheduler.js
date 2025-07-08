@@ -3,9 +3,13 @@
  * Calculates positions for tasks based on their time constraints
  */
 
+// Block size in minutes (change this to adjust granularity)
+const BLOCK_SIZE_MINUTES = 5;
+const BLOCKS_PER_DAY = 24 * 60 / BLOCK_SIZE_MINUTES; // 288 for 5-min blocks
+
 // --- Helper: Check if blocks are available for a task ---
 const areBlocksAvailable = (startBlock, length, occupiedBlocks) => {
-  for (let i = startBlock; i < startBlock + length && i <= 96; i++) {
+  for (let i = startBlock; i < startBlock + length && i <= BLOCKS_PER_DAY; i++) {
     if (occupiedBlocks.has(i)) return false;
   }
   return true;
@@ -13,7 +17,7 @@ const areBlocksAvailable = (startBlock, length, occupiedBlocks) => {
 
 // --- Helper: Mark blocks as occupied for a task ---
 const markBlocksOccupied = (startBlock, length, taskId, occupiedBlocks, taskPositions) => {
-  for (let i = startBlock; i < startBlock + length && i <= 96; i++) {
+  for (let i = startBlock; i < startBlock + length && i <= BLOCKS_PER_DAY; i++) {
     occupiedBlocks.add(i);
   }
   taskPositions.set(taskId, { position: startBlock, length });
@@ -22,7 +26,7 @@ const markBlocksOccupied = (startBlock, length, taskId, occupiedBlocks, taskPosi
 // --- Helper: Check for collisions with already scheduled tasks ---
 const getCollidingTasks = (position, length, occupiedBlocks, taskPositions, tasks) => {
   const collidingTasks = new Set();
-  for (let i = position; i < position + length && i <= 96; i++) {
+  for (let i = position; i < position + length && i <= BLOCKS_PER_DAY; i++) {
     if (occupiedBlocks.has(i)) {
       for (const [taskId, { position: taskPos, length: taskLen }] of taskPositions) {
         if (i >= taskPos && i < taskPos + taskLen) {
@@ -39,8 +43,8 @@ const getCollidingTasks = (position, length, occupiedBlocks, taskPositions, task
 // --- Helper: Sort tasks by priority and quality ---
 const sortTasks = (tasks) => {
   return tasks.slice().sort((a, b) => {
-    const priorityA = a.priority || 10;
-    const priorityB = b.priority || 10;
+    const priorityA = a.priority || 20;
+    const priorityB = b.priority || 20;
     if (priorityA !== priorityB) return priorityA - priorityB;
     return (a.task_quality || 'D').localeCompare(b.task_quality || 'D');
   });
@@ -58,12 +62,12 @@ const findAvailablePosition = (start, end, length, occupiedBlocks) => {
 
 // --- Helper: Convert block position to minutes since midnight ---
 const blockToMinutes = (block) => {
-  return (block - 1) * 15;
+  return (block - 1) * BLOCK_SIZE_MINUTES;
 };
 
 // --- Helper: Convert minutes since midnight to block position ---
 const minutesToBlock = (minutes) => {
-  return Math.floor(minutes / 15) + 1;
+  return Math.floor(minutes / BLOCK_SIZE_MINUTES) + 1;
 };
 
 // --- Helper: Calculate precise time gaps between tasks ---
@@ -155,12 +159,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   }
   
   const errors = [];
-  const occupiedBlocks = new Set(); // Track occupied blocks 1-96
+  const occupiedBlocks = new Set(); // Track occupied blocks 1-BLOCKS_PER_DAY
   const taskPositions = new Map(); // task.id -> {position, length}
   
   // Determine the starting block (1-based)
   const startBlock = (typeof startTimeMinutes === 'number')
-    ? Math.floor(startTimeMinutes / 15) + 1
+    ? Math.floor(startTimeMinutes / BLOCK_SIZE_MINUTES) + 1
     : 1;
 
   // Determine if this is 'today' (startTimeMinutes is provided and > 0)
@@ -178,10 +182,10 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     
     const hour = parseInt(timeMatch[1]);
     const minute = parseInt(timeMatch[2]);
-    const position = Math.floor((hour * 60 + minute) / 15) + 1;
-    const length = Math.ceil(task.estimated_duration / 15);
+    const position = Math.floor((hour * 60 + minute) / BLOCK_SIZE_MINUTES) + 1;
+    const length = Math.ceil(task.estimated_duration / BLOCK_SIZE_MINUTES);
     
-    if (position + length > 97) {
+    if (position + length > BLOCKS_PER_DAY + 1) {
       errors.push(`Task "${task.description}" doesn't fit in day`);
       return;
     }
@@ -208,13 +212,13 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     // Parse start/end as HH:MM
     const [startHour, startMinute] = task.approximate_start.split(':').map(Number);
     const [endHour, endMinute] = task.approximate_end.split(':').map(Number);
-    let blockStart = Math.floor((startHour * 60 + startMinute) / 15) + 1;
-    let endBlock = Math.floor((endHour * 60 + endMinute) / 15) + 1;
+    let blockStart = Math.floor((startHour * 60 + startMinute) / BLOCK_SIZE_MINUTES) + 1;
+    let endBlock = Math.floor((endHour * 60 + endMinute) / BLOCK_SIZE_MINUTES) + 1;
     // Handle crossing midnight
     if (endBlock <= blockStart) {
-      endBlock += 96; // add 24h worth of blocks
+      endBlock += BLOCKS_PER_DAY; // add 24h worth of blocks
     }
-    const length = Math.ceil(task.estimated_duration / 15);
+    const length = Math.ceil(task.estimated_duration / BLOCK_SIZE_MINUTES);
     // For today, only allow scheduling in the future part of the block
     let effectiveStartBlock = blockStart;
     if (isToday) {
@@ -240,10 +244,10 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   const unassignedTasks = sortTasks(tasks.filter(task => !task.planned_time && !task.approximate_planned_time));
   
   unassignedTasks.forEach(task => {
-    const length = Math.ceil(task.estimated_duration / 15);
+    const length = Math.ceil(task.estimated_duration / BLOCK_SIZE_MINUTES);
     
     // Find first available position anywhere in the day
-    const position = findAvailablePosition(startBlock, 96, length, occupiedBlocks);
+    const position = findAvailablePosition(startBlock, BLOCKS_PER_DAY, length, occupiedBlocks);
     
     if (position === -1) {
       errors.push(`Task "${task.description}" cannot be scheduled.`);

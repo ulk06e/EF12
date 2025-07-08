@@ -52,13 +52,29 @@ export function setLocalXP(xpData) {
   }
 }
 
-export function getLocalXP() {
+export async function getFreshXP() {
+  return await fetchAndCacheLast7DaysXP();
+}
+
+export async function getLocalXP(forceRefresh = false) {
   try {
     const data = localStorage.getItem(XP_CACHE_KEY);
-    return data ? JSON.parse(data) : null;
+    let xpData = data ? JSON.parse(data) : null;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    // If forceRefresh or no data or last day is not today, fetch new data
+    if (
+      forceRefresh ||
+      !xpData ||
+      !Array.isArray(xpData) ||
+      xpData.length === 0 ||
+      xpData[xpData.length - 1].day !== todayStr
+    ) {
+      xpData = await fetchAndCacheLast7DaysXP();
+    }
+    return xpData;
   } catch (e) {
     console.error('Failed to load XP from localStorage', e);
-    return null;
+    return await fetchAndCacheLast7DaysXP();
   }
 }
 

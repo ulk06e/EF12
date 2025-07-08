@@ -60,10 +60,7 @@ export default function PlanFactColumns({
 
   useEffect(() => {
     async function ensureXP() {
-      let data = getLocalXP();
-      if (!data) {
-        data = await fetchAndCacheLast7DaysXP();
-      }
+      let data = await getLocalXP();
       setXpData(data);
     }
     ensureXP();
@@ -130,6 +127,7 @@ export default function PlanFactColumns({
         onStart={(task) => { setTimerTask(task); setPopupTask(null); }}
         onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
         selectedDay={selectedDay}
+        isPastDate={isPastDate}
       />
       <EditTaskPopup 
         open={!!editTask} 
@@ -187,6 +185,7 @@ export default function PlanFactColumns({
         factCards={factCards}
         setXpPopupTaskId={setXpPopupTaskId}
         projects={projects}
+        selectedDay={selectedDay}
       />
     </div>
   );

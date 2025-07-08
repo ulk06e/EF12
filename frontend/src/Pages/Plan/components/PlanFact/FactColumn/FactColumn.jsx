@@ -2,6 +2,7 @@ import React from 'react';
 import TaskCard from 'src/Pages/Plan/components/PlanFact/renderers/TaskCard.jsx';
 import GapCard from 'src/Pages/Plan/components/PlanFact/renderers/GapCard.jsx';
 import { getComparisonXP } from 'src/Pages/Plan/components/PlanFact/utils/xpUtils.js';
+import { getTodayDateString } from 'src/shared/utils/time.js';
 
 export default function FactColumn({
   todayXP,
@@ -9,7 +10,8 @@ export default function FactColumn({
   viewMode,
   factCards,
   setXpPopupTaskId,
-  projects
+  projects,
+  selectedDay
 }) {
   // Render fact column in overview mode with unaccounted time as grey cards (>=15m) and as red text (<15m)
   const renderFactColumnOverview = () => {
@@ -40,10 +42,11 @@ export default function FactColumn({
               const todayXPColor = comp ? '#dc2626' : '#059669'; // red if comp exists, green otherwise
               const compXPColor = '#059669'; // same as .card-text-xp-bottom
               const compLabelColor = '#374151'; // button text color
+              const isToday = selectedDay === getTodayDateString();
               return (
                 <>
                   <span style={{ color: todayXPColor }}>{todayXP} XP</span>
-                  {comp ? (
+                  {comp && isToday ? (
                     <span>
                       <span style={{ color: compXPColor }}>&nbsp;/&nbsp;{comp.value} XP </span>
                       <span style={{ color: compLabelColor }} className="xp-compare-label">({comp.label})</span>

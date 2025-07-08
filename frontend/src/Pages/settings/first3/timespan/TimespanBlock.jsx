@@ -77,7 +77,7 @@ export default function TimespanBlock({ addOpen, setAddOpen }) {
           <div
             className="card-relative"
             key={block.id}
-            onDoubleClick={() => { setSelectedBlock(block); setBlockPopupOpen(true); }}
+            onClick={() => { setSelectedBlock(block); setBlockPopupOpen(true); }}
           >
             <div className="card-content time-block-row">
               <span>{block.name}</span>

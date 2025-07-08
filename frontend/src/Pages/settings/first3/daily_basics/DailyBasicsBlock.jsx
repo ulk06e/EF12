@@ -4,9 +4,9 @@ import 'src/shared/styles/Card.css';
 import '../timespan/TimespanBlock.css';
 import AddRoutineTaskPopup from './Popups/AddRoutineTaskPopup';
 import RoutineTaskPopup from './Popups/RoutineTaskPopup';
-import { fetchSettings, updateSettings, rescheduleDailyBasics } from './tapi';
+import { fetchSettings, updateSettings } from './tapi';
 import { getLocalSettings, setLocalSettings } from 'src/shared/cache/localDb.js';
-import { getTodayDateString, formatMinutesToHours } from '../../../../shared/utils/time';
+import { formatMinutesToHours } from '../../../../shared/utils/time';
 
 export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
   const [routineTasks, setRoutineTasks] = useState([]);
@@ -33,7 +33,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
     setLocalSettings(newSettings);
     try {
       await updateSettings({ ...newSettings });
-      await rescheduleDailyBasics();
+      // await rescheduleDailyBasics(); // Now only called on settings close
     } catch (err) {
       console.error('[DailyBasics] Error adding routine task:', err);
     }
@@ -48,7 +48,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
     setLocalSettings(newSettings);
     try {
       await updateSettings({ ...newSettings });
-      await rescheduleDailyBasics();
+      // await rescheduleDailyBasics(); // Now only called on settings close
     } catch (err) {
       console.error('[DailyBasics] Error editing routine task:', err);
     }
@@ -63,7 +63,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
     setLocalSettings(newSettings);
     try {
       await updateSettings({ ...newSettings });
-      await rescheduleDailyBasics();
+      // await rescheduleDailyBasics(); // Now only called on settings close
     } catch (err) {
       console.error('[DailyBasics] Error deleting routine task:', err);
     }
@@ -79,6 +79,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
       ) : (
         [...routineTasks]
           .sort((a, b) => {
+            if (!a.end && !b.end) return 0;
             if (!a.end) return 1;
             if (!b.end) return -1;
             return a.end.localeCompare(b.end);
@@ -87,7 +88,7 @@ export default function DailyBasicsBlock({ addOpen, setAddOpen }) {
             <div
               className="card-relative"
               key={task.id}
-              onDoubleClick={() => { setSelectedTask(task); setTaskPopupOpen(true); }}
+              onClick={() => { setSelectedTask(task); setTaskPopupOpen(true); }}
             >
               <div className="card-content time-block-row">
                 <span>{task.priority}: {task.name} ({formatMinutesToHours(task.duration || 0)})</span>

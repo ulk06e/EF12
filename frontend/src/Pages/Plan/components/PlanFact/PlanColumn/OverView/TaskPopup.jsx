@@ -1,7 +1,7 @@
 import React from 'react';
 import 'src/shared/styles/Popup.css';
 
-function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate, selectedDay }) {
+function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate, selectedDay, isPastDate }) {
   if (!open || !task) return null;
 
   const isFutureDate = () => {
@@ -28,15 +28,22 @@ function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate
             <div className="task-full-description">{task.full_description}</div>
           )}
           <div className="popup-buttons">
-            <button onClick={() => onDelete(task)} className="delete-button">Delete</button>
-            
-            <div className="right-buttons">
-              <button onClick={() => onDuplicate(task)} className="cancel-button">Duplicate</button>
-              <button onClick={() => onEdit(task)} className="cancel-button">Edit</button>
-              {!isFutureDate() && (
-                <button onClick={() => onStart(task)} className="add-button">Start</button>
-              )}
-            </div>
+            {isPastDate ? (
+              <div className="right-buttons">
+                <button onClick={() => onDuplicate(task)} className="cancel-button">Duplicate</button>
+              </div>
+            ) : (
+              <>
+                <button onClick={() => onDelete(task)} className="delete-button">Delete</button>
+                <div className="right-buttons">
+                  <button onClick={() => onDuplicate(task)} className="cancel-button">Duplicate</button>
+                  <button onClick={() => onEdit(task)} className="cancel-button">Edit</button>
+                  {!isFutureDate() && (
+                    <button onClick={() => onStart(task)} className="add-button">Start</button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
