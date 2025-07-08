@@ -16,7 +16,8 @@ export default function PlanColumn({
   setPopupTask,
   planItems,
   projects,
-  onAddTask
+  onAddTask,
+  selectedDay // <-- add selectedDay as a prop
 }) {
   // Fill button handler
   const handleFill = async () => {
@@ -24,6 +25,7 @@ export default function PlanColumn({
       // 1. Fetch all items from backend
       const res = await fetch(`${API_URL}/items`);
       const allItems = await res.json();
+      console.log('[MagicButton] All items fetched:', allItems);
       // 2. Filter for not planned tasks and sort by priority (1 is highest)
       const notPlanned = allItems
         .filter(item => item.type === 'not planned')
@@ -32,9 +34,10 @@ export default function PlanColumn({
         alert('No tasks to plan');
         return;
       }
-      // 3. Get today's planned items and schedule to extract gaps
-      const today = new Date().toISOString().slice(0, 10);
-      const plannedToday = allItems.filter(item => (item.day_id || '').slice(0, 10) === today && item.column_location === 'plan');
+      // 3. Get selected day's planned items and schedule to extract gaps
+      const targetDay = selectedDay; // Use selectedDay instead of today
+      const plannedToday = allItems.filter(item => (item.day_id || '').slice(0, 10) === targetDay && item.column_location === 'plan');
+      console.log('[MagicButton] Planned for selected day:', plannedToday);
       const now = new Date();
       const startTimeMinutes = now.getHours() * 60 + now.getMinutes();
       const schedule = scheduleTasks(plannedToday, startTimeMinutes);
@@ -58,7 +61,7 @@ export default function PlanColumn({
               const newTask = {
                 ...task,
                 id: undefined, // Let backend assign new id
-                day_id: today,
+                day_id: targetDay, // Use selectedDay
                 column_location: 'plan',
                 planned_time: null,
                 approximate_planned_time: null,
@@ -90,8 +93,9 @@ export default function PlanColumn({
         onAddTask(task);
       }
       // No reload needed; UI will update via state
-    } catch (err) {
-      alert('Failed to fill plan: ' + err.message);
+      console.log('[MagicButton] New tasks to be created:', newTasks);
+    } catch (error) {
+      console.error('[MagicButton] Error in handleFill:', error);
     }
   };
 
@@ -100,13 +104,18 @@ export default function PlanColumn({
       <div className="column-header">
         <h3>Plan</h3>
         <div className="column-header-actions">
-          {viewMode === 'overview' && (
-            <button
-              className="add-button fill-button"
-              onClick={handleFill}
-            >
-              Fill
-            </button>
+          {viewMode === 'overview' && !isPastDate && (
+            <>
+              <button
+                className="view-toggle-button"
+                onClick={handleFill}
+                title="Auto-fill plan"
+              >
+                🪄
+              </button>
+              {/* Vertical separator only in overview mode */}
+              <div className="vertical-separator" />
+            </>
           )}
           <button
             className="view-toggle-button"

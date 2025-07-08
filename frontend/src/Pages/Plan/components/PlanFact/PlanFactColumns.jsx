@@ -68,18 +68,21 @@ export default function PlanFactColumns({
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
-    if (viewMode !== 'overview' || !planItemsWithBlocks || planItemsWithBlocks.length === 0) {
-      return { scheduledTasks: planItemsWithBlocks, errors: [] };
-    }
     const isToday = selectedDay === (new Date()).toISOString().split('T')[0];
     const now = new Date();
     const startTimeMinutes = now.getHours() * 60 + now.getMinutes();
-    const result = isToday
+    if (viewMode !== 'overview') {
+      return { scheduledTasks: planItemsWithBlocks, errors: [] };
+    }
+    if (!planItemsWithBlocks || planItemsWithBlocks.length === 0) {
+      // No plan items: still run scheduler to get a gap from now to end of day (for today)
+      return isToday
+        ? scheduleTasks([], startTimeMinutes)
+        : scheduleTasks([], 0);
+    }
+    return isToday
       ? scheduleTasks(planItemsWithBlocks, startTimeMinutes)
       : scheduleTasks(planItemsWithBlocks);
-    const gapItems = result.scheduledTasks.filter(item => item.type === 'gap');
-    const totalGapMinutes = gapItems.reduce((sum, g) => sum + (g.minutes || 0), 0);
-    return result;
   }, [planItemsWithBlocks, viewMode, selectedDay]);
   
   const isPastDate = selectedDay ? new Date(selectedDay) < new Date(new Date().setHours(0, 0, 0, 0)) : false;
@@ -180,6 +183,7 @@ export default function PlanFactColumns({
         planItems={planItems}
         projects={projects}
         onAddTask={onAddTask}
+        selectedDay={selectedDay} // Pass selectedDay here
       />
       <FactColumn
         todayXP={todayXP}

@@ -14,8 +14,21 @@ export default function PlanOverviewView({
 
   return (
     <>
-      {scheduledOverview.scheduledTasks.length === 0 ? (
-        <div className="no-items-message">No planned tasks</div>
+      {scheduledOverview.scheduledTasks.length === 0 ||
+       scheduledOverview.scheduledTasks.every(item => item.type === 'gap') ? (
+        scheduledOverview.scheduledTasks.filter(item => item.type === 'gap').length > 0 ? (
+          scheduledOverview.scheduledTasks.filter(item => item.type === 'gap').map((item, idx) => (
+            <GapCard
+              key={idx}
+              minutes={item.minutes}
+              viewMode={viewMode}
+              startMinutes={item.startMinutes}
+              endMinutes={item.endMinutes}
+            />
+          ))
+        ) : (
+          <div className="no-items-message">No planned tasks</div>
+        )
       ) : (
         <>
           {schedulableItems.map((item, idx) =>

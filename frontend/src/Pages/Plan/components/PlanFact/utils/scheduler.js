@@ -155,7 +155,16 @@ const calculatePreciseGaps = (sortedTasks, taskPositions, startTimeMinutes = 0) 
  */
 export const scheduleTasks = (tasks, startTimeMinutes) => {
   if (!tasks || tasks.length === 0) {
-    return { scheduledTasks: tasks, errors: [] };
+    // If no tasks, create a gap from startTimeMinutes (or 0) to end of day
+    const startMinutes = typeof startTimeMinutes === 'number' ? startTimeMinutes : 0;
+    const gapMinutes = 24 * 60 - startMinutes;
+    const scheduledTasks = gapMinutes > 0 ? [{
+      type: 'gap',
+      startMinutes: startMinutes,
+      endMinutes: 24 * 60,
+      minutes: gapMinutes
+    }] : [];
+    return { scheduledTasks, errors: [] };
   }
   
   const errors = [];
