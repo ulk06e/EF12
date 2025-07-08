@@ -130,8 +130,6 @@ function TaskFormPopup({
       };
 
       // --- Use canScheduleTask helper ---
-      console.log('[DEBUG][Popup] canScheduleTask newTask:', newTask);
-      console.log('[DEBUG][Popup] canScheduleTask allPlanItems:', allPlanItems);
       if (!canScheduleTask(newTask, allPlanItems)) {
         alert('This task cannot be scheduled. Please adjust its time or duration, or check for conflicts.');
         return;

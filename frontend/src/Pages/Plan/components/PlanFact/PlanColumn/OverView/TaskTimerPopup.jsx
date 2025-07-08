@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import 'src/shared/styles/Popup.css';
+import { handleDeleteTask } from 'src/Pages/Plan/api/items.js';
 
 // TaskTimerPopup: A robust timer popup that always shows the correct remaining time
 // regardless of tab inactivity, system sleep, or interval delays.
-export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore, onClose, task, onComplete }) {
+export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore, onClose, task, onComplete, onDeleteTask }) {
   // All hooks at the top
   const estimatedMinutesNum = typeof task?.estimated_duration === 'string'
     ? parseInt(task.estimated_duration)
@@ -107,7 +108,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     setPauseStartTime(null); // Clear pause start
   };
 
-  // Finish the timer and report result
+  // Finish the timer and report result (just complete)
   const handleFinish = () => {
     let endTime = Date.now(); // When finished
     let effectivePaused = totalPausedTime;
@@ -126,6 +127,35 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       completed: true,
       completed_time: completedTime,
     });
+    onClose();
+  };
+
+  // Finish and delete parent for not planned tasks
+  const handleFinishAndDeleteParent = () => {
+    let endTime = Date.now();
+    let effectivePaused = totalPausedTime;
+    if (!isRunning && pauseStartTime) {
+      effectivePaused += endTime - pauseStartTime;
+    }
+    const actualDuration = Math.round(
+      (endTime - startTime - effectivePaused) / (1000 * 60)
+    );
+    const completedTime = new Date().toISOString();
+    // Complete the task
+    onComplete({
+      ...task,
+      actual_duration: actualDuration,
+      time_quality: isPure ? 'pure' : 'not-pure',
+      column_location: 'fact',
+      completed: true,
+      completed_time: completedTime,
+    });
+    // Delete the parent after a short delay to ensure completion is processed
+    if (task.parent_id && onDeleteTask) {
+      setTimeout(() => {
+        onDeleteTask(task.parent_id);
+      }, 500);
+    }
     onClose();
   };
 
@@ -190,6 +220,11 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
             <button onClick={handleFinish} className="task-time-button primary">
               Complete
             </button>
+            {task.type === 'not planned' && (
+              <button onClick={handleFinishAndDeleteParent} className="task-time-button delete">
+                Finish
+              </button>
+            )}
           </div>
         </div>
       </div>

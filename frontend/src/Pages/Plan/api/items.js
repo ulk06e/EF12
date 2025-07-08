@@ -16,12 +16,27 @@ export function handleAddTask(item, setItems) {
 }
 
 export function handleDeleteTask(taskId, setItems) {
-  fetch(`${API_URL}/items/${taskId}`, { method: 'DELETE' })
-    .then(res => {
-      if (res.ok) {
-        setItems(items => items.filter(item => item.id !== taskId));
-      }
+  setItems(items => {
+    // Get today's date string (YYYY-MM-DD)
+    const today = new Date().toISOString().slice(0, 10);
+    // Find children in the plan column for today
+    const children = items.filter(item =>
+      item.parent_id === taskId &&
+      item.column_location === 'plan' &&
+      (item.day_id || '').slice(0, 10) === today
+    );
+    // Delete each child from backend
+    children.forEach(child => {
+      fetch(`${API_URL}/items/${child.id}`, { method: 'DELETE' });
     });
+    // Delete parent from backend
+    fetch(`${API_URL}/items/${taskId}`, { method: 'DELETE' });
+    // Remove parent and today's plan children from local state
+    return items.filter(item =>
+      item.id !== taskId &&
+      !(item.parent_id === taskId && item.column_location === 'plan' && (item.day_id || '').slice(0, 10) === today)
+    );
+  });
 }
 
 export function handleUpdateTask(updatedTask, setItems, updateItemsState, setProjects) {

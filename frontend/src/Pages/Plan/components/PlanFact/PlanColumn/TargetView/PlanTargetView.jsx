@@ -11,18 +11,20 @@ export default function PlanTargetView({
   return (
     <>
       {planItems.length === 0 && <div className="no-items-message">No planned tasks</div>}
-      {planItems.map((item, idx) => (
-        <TaskCard
-          key={item.id}
-          item={item}
-          isPlan={true}
-          index={idx}
-          viewMode={viewMode}
-          isPastDate={isPastDate}
-          onClick={() => !isPastDate && setPopupTask(item)}
-          projects={projects}
-        />
-      ))}
+      {planItems
+        .filter(item => !(item.type === 'not planned' && item.parent_id))
+        .map((item, idx) => (
+          <TaskCard
+            key={item.id}
+            item={item}
+            isPlan={true}
+            index={idx}
+            viewMode={viewMode}
+            isPastDate={isPastDate}
+            onClick={() => !isPastDate && setPopupTask(item)}
+            projects={projects}
+          />
+        ))}
     </>
   );
 } 

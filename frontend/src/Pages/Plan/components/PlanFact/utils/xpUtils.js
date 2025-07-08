@@ -12,12 +12,6 @@ export function getComparisonXP(todayXP, xpData) {
   const weekXPs = xpData.slice(0, xpData.length - 1).map(d => d.xp);
   const weekAvg = weekXPs.length > 0 ? Math.round(weekXPs.reduce((a, b) => a + b, 0) / weekXPs.length) : 0;
   const weekBest = weekXPs.length > 0 ? Math.max(...weekXPs) : 0;
-  console.log('[getComparisonXP] todayXP:', todayXP);
-  console.log('[getComparisonXP] xpData:', xpData);
-  console.log('[getComparisonXP] yesterdayXP:', yesterdayXP);
-  console.log('[getComparisonXP] weekXPs:', weekXPs);
-  console.log('[getComparisonXP] weekAvg:', weekAvg);
-  console.log('[getComparisonXP] weekBest:', weekBest);
   const candidates = [
     { label: 'Yest', value: yesterdayXP },
     { label: 'W. Avg', value: weekAvg },

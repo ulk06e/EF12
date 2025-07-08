@@ -128,6 +128,7 @@ export default function PlanFactColumns({
         onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
         selectedDay={selectedDay}
         isPastDate={isPastDate}
+        viewMode={viewMode}
       />
       <EditTaskPopup 
         open={!!editTask} 
@@ -163,6 +164,7 @@ export default function PlanFactColumns({
         onClose={() => { setTimerTask(null); setTimerMinimized(false); }} 
         task={timerTask} 
         onComplete={onCompleteTask}
+        onDeleteTask={onDeleteTask}
       />
       <XPBreakdownPopup open={!!xpPopupTaskId} onClose={() => setXpPopupTaskId(null)} taskId={xpPopupTaskId} />
       
@@ -177,6 +179,7 @@ export default function PlanFactColumns({
         setPopupTask={setPopupTask}
         planItems={planItems}
         projects={projects}
+        onAddTask={onAddTask}
       />
       <FactColumn
         todayXP={todayXP}

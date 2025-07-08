@@ -1,7 +1,7 @@
 import React from 'react';
 import 'src/shared/styles/Popup.css';
 
-function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate, selectedDay, isPastDate }) {
+function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate, selectedDay, isPastDate, viewMode }) {
   if (!open || !task) return null;
 
   const isFutureDate = () => {
@@ -38,7 +38,7 @@ function TaskPopup({ open, onClose, task, onDelete, onEdit, onStart, onDuplicate
                 <div className="right-buttons">
                   <button onClick={() => onDuplicate(task)} className="cancel-button">Duplicate</button>
                   <button onClick={() => onEdit(task)} className="cancel-button">Edit</button>
-                  {!isFutureDate() && (
+                  {!isFutureDate() && !(viewMode === 'target' && task.type === 'not planned') && (
                     <button onClick={() => onStart(task)} className="add-button">Start</button>
                   )}
                 </div>
