@@ -14,7 +14,6 @@ class AutoUpdateService {
   init() {
     if (this.isInitialized) return;
     
-    console.log('[AutoUpdate] Service initialized');
     this.isInitialized = true;
     
     // Check immediately on startup
@@ -33,7 +32,6 @@ class AutoUpdateService {
       this.updateInterval = null;
     }
     this.isInitialized = false;
-    console.log('[AutoUpdate] Service stopped');
   }
 
   // Check if it's time for a weekly update (Sunday 00:00)
@@ -50,7 +48,6 @@ class AutoUpdateService {
     
     // Use utility function to check if it's weekly update time
     if (isWeeklyUpdateTime()) {
-      console.log('[AutoUpdate] Sunday 00:00 detected, starting weekly update');
       this.performWeeklyUpdate();
     }
   }
@@ -58,22 +55,15 @@ class AutoUpdateService {
   // Perform the weekly update
   async performWeeklyUpdate() {
     try {
-      console.log('[AutoUpdate] Starting weekly update...');
-      
       // Step 1: Check and update local database
-      console.log('[AutoUpdate] Checking local database...');
       await checkAndUpdateLocalSettingsIfEmpty();
       
       // Step 2: Get the current week's Monday using utility function
       const monday = getCurrentWeekMonday();
       const mondayIso = toLocalDateString(monday);
       
-      console.log('[AutoUpdate] Populating week starting from:', mondayIso);
-      
       // Step 3: Populate the week with daily basics
       await populateWeekWithDailyBasics(mondayIso);
-      
-      console.log('[AutoUpdate] Weekly update completed successfully');
       
       // Step 4: Trigger app reload to refresh the UI
       this.triggerAppReload();
@@ -85,8 +75,6 @@ class AutoUpdateService {
 
   // Trigger app reload to refresh the UI
   triggerAppReload() {
-    console.log('[AutoUpdate] Triggering app reload...');
-    
     // Use a small delay to ensure all operations are complete
     setTimeout(() => {
       window.location.reload();
@@ -95,7 +83,6 @@ class AutoUpdateService {
 
   // Manual trigger for testing
   async manualWeeklyUpdate() {
-    console.log('[AutoUpdate] Manual weekly update triggered');
     await this.performWeeklyUpdate();
   }
 }

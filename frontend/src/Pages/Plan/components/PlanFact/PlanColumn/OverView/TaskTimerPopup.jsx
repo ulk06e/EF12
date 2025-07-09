@@ -11,8 +11,6 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     ? parseInt(task.estimated_duration)
     : task?.estimated_duration;
 
-  console.log('[TimerDebug][POPUP_RENDER] task:', task, 'estimatedMinutesNum:', estimatedMinutesNum);
-
   const [isPure, setIsPure] = useState(true); // True if timer was never paused
   const [isRunning, setIsRunning] = useState(propIsRunning ?? true); // True if timer is running
   const [startTime, setStartTime] = useState(propStartTime ?? Date.now()); // Start time in ms since epoch
@@ -30,7 +28,6 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
 
   // Add debug log for timer restore and render
   useEffect(() => {
-    console.log('[TimerDebug][RESTORE] startTime:', startTime, 'now:', Date.now(), 'diff (s):', (Date.now() - startTime) / 1000);
   }, [startTime]);
 
   // Calculate the remaining time (in seconds) based on wall clock time
@@ -45,7 +42,6 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   );
   // Debug log for render
   useEffect(() => {
-    console.log('[TimerDebug][RENDER] remainingTime:', remainingTime, 'now:', now, 'startTime:', startTime, 'totalPausedTime:', totalPausedTime);
   }, [remainingTime, now, startTime, totalPausedTime]);
 
   // Play a beep using the Web Audio API

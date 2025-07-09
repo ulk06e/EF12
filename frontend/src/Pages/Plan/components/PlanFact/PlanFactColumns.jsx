@@ -69,14 +69,12 @@ export default function PlanFactColumns({
   // Timer restoration: check for a saved timer whenever items change
   useEffect(() => {
     const saved = loadActiveTaskTimer();
-    console.log('[TimerDebug][RESTORE_EFFECT] Checking for saved timer in localStorage:', saved);
     if (saved && saved.taskId) {
       let foundTask = saved.fullTask;
       if (!foundTask) {
         foundTask = items.find(item => item.id === saved.taskId);
       }
       if (foundTask) {
-        console.log('[TimerDebug][RESTORE_EFFECT] Restoring timerTask:', foundTask);
         setTimerTask({
           ...foundTask,
           _timerState: {
@@ -170,7 +168,6 @@ export default function PlanFactColumns({
             fullTask: { ...task },
           };
           saveActiveTaskTimer(timerState);
-          console.log('[TimerDebug][START] Starting timer for task:', task);
           setTimerTask({ ...task, _timerState: timerState });
           setPopupTask(null);
         }}
@@ -214,7 +211,6 @@ export default function PlanFactColumns({
           clearActiveTaskTimer(); 
           setTimerTask(null); 
           setTimerMinimized(false); 
-          console.log('[TimerDebug][CLOSE] Timer closed and cleared.');
         }} 
         task={timerTask} 
         onComplete={onCompleteTask}
