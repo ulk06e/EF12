@@ -25,6 +25,11 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     setPauseStartTime(propPauseStartTime ?? null);
   }, [task?.id, propStartTime, propTotalPausedTime, propIsRunning, propPauseStartTime]);
 
+  // Add debug log for timer restore and render
+  useEffect(() => {
+    console.log('[TimerDebug][RESTORE] startTime:', startTime, 'now:', Date.now(), 'diff (s):', (Date.now() - startTime) / 1000);
+  }, [startTime]);
+
   // Calculate the remaining time (in seconds) based on wall clock time
   let now = Date.now(); // Current time in ms
   let effectivePaused = totalPausedTime; // Total paused ms
@@ -35,6 +40,10 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   const remainingTime = Math.round(
     estimatedMinutesNum * 60 - (now - startTime - effectivePaused) / 1000
   );
+  // Debug log for render
+  useEffect(() => {
+    console.log('[TimerDebug][RENDER] remainingTime:', remainingTime, 'now:', now, 'startTime:', startTime, 'totalPausedTime:', totalPausedTime);
+  }, [remainingTime, now, startTime, totalPausedTime]);
 
   // Play a beep using the Web Audio API
   function playBeep(frequency = 440, duration = 200, volume = 0.5) {
