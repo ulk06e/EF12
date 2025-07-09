@@ -15,6 +15,9 @@ export default function CongratsPopup({ open, onClose, bonus }) {
       <div className="popup" style={{ minWidth: 320, maxWidth: 400, position: 'relative', padding: 32, textAlign: 'center' }}>
         <h2 style={{ fontWeight: 700, fontSize: '1.2em', marginBottom: 16 }}>🎉 Congratulations!</h2>
         <div style={{ fontSize: '1.1em', marginBottom: 12 }}>{bonus.message}</div>
+        {bonus.quote && (
+          <div style={{ fontStyle: 'italic', color: '#888', marginBottom: 16 }}>&ldquo;{bonus.quote}&rdquo;</div>
+        )}
         <div style={{ fontSize: '2em', fontWeight: 700, color: '#059669', marginBottom: 16 }}>+{bonus.xp} XP</div>
         <button className="add-button" onClick={onClose} style={{ marginTop: 8 }}>Claim</button>
       </div>
