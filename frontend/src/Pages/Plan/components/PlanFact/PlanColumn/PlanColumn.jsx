@@ -28,7 +28,11 @@ export default function PlanColumn({
       console.log('[MagicButton] All items fetched:', allItems);
       // 2. Filter for not planned tasks and sort by priority (1 is highest)
       const notPlanned = allItems
-        .filter(item => item.type === 'not planned')
+        .filter(item =>
+          item.type === 'not planned' &&
+          !item.parent_id &&
+          !item.day_id
+        )
         .sort((a, b) => (a.priority || 99) - (b.priority || 99));
       if (notPlanned.length === 0) {
         alert('No tasks to plan');

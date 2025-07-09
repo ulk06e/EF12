@@ -127,6 +127,7 @@ function App() {
             onUpdateProject={(updatedProject) => handleUpdateProject(updatedProject, setProjects)}
             items={items}
             selectedDay={selectedDay}
+            viewMode={viewMode}
           />
           
           <PlanFactColumns 

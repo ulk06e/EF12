@@ -26,7 +26,8 @@ export default function ProjectColumns({
   onDeleteProject, 
   onUpdateProject,
   items,
-  selectedDay
+  selectedDay,
+  viewMode
 }) {
   const [addCol, setAddCol] = useState(null); // 1, 2, or 3 for which column to add
   const [projectPopup, setProjectPopup] = useState(null); // State for ProjectPopup
@@ -49,15 +50,24 @@ export default function ProjectColumns({
     return all;
   };
 
-  // Check if a project or its descendants have tasks in the plan column for the selected date
+  // Check if a project or its descendants have tasks in the plan column
   const hasTasks = (projectId) => {
     const allProjectIds = [projectId, ...getDescendantProjectIds(projectId)];
-    return items.some(item => 
-      allProjectIds.includes(item.project_id) && 
-      item.column_location === 'plan' &&
-      item.day_id && 
-      item.day_id.slice(0, 10) === selectedDay
-    );
+    if (viewMode === 'overview') {
+      // Overview: filter by selected day
+      return items.some(item => 
+        allProjectIds.includes(item.project_id) && 
+        item.column_location === 'plan' &&
+        item.day_id && 
+        item.day_id.slice(0, 10) === selectedDay
+      );
+    } else {
+      // Target: show dot if any plan task exists, regardless of date
+      return items.some(item => 
+        allProjectIds.includes(item.project_id) && 
+        item.column_location === 'plan'
+      );
+    }
   };
 
   const handleAdd = (project) => {
@@ -118,9 +128,14 @@ export default function ProjectColumns({
                 className={`card-relative ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
                 onClick={() => {
                   const newSel = [...selectedProjectIds];
-                  newSel[i] = p.id;
-                  for (let j = i + 1; j < 3; j++) newSel[j] = null;
-                 
+                  if (selectedProjectIds[i] === p.id) {
+                    // Unselect if already selected
+                    newSel[i] = null;
+                    for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                  } else {
+                    newSel[i] = p.id;
+                    for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                  }
                   onSelect(newSel);
                 }}
                 onDoubleClick={() => handleProjectDoubleClick(p)}

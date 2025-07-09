@@ -151,9 +151,16 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       completed_time: completedTime,
     });
     // Delete the parent after a short delay to ensure completion is processed
-
-      handleDeleteTask(task.parent_id, setItems);
-     onClose();
+    if (task.parent_id) {
+      setTimeout(() => {
+        if (onDeleteTask) {
+          onDeleteTask(task.parent_id, { deleteAllPlanChildren: true });
+        } else {
+          handleDeleteTask(task.parent_id, undefined, { deleteAllPlanChildren: true });
+        }
+      }, 500);
+    }
+    onClose();
   };
 
   // Overlay click handler

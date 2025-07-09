@@ -15,27 +15,36 @@ export function handleAddTask(item, setItems) {
     });
 }
 
-export function handleDeleteTask(taskId, setItems) {
+export function handleDeleteTask(taskId, setItems, options = {}) {
   setItems(items => {
-    // Get today's date string (YYYY-MM-DD)
-    const today = new Date().toISOString().slice(0, 10);
-    // Find children in the plan column for today
-    const children = items.filter(item =>
-      item.parent_id === taskId &&
-      item.column_location === 'plan' &&
-      (item.day_id || '').slice(0, 10) === today
-    );
+    console.log('[DeleteTask] Items before deletion:', items);
+    console.log('[DeleteTask] Deleting taskId:', taskId);
+    // If options.deleteAllPlanChildren is true, delete all children in the plan column, regardless of day
+    let children = [];
+    if (options.deleteAllPlanChildren) {
+      children = items.filter(item => item.parent_id === taskId && item.column_location === 'plan');
+    } else {
+      // Default: only today's children
+      const today = new Date().toISOString().slice(0, 10);
+      children = items.filter(item =>
+        item.parent_id === taskId &&
+        item.column_location === 'plan' &&
+        (item.day_id || '').slice(0, 10) === today
+      );
+    }
     // Delete each child from backend
     children.forEach(child => {
       fetch(`${API_URL}/items/${child.id}`, { method: 'DELETE' });
     });
     // Delete parent from backend
     fetch(`${API_URL}/items/${taskId}`, { method: 'DELETE' });
-    // Remove parent and today's plan children from local state
-    return items.filter(item =>
+    // Remove parent and relevant plan children from local state
+    const newItems = items.filter(item =>
       item.id !== taskId &&
-      !(item.parent_id === taskId && item.column_location === 'plan' && (item.day_id || '').slice(0, 10) === today)
+      !(item.parent_id === taskId && item.column_location === 'plan' && (options.deleteAllPlanChildren || (item.day_id || '').slice(0, 10) === (new Date().toISOString().slice(0, 10))))
     );
+    console.log('[DeleteTask] Items after deletion:', newItems);
+    return newItems;
   });
 }
 

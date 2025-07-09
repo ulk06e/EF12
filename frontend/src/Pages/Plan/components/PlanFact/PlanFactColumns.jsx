@@ -125,7 +125,14 @@ export default function PlanFactColumns({
         open={!!popupTask} 
         onClose={() => setPopupTask(null)} 
         task={popupTask} 
-        onDelete={(task) => { onDeleteTask(task.id); setPopupTask(null); }}
+        onDelete={(task) => {
+          if (viewMode === 'target' && task.type === 'not planned') {
+            onDeleteTask(task.id, { deleteAllPlanChildren: true });
+          } else {
+            onDeleteTask(task.id);
+          }
+          setPopupTask(null);
+        }}
         onEdit={(task) => { setEditTask(task); setPopupTask(null); }}
         onStart={(task) => { setTimerTask(task); setPopupTask(null); }}
         onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
