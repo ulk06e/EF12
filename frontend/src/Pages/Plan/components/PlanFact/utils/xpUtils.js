@@ -6,19 +6,40 @@
  * @param {Array} xpData - Array of {day, xp} for the last 7 days
  * @returns {{label: string, value: number}|null}
  */
-export function getComparisonXP(todayXP, xpData) {
+export function getComparisonXP(todayXP, xpData, selectedDay) {
   if (!xpData || xpData.length === 0) return null;
   const yesterdayXP = xpData.length >= 2 ? xpData[xpData.length - 2].xp : 0;
   const weekXPs = xpData.slice(0, xpData.length - 1).map(d => d.xp);
   const weekAvg = weekXPs.length > 0 ? Math.round(weekXPs.reduce((a, b) => a + b, 0) / weekXPs.length) : 0;
   const weekBest = weekXPs.length > 0 ? Math.max(...weekXPs) : 0;
+
+  // Find this day last week
+  let lastWeekXP = null;
+  let lastWeekLabel = null;
+  if (selectedDay) {
+    const selectedDate = new Date(selectedDay);
+    const lastWeekDate = new Date(selectedDate);
+    lastWeekDate.setDate(selectedDate.getDate() - 7);
+    const lastWeekDayStr = lastWeekDate.toISOString().slice(0, 10);
+    const lastWeekData = xpData.find(d => d.day === lastWeekDayStr);
+    if (lastWeekData) {
+      lastWeekXP = lastWeekData.xp;
+      const weekday = lastWeekDate.toLocaleDateString(undefined, { weekday: 'short' });
+      lastWeekLabel = `Last ${weekday}`;
+    }
+  }
+
   const candidates = [
     { label: 'Yest', value: yesterdayXP },
     { label: 'W. Avg', value: weekAvg },
     { label: 'W. Best', value: weekBest }
-  ].filter(c => c.value > todayXP);
-  if (candidates.length === 0) return null;
-  return candidates.reduce((min, c) => c.value < min.value ? c : min, candidates[0]);
+  ];
+  if (lastWeekXP !== null) {
+    candidates.push({ label: lastWeekLabel, value: lastWeekXP });
+  }
+  const filtered = candidates.filter(c => c.value > todayXP);
+  if (filtered.length === 0) return null;
+  return filtered.reduce((min, c) => c.value < min.value ? c : min, filtered[0]);
 }
 
 /**

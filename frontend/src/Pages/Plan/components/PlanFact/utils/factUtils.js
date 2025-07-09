@@ -5,7 +5,7 @@ import { formatCompletedTimeForDisplay, getLocalDateObjectFromCompletedTime } fr
 export function prepareFactCards(items) {
   // Sort fact items by completed_time descending (newest first)
   const factItems = items
-    .filter(item => item.column_location === 'fact')
+    .filter(item => item.column_location === 'fact' && item.type !== 'bonus')
     .sort((a, b) => {
       if (a.completed_time && b.completed_time) {
         return b.completed_time.localeCompare(a.completed_time);

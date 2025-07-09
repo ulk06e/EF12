@@ -127,16 +127,12 @@ export default function ProjectColumns({
                 key={p.id} 
                 className={`card-relative ${selectedProjectIds[i] === p.id ? 'selected' : ''}`}
                 onClick={() => {
-                  const newSel = [...selectedProjectIds];
-                  if (selectedProjectIds[i] === p.id) {
-                    // Unselect if already selected
-                    newSel[i] = null;
-                    for (let j = i + 1; j < 3; j++) newSel[j] = null;
-                  } else {
+                  if (selectedProjectIds[i] !== p.id) {
+                    const newSel = [...selectedProjectIds];
                     newSel[i] = p.id;
                     for (let j = i + 1; j < 3; j++) newSel[j] = null;
+                    onSelect(newSel);
                   }
-                  onSelect(newSel);
                 }}
                 onDoubleClick={() => handleProjectDoubleClick(p)}
               >

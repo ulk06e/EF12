@@ -17,7 +17,8 @@ export default function PlanColumn({
   planItems,
   projects,
   onAddTask,
-  selectedDay // <-- add selectedDay as a prop
+  selectedDay, // <-- add selectedDay as a prop
+  runningTaskId
 }) {
   // Fill button handler
   const handleFill = async () => {
@@ -143,6 +144,7 @@ export default function PlanColumn({
           setPopupTask={setPopupTask}
           viewMode={viewMode}
           projects={projects}
+          runningTaskId={runningTaskId}
         />
       ) : (
         <PlanTargetView
@@ -151,6 +153,7 @@ export default function PlanColumn({
           setPopupTask={setPopupTask}
           viewMode={viewMode}
           projects={projects}
+          runningTaskId={runningTaskId}
         />
       )}
     </div>

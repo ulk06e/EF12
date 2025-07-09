@@ -1,5 +1,6 @@
 // Item/task-related API functions
 import { API_URL } from 'src/shared/getApiUrl';
+import { checkAndTriggerBonus } from 'src/shared/Bonuses/checkAndTriggerBonus.js';
 
 export function handleAddTask(item, setItems) {
   // Remove frontend-only fields
@@ -75,7 +76,7 @@ export function handleUpdateTask(updatedTask, setItems, updateItemsState, setPro
     });
 }
 
-export function handleCompleteTask(updatedTask, updateItemsState, setProjects) {
+export function handleCompleteTask(updatedTask, updateItemsState, setProjects, items, onAddTask, showPopup) {
   // Remove frontend-only fields
   const { approximate_start, approximate_end, ...itemToSend } = updatedTask;
   fetch(`${API_URL}/items/${updatedTask.id}`, {
@@ -84,8 +85,12 @@ export function handleCompleteTask(updatedTask, updateItemsState, setProjects) {
     body: JSON.stringify(itemToSend)
   })
     .then(res => res.json())
-    .then(data => {
+    .then(async data => {
       updateItemsState(data);
+      // Check and trigger bonus after completion
+      if (items && onAddTask && showPopup) {
+        await checkAndTriggerBonus({ items, onAddTask, showPopup });
+      }
       return fetch(`${API_URL}/projects`);
     })
     .then(res => res.json())

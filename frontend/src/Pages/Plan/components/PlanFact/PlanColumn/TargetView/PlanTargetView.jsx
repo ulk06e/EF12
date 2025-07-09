@@ -6,7 +6,8 @@ export default function PlanTargetView({
   isPastDate,
   setPopupTask,
   viewMode,
-  projects
+  projects,
+  runningTaskId
 }) {
   return (
     <>
@@ -23,6 +24,7 @@ export default function PlanTargetView({
             isPastDate={isPastDate}
             onClick={() => !isPastDate && setPopupTask(item)}
             projects={projects}
+            runningTaskId={runningTaskId}
           />
         ))}
     </>

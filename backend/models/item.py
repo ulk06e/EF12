@@ -20,6 +20,7 @@ class TimeQualityEnum(enum.Enum):
 
 class Item(Base):
     __tablename__ = "items"
+    __mapper_args__ = {'confirm_deleted_rows': False}
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     description = Column(String)
     full_description = Column(String, nullable=True)

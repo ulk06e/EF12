@@ -14,6 +14,27 @@ def get_items(db: Session = Depends(get_db)):
 
 @router.post("")
 async def create_item(item: dict, db: Session = Depends(get_db)):
+    # Handle bonus type: minimal fields, skip XP calculation and project update
+    if item.get("type") == "bonus":
+        # Ensure required fields
+        from uuid import uuid4
+        item.setdefault("id", str(uuid4()))
+        item["completed"] = True
+        item["column_location"] = "fact"
+        item.setdefault("completed_time", datetime.datetime.utcnow())
+        # Parse completed_time if present and is a string
+        if "completed_time" in item and item["completed_time"]:
+            if not isinstance(item["completed_time"], datetime.datetime):
+                try:
+                    item["completed_time"] = datetime.datetime.fromisoformat(str(item["completed_time"]).replace('Z', '+00:00'))
+                except Exception:
+                    item["completed_time"] = datetime.datetime.utcnow()
+        # No project_id, no XP calculation, just store xp_value
+        new_item = Item(**item)
+        db.add(new_item)
+        db.commit()
+        db.refresh(new_item)
+        return new_item
     # Parse enums
     if "task_quality" in item and item["task_quality"]:
         item["task_quality"] = TaskQualityEnum(item["task_quality"])
@@ -31,16 +52,6 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
                 item["created_time"] = datetime.datetime.utcnow()
     else:
         item["created_time"] = datetime.datetime.utcnow()
-    
-    # Parse completed_time if present and is a string
-    if "completed_time" in item and item["completed_time"]:
-        if not isinstance(item["completed_time"], datetime.datetime):
-            try:
-                item["completed_time"] = datetime.datetime.fromisoformat(str(item["completed_time"]).replace('Z', '+00:00'))
-            except Exception:
-                item["completed_time"] = None
-    else:
-        item["completed_time"] = None
     
     # Handle planned_time - convert time string to datetime if provided
     if "planned_time" in item and item["planned_time"]:

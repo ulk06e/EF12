@@ -81,13 +81,14 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   }, [isRunning]);
 
   useEffect(() => {
-    // 15 minutes = 900 seconds
-    // Only play 15-min beep if estimatedMinutesNum >= 30
-    if (estimatedMinutesNum >= 30 && remainingTime <= 900 && !beep15Played && remainingTime > 0) {
+    // Determine warning threshold: 15 min for >=30 min tasks, 5 min for <30 min tasks
+    const warningThreshold = estimatedMinutesNum >= 30 ? 900 : 300;
+    // Warning beep (either 15 or 5 min left)
+    if (remainingTime <= warningThreshold && !beep15Played && remainingTime > 0) {
       playBeep(660, 200, 0.2); // warning beep, quieter
       setBeep15Played(true);
     }
-    // Play a beep at the middle of the task if estimatedMinutesNum > 60
+    // Middle beep for long tasks
     if (
       estimatedMinutesNum > 60 &&
       !beepMiddlePlayed &&
@@ -97,12 +98,13 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       playBeep(550, 300, 0.2); // middle beep, quieter
       setBeepMiddlePlayed(true);
     }
+    // End beep
     if (remainingTime <= 0 && !beep0Played) {
       playBeep(440, 500, 0.25); // end beep, slightly louder but still quieter than before
       setBeep0Played(true);
     }
-    // Reset beeps if timer is reset
-    if (remainingTime > 900 && (beep15Played || beep0Played)) {
+    // Reset beeps if timer is reset above thresholds
+    if (remainingTime > warningThreshold && (beep15Played || beep0Played)) {
       setBeep15Played(false);
       setBeep0Played(false);
     }

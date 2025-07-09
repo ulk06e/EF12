@@ -13,7 +13,7 @@ import { formatMinutesToHours, getProjectBreadcrumb } from 'src/shared/utils/tim
  * @param {function} props.onClick - Click handler (optional)
  * @param {Array} props.projects - The list of all projects
  */
-export default function TaskCard({ item, isPlan = false, index = 0, isUnscheduled = false, isPastDate = false, viewMode, onClick, projects }) {
+export default function TaskCard({ item, isPlan = false, index = 0, isUnscheduled = false, isPastDate = false, viewMode, onClick, projects, runningTaskId }) {
   // Check if this is a daily basic task
   const isDailyBasic = item.type === 'daily_basic';
   
@@ -25,7 +25,7 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
       const timeDisplay = timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}` : item.planned_time;
       return `${formatMinutesToHours(item.estimated_duration)} - ${timeDisplay}`;
     } else if (item.approximate_planned_time) {
-      return `${formatMinutesToHours(item.estimated_duration)} - ${item.approximate_planned_time}`;
+      return `${formatMinutesToHours(item.estimated_duration)} (${item.approximate_planned_time})`;
     }
     return formatMinutesToHours(item.estimated_duration);
   };
@@ -76,12 +76,13 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
   }
 
   // Regular task rendering
+  const isRunning = runningTaskId && item.id === runningTaskId;
   return (
     <div
       key={item.id}
-      className={`card${item.type === 'not planned' ? ' not-planned-task' : ''} ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}`}
+      className={`card${item.type === 'not planned' ? ' not-planned-task' : ''} ${isPlan && index === 0 ? 'priority-task' : ''} ${!isPlan && item.time_quality === 'pure' ? 'pure-time' : ''} ${isUnscheduled ? 'unscheduled-task' : ''}${isRunning ? ' running-task' : ''}`}
       style={cardStyle}
-      onClick={onClick}
+      onClick={isRunning ? undefined : onClick}
     >
       <div className="card-item-block">
         <div className="card-item-header">

@@ -135,7 +135,7 @@ export default function PlanFactColumns({
       }
       const showUnaccountedInline = item.unaccounted != null && item.unaccounted > 0 && item.unaccounted < 15;
       cards.push(
-        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} />
+        <TaskCard key={item.id} item={{ ...item, showUnaccountedInline }} isPlan={false} viewMode={viewMode} onClick={() => setXpPopupTaskId(item.id)} projects={projects} runningTaskId={timerTask?.id} />
       );
     }
     return cards.reverse();
@@ -235,6 +235,7 @@ export default function PlanFactColumns({
         projects={projects}
         onAddTask={onAddTask}
         selectedDay={selectedDay} // Pass selectedDay here
+        runningTaskId={timerTask?.id}
       />
       <FactColumn
         todayXP={todayXP}

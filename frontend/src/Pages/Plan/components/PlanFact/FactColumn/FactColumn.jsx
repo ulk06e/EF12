@@ -38,7 +38,7 @@ export default function FactColumn({
         <div className="column-header-actions">
           <button className="add-button" style={{ cursor: 'default', background: 'white', color: '#374151' }}>
             {(() => {
-              const comp = getComparisonXP(todayXP, xpData);
+              const comp = getComparisonXP(todayXP, xpData, selectedDay);
               const todayXPColor = comp ? '#dc2626' : '#059669'; // red if comp exists, green otherwise
               const compXPColor = '#059669'; // same as .card-text-xp-bottom
               const compLabelColor = '#374151'; // button text color
