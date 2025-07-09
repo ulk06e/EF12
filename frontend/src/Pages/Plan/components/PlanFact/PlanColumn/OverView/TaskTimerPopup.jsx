@@ -10,6 +10,9 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   const estimatedMinutesNum = typeof task?.estimated_duration === 'string'
     ? parseInt(task.estimated_duration)
     : task?.estimated_duration;
+
+  console.log('[TimerDebug][POPUP_RENDER] task:', task, 'estimatedMinutesNum:', estimatedMinutesNum);
+
   const [isPure, setIsPure] = useState(true); // True if timer was never paused
   const [isRunning, setIsRunning] = useState(propIsRunning ?? true); // True if timer is running
   const [startTime, setStartTime] = useState(propStartTime ?? Date.now()); // Start time in ms since epoch
@@ -97,7 +100,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     }
   }, [remainingTime, beep15Played, beep0Played]);
 
-  if ((!open && !minimized) || !task) {
+  if ((!open && !minimized) || !task || !Number.isFinite(estimatedMinutesNum)) {
     return null;
   }
 
