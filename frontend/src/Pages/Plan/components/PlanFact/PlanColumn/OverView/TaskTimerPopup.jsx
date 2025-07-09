@@ -61,9 +61,10 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     }, duration);
   }
 
-  // Track if we've already played the 15-min and 0 beeps
+  // Track if we've already played the 15-min, 0, and middle beeps
   const [beep15Played, setBeep15Played] = useState(false);
   const [beep0Played, setBeep0Played] = useState(false);
+  const [beepMiddlePlayed, setBeepMiddlePlayed] = useState(false);
 
   useEffect(() => {
     if (open && minimized) {
@@ -81,9 +82,20 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
 
   useEffect(() => {
     // 15 minutes = 900 seconds
-    if (remainingTime <= 900 && !beep15Played && remainingTime > 0) {
+    // Only play 15-min beep if estimatedMinutesNum >= 30
+    if (estimatedMinutesNum >= 30 && remainingTime <= 900 && !beep15Played && remainingTime > 0) {
       playBeep(660, 200, 0.5); // warning beep
       setBeep15Played(true);
+    }
+    // Play a beep at the middle of the task if estimatedMinutesNum > 60
+    if (
+      estimatedMinutesNum > 60 &&
+      !beepMiddlePlayed &&
+      remainingTime <= (estimatedMinutesNum * 60) / 2 &&
+      remainingTime > (estimatedMinutesNum * 60) / 2 - 5 // 5s window to avoid multiple triggers
+    ) {
+      playBeep(550, 300, 0.6); // middle beep
+      setBeepMiddlePlayed(true);
     }
     if (remainingTime <= 0 && !beep0Played) {
       playBeep(440, 500, 0.8); // end beep
@@ -94,7 +106,10 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       setBeep15Played(false);
       setBeep0Played(false);
     }
-  }, [remainingTime, beep15Played, beep0Played]);
+    if (remainingTime > (estimatedMinutesNum * 60) / 2 && beepMiddlePlayed) {
+      setBeepMiddlePlayed(false);
+    }
+  }, [remainingTime, beep15Played, beep0Played, beepMiddlePlayed, estimatedMinutesNum]);
 
   if ((!open && !minimized) || !task || !Number.isFinite(estimatedMinutesNum)) {
     return null;
