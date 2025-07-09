@@ -100,3 +100,32 @@ export async function fetchAndCacheLast7DaysXP() {
   setLocalXP(xpData);
   return xpData;
 } 
+
+// Timer persistence
+const TIMER_CACHE_KEY = 'activeTaskTimer';
+
+export function saveActiveTaskTimer(timerState) {
+  try {
+    localStorage.setItem(TIMER_CACHE_KEY, JSON.stringify(timerState));
+  } catch (e) {
+    console.error('Failed to save timer state to localStorage', e);
+  }
+}
+
+export function loadActiveTaskTimer() {
+  try {
+    const data = localStorage.getItem(TIMER_CACHE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    console.error('Failed to load timer state from localStorage', e);
+    return null;
+  }
+}
+
+export function clearActiveTaskTimer() {
+  try {
+    localStorage.removeItem(TIMER_CACHE_KEY);
+  } catch (e) {
+    console.error('Failed to clear timer state from localStorage', e);
+  }
+} 

@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import 'src/shared/styles/Popup.css';
 import { handleDeleteTask } from 'src/Pages/Plan/api/items.js';
+import { clearActiveTaskTimer } from 'src/shared/cache/localDb.js';
 
 // TaskTimerPopup: A robust timer popup that always shows the correct remaining time
 // regardless of tab inactivity, system sleep, or interval delays.
-export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore, onClose, task, onComplete, onDeleteTask }) {
+export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore, onClose, task, onComplete, onDeleteTask, startTime: propStartTime, totalPausedTime: propTotalPausedTime, isRunning: propIsRunning, pauseStartTime: propPauseStartTime }) {
   // All hooks at the top
   const estimatedMinutesNum = typeof task?.estimated_duration === 'string'
     ? parseInt(task.estimated_duration)
     : task?.estimated_duration;
   const [isPure, setIsPure] = useState(true); // True if timer was never paused
-  const [isRunning, setIsRunning] = useState(true); // True if timer is running
-  const [startTime] = useState(Date.now()); // Start time in ms since epoch
-  const [totalPausedTime, setTotalPausedTime] = useState(0); // Total paused ms
-  const [pauseStartTime, setPauseStartTime] = useState(null); // When pause started
+  const [isRunning, setIsRunning] = useState(propIsRunning ?? true); // True if timer is running
+  const [startTime, setStartTime] = useState(propStartTime ?? Date.now()); // Start time in ms since epoch
+  const [totalPausedTime, setTotalPausedTime] = useState(propTotalPausedTime ?? 0); // Total paused ms
+  const [pauseStartTime, setPauseStartTime] = useState(propPauseStartTime ?? null); // When pause started
   const [tick, setTick] = useState(0); // Dummy state to trigger re-renders
+
+  // When task or timer props change, re-initialize state
+  useEffect(() => {
+    setIsRunning(propIsRunning ?? true);
+    setStartTime(propStartTime ?? Date.now());
+    setTotalPausedTime(propTotalPausedTime ?? 0);
+    setPauseStartTime(propPauseStartTime ?? null);
+  }, [task?.id, propStartTime, propTotalPausedTime, propIsRunning, propPauseStartTime]);
 
   // Calculate the remaining time (in seconds) based on wall clock time
   let now = Date.now(); // Current time in ms
@@ -127,6 +136,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       completed: true,
       completed_time: completedTime,
     });
+    clearActiveTaskTimer();
     onClose();
   };
 
@@ -160,6 +170,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
         }
       }, 500);
     }
+    clearActiveTaskTimer();
     onClose();
   };
 

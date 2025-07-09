@@ -17,8 +17,6 @@ export function handleAddTask(item, setItems) {
 
 export function handleDeleteTask(taskId, setItems, options = {}) {
   setItems(items => {
-    console.log('[DeleteTask] Items before deletion:', items);
-    console.log('[DeleteTask] Deleting taskId:', taskId);
     // If options.deleteAllPlanChildren is true, delete all children in the plan column, regardless of day
     let children = [];
     if (options.deleteAllPlanChildren) {
@@ -43,7 +41,6 @@ export function handleDeleteTask(taskId, setItems, options = {}) {
       item.id !== taskId &&
       !(item.parent_id === taskId && item.column_location === 'plan' && (options.deleteAllPlanChildren || (item.day_id || '').slice(0, 10) === (new Date().toISOString().slice(0, 10))))
     );
-    console.log('[DeleteTask] Items after deletion:', newItems);
     return newItems;
   });
 }

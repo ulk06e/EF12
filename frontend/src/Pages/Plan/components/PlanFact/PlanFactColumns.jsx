@@ -12,7 +12,7 @@ import { sortPlanItems } from 'src/Pages/Plan/components/PlanFact/utils/planUtil
 import { prepareFactCards } from 'src/Pages/Plan/components/PlanFact/utils/factUtils.js';
 import TaskCard from 'src/Pages/Plan/components/PlanFact/renderers/TaskCard.jsx';
 import GapCard from 'src/Pages/Plan/components/PlanFact/renderers/GapCard.jsx';
-import { getLocalXP, fetchAndCacheLast7DaysXP } from 'src/shared/cache/localDb';
+import { getLocalXP, fetchAndCacheLast7DaysXP, saveActiveTaskTimer, clearActiveTaskTimer, loadActiveTaskTimer } from 'src/shared/cache/localDb';
 import { getComparisonXP } from 'src/Pages/Plan/components/PlanFact/utils/xpUtils.js';
 import { attachTimeBlocks } from 'src/Pages/Plan/components/PlanFact/utils/xpUtils.js';
 import PlanOverviewView from 'src/Pages/Plan/components/PlanFact/PlanColumn/OverView/PlanOverviewView.jsx';
@@ -65,6 +65,28 @@ export default function PlanFactColumns({
     }
     ensureXP();
   }, []);
+
+  // Timer restoration: check for a saved timer whenever items change
+  useEffect(() => {
+    const saved = loadActiveTaskTimer();
+    if (saved && saved.taskId) {
+      let foundTask = saved.fullTask;
+      if (!foundTask) {
+        foundTask = items.find(item => item.id === saved.taskId);
+      }
+      if (foundTask) {
+        setTimerTask({
+          ...foundTask,
+          _timerState: {
+            startTime: saved.startTime,
+            totalPausedTime: saved.totalPausedTime,
+            isRunning: saved.isRunning,
+            pauseStartTime: saved.pauseStartTime,
+          }
+        });
+      }
+    }
+  }, [items]);
 
   // Overview scheduling algorithm
   const scheduledOverview = useMemo(() => {
@@ -134,7 +156,21 @@ export default function PlanFactColumns({
           setPopupTask(null);
         }}
         onEdit={(task) => { setEditTask(task); setPopupTask(null); }}
-        onStart={(task) => { setTimerTask(task); setPopupTask(null); }}
+        onStart={(task) => {
+          // Save timer info to localDb, including the full task object
+          const timerState = {
+            taskId: task.id,
+            startTime: Date.now(),
+            estimatedDuration: task.estimated_duration,
+            isRunning: true,
+            totalPausedTime: 0,
+            pauseStartTime: null,
+            fullTask: { ...task },
+          };
+          saveActiveTaskTimer(timerState);
+          setTimerTask({ ...task, _timerState: timerState });
+          setPopupTask(null);
+        }}
         onDuplicate={(task) => { handleDuplicateTask(task); setPopupTask(null); }}
         selectedDay={selectedDay}
         isPastDate={isPastDate}
@@ -171,10 +207,14 @@ export default function PlanFactColumns({
         minimized={timerMinimized}
         onMinimize={() => setTimerMinimized(true)}
         onRestore={() => setTimerMinimized(false)}
-        onClose={() => { setTimerTask(null); setTimerMinimized(false); }} 
+        onClose={() => { clearActiveTaskTimer(); setTimerTask(null); setTimerMinimized(false); }} 
         task={timerTask} 
         onComplete={onCompleteTask}
         onDeleteTask={onDeleteTask}
+        startTime={timerTask?._timerState?.startTime}
+        totalPausedTime={timerTask?._timerState?.totalPausedTime}
+        isRunning={timerTask?._timerState?.isRunning}
+        pauseStartTime={timerTask?._timerState?.pauseStartTime}
       />
       <XPBreakdownPopup open={!!xpPopupTaskId} onClose={() => setXpPopupTaskId(null)} taskId={xpPopupTaskId} />
       
