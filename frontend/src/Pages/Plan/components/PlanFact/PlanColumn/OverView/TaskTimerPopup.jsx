@@ -45,7 +45,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   }, [remainingTime, now, startTime, totalPausedTime]);
 
   // Play a beep using the Web Audio API
-  function playBeep(frequency = 440, duration = 200, volume = 0.5) {
+  function playBeep(frequency = 440, duration = 200, volume = 0.2) { // Lowered default volume
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -84,7 +84,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     // 15 minutes = 900 seconds
     // Only play 15-min beep if estimatedMinutesNum >= 30
     if (estimatedMinutesNum >= 30 && remainingTime <= 900 && !beep15Played && remainingTime > 0) {
-      playBeep(660, 200, 0.5); // warning beep
+      playBeep(660, 200, 0.2); // warning beep, quieter
       setBeep15Played(true);
     }
     // Play a beep at the middle of the task if estimatedMinutesNum > 60
@@ -94,11 +94,11 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       remainingTime <= (estimatedMinutesNum * 60) / 2 &&
       remainingTime > (estimatedMinutesNum * 60) / 2 - 5 // 5s window to avoid multiple triggers
     ) {
-      playBeep(550, 300, 0.6); // middle beep
+      playBeep(550, 300, 0.2); // middle beep, quieter
       setBeepMiddlePlayed(true);
     }
     if (remainingTime <= 0 && !beep0Played) {
-      playBeep(440, 500, 0.8); // end beep
+      playBeep(440, 500, 0.25); // end beep, slightly louder but still quieter than before
       setBeep0Played(true);
     }
     // Reset beeps if timer is reset
