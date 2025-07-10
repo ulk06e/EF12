@@ -24,7 +24,6 @@ import autoUpdateService from './services/autoUpdate'
 import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
 import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
 import { rescheduleDailyBasics } from './Pages/settings/first3/daily_basics/tapi';
-import CongratsPopup from './shared/Bonuses/CongratsPopup.jsx';
 import { getBonusById } from './shared/Bonuses/List.js';
 import Menu from './Pages/Plan/components/menu/Menu';
 
@@ -43,7 +42,6 @@ function App() {
   const [viewMode, setViewMode] = useState('overview');
   const [showStatistics, setShowStatistics] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [congratsBonus, setCongratsBonus] = useState(null);
 
   // Initialize auto-update service on app start
   useEffect(() => {
@@ -76,9 +74,6 @@ function App() {
   };
 
   const filteredItems = getFilteredItems();
-
-  // Refactored showPopup: just set the bonus, don't add XP yet
-  const showCongratsPopup = (bonus) => setCongratsBonus(bonus);
 
   return (
     <div className="main-container">
@@ -145,7 +140,7 @@ function App() {
               setProjects,
               items,
               (item) => handleAddTask(item, setItems),
-              showCongratsPopup
+              // showCongratsPopup
             )}
             selectedProjectId={selectedProjectIds.slice().reverse().find(id => id)} 
             selectedProjectIds={selectedProjectIds}
@@ -154,7 +149,6 @@ function App() {
             setViewMode={setViewMode}
             projects={projects}
           />
-          <CongratsPopup open={!!congratsBonus} onClose={() => setCongratsBonus(null)} bonus={congratsBonus} setItems={setItems} />
           
         </>
       )}

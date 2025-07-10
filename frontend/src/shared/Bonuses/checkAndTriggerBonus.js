@@ -17,13 +17,15 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
+  const eligibleBonuses = [];
+
   // 1. First finished task of the day
   const hasFirstTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'first_task_of_day');
   const completedToday = items.filter(item => item.completed_time && (item.day_id || '').slice(0, 10) === today && item.type !== 'bonus');
   if (!hasFirstTaskBonus && completedToday.length === 1) {
     const bonus = getBonusById('first_task_of_day');
     if (bonus) {
-      showPopup(bonus);
+      eligibleBonuses.push(bonus);
     }
   }
 
@@ -34,7 +36,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasMoreXPBonus && todayXP > yesterdayXP && yesterdayXP > 0) {
     const bonus = getBonusById('more_xp_than_yesterday');
     if (bonus) {
-      showPopup(bonus);
+      eligibleBonuses.push(bonus);
     }
   }
 
@@ -45,7 +47,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasTenthTaskBonus && completedToday.length === 10) {
     const bonus = getBonusById('tenth_task_of_day');
     if (bonus) {
-      showPopup(bonus);
+      eligibleBonuses.push(bonus);
     }
   }
 
@@ -60,7 +62,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasThreePureLongHighQuality && pureLongHighQualityTasks.length >= 3) {
     const bonus = getBonusById('three_pure_long_high_quality');
     if (bonus) {
-      showPopup(bonus);
+      eligibleBonuses.push(bonus);
     }
   }
 
@@ -75,7 +77,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasThreeVeryLongGoodQuality && veryLongGoodQualityTasks.length >= 3 && atLeastOnePure) {
     const bonus = getBonusById('three_very_long_good_quality');
     if (bonus) {
-      showPopup(bonus);
+      eligibleBonuses.push(bonus);
     }
   }
 
@@ -102,8 +104,12 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
     if (allDaysPlanned && !hasWeekBonus) {
       const bonus = getBonusById('week_fully_planned');
       if (bonus) {
-        showPopup(bonus);
+        eligibleBonuses.push(bonus);
       }
     }
+  }
+
+  if (eligibleBonuses.length > 0) {
+    showPopup(eligibleBonuses);
   }
 } 
