@@ -23,16 +23,6 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasFirstTaskBonus && completedToday.length === 1) {
     const bonus = getBonusById('first_task_of_day');
     if (bonus) {
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: bonus.xp,
-      };
-      await onAddTask(bonusTask);
       showPopup(bonus);
     }
   }
@@ -44,77 +34,17 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasMoreXPBonus && todayXP > yesterdayXP && yesterdayXP > 0) {
     const bonus = getBonusById('more_xp_than_yesterday');
     if (bonus) {
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: bonus.xp,
-      };
-      await onAddTask(bonusTask);
       showPopup(bonus);
     }
   }
 
-  // 3. Long focus session (duration bonuses)
-  if (completedTask && completedTask.actual_duration) {
-    // Medium duration
-    if (completedTask.actual_duration >= DURATION_MEDIUM_MINUTES) {
-      const hasMediumBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'duration_medium');
-      if (!hasMediumBonus) {
-        const bonus = getBonusById('duration_medium');
-        if (bonus) {
-          const bonusTask = {
-            id: crypto.randomUUID(),
-            type: 'bonus',
-            column_location: 'fact',
-            completed: true,
-            day_id: today,
-            completed_time: new Date().toISOString(),
-            xp_value: bonus.xp,
-          };
-          await onAddTask(bonusTask);
-          showPopup(bonus);
-        }
-      }
-    } else if (completedTask.actual_duration >= DURATION_LOW_MINUTES) {
-      const hasLowBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'duration_low');
-      if (!hasLowBonus) {
-        const bonus = getBonusById('duration_low');
-        if (bonus) {
-          const bonusTask = {
-            id: crypto.randomUUID(),
-            type: 'bonus',
-            column_location: 'fact',
-            completed: true,
-            day_id: today,
-            completed_time: new Date().toISOString(),
-            xp_value: bonus.xp,
-          };
-          await onAddTask(bonusTask);
-          showPopup(bonus);
-        }
-      }
-    }
-  }
+  // 3. Long focus session (duration bonuses) -- removed all duration-based bonus checks
 
   // 4. 10th finished task of the day
   const hasTenthTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'tenth_task_of_day');
   if (!hasTenthTaskBonus && completedToday.length === 10) {
     const bonus = getBonusById('tenth_task_of_day');
     if (bonus) {
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: bonus.xp,
-      };
-      await onAddTask(bonusTask);
       showPopup(bonus);
     }
   }
@@ -130,16 +60,6 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasThreePureLongHighQuality && pureLongHighQualityTasks.length >= 3) {
     const bonus = getBonusById('three_pure_long_high_quality');
     if (bonus) {
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: bonus.xp,
-      };
-      await onAddTask(bonusTask);
       showPopup(bonus);
     }
   }
@@ -155,17 +75,35 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   if (!hasThreeVeryLongGoodQuality && veryLongGoodQualityTasks.length >= 3 && atLeastOnePure) {
     const bonus = getBonusById('three_very_long_good_quality');
     if (bonus) {
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: bonus.xp,
-      };
-      await onAddTask(bonusTask);
       showPopup(bonus);
+    }
+  }
+
+  // 3. Next week fully planned bonus (Sunday check)
+  const now = new Date();
+  if (now.getDay() === 0) { // Sunday
+    // Get next week's Monday
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() + ((8 - now.getDay()) % 7));
+    // Check all 7 days of next week
+    let allDaysPlanned = true;
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(nextMonday);
+      day.setDate(nextMonday.getDate() + i);
+      const dayIso = day.toISOString().slice(0, 10);
+      // Sum planned durations for this day (exclude daily basics)
+      const plannedMinutes = items.filter(item => (item.day_id || '').slice(0, 10) === dayIso && item.column_location === 'plan' && item.type !== 'daily_basic').reduce((sum, item) => sum + (item.estimated_duration || 0), 0);
+      if (plannedMinutes < 1080) {
+        allDaysPlanned = false;
+        break;
+      }
+    }
+    const hasWeekBonus = items.some(item => item.type === 'bonus' && item.day_id === now.toISOString().slice(0, 10) && item.bonus_id === 'week_fully_planned');
+    if (allDaysPlanned && !hasWeekBonus) {
+      const bonus = getBonusById('week_fully_planned');
+      if (bonus) {
+        showPopup(bonus);
+      }
     }
   }
 } 

@@ -87,9 +87,11 @@ export function handleCompleteTask(updatedTask, updateItemsState, setProjects, i
     .then(res => res.json())
     .then(async data => {
       updateItemsState(data);
-      // Check and trigger bonus after completion
+      // Call checkAndTriggerBonus after the real task is added to the items list
       if (items && onAddTask && showPopup) {
-        await checkAndTriggerBonus({ items, onAddTask, showPopup });
+        // Compose the new items list with the just-completed real task
+        const updatedItems = [...items.filter(i => i.id !== data.id), data];
+        await checkAndTriggerBonus({ items: updatedItems, onAddTask, showPopup });
       }
       return fetch(`${API_URL}/projects`);
     })
