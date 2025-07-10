@@ -100,12 +100,14 @@ function App() {
 
   return (
     <div className="main-container">
-      <Menu 
-        onShowSettings={() => setShowSettings(true)}
-        onShowStatistics={() => setShowStatistics(true)}
-        items={items}
-        selectedDay={selectedDay}
-      />
+      {(!showStatistics && !showSettings) && (
+        <Menu 
+          onShowSettings={() => setShowSettings(true)}
+          onShowStatistics={() => setShowStatistics(true)}
+          items={items}
+          selectedDay={selectedDay}
+        />
+      )}
       {showStatistics ? (
         <StatisticsPage onClose={() => setShowStatistics(false)} />
       ) : showSettings ? (

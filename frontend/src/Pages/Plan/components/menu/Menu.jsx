@@ -71,7 +71,7 @@ export default function Menu({
     <div className="column">
       <div className="header-actions" style={{ display: 'flex', alignItems: 'center'}}>
         <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          <span style={{ fontWeight: 700, fontSize: 22, color: '#2563eb', marginRight: 12 }}>{statValue}</span>
+          <span style={{ fontWeight: 700, fontSize: 22, color: '#2563eb', marginRight: 0 }}>{statValue}</span>
           <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 16px' }}></div>
           <span style={{ fontWeight: 700, fontSize: 22, color: '#f59e42', marginRight: 6 }}>0</span>
           <span style={{ fontSize: 24 }}>🔥</span>
