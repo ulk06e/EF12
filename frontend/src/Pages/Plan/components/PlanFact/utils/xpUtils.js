@@ -30,7 +30,7 @@ export function getComparisonXP(todayXP, xpData, selectedDay) {
   }
 
   const candidates = [
-    { label: 'Yest', value: yesterdayXP },
+    { label: 'Ytd', value: yesterdayXP },
     { label: 'W. Avg', value: weekAvg },
     { label: 'W. Best', value: weekBest }
   ];
