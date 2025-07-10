@@ -26,6 +26,7 @@ import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/Challeng
 import { rescheduleDailyBasics } from './Pages/settings/first3/daily_basics/tapi';
 import CongratsPopup from './shared/Bonuses/CongratsPopup.jsx';
 import { getBonusById } from './shared/Bonuses/List.js';
+import Menu from './Pages/Plan/components/menu/Menu';
 
 function App() {
   const {
@@ -99,6 +100,12 @@ function App() {
 
   return (
     <div className="main-container">
+      <Menu 
+        onShowSettings={() => setShowSettings(true)}
+        onShowStatistics={() => setShowStatistics(true)}
+        items={items}
+        selectedDay={selectedDay}
+      />
       {showStatistics ? (
         <StatisticsPage onClose={() => setShowStatistics(false)} />
       ) : showSettings ? (
@@ -118,17 +125,6 @@ function App() {
         }} />
       ) : (
         <>
-          <div className="columns-container">
-            <div className="column sticky-column">
-              <div className="header-actions">
-                <div style={{ flex: 1 }}></div>
-                <div className="header-buttons">
-                  <button className="settings-button" onClick={() => setShowSettings(true)}>Settings</button>
-                  <button className="add-button details-button" onClick={() => setShowStatistics(true)}>Details</button>
-                </div>
-              </div>
-            </div>
-          </div>
           {/* <div className="columns-container">
             <GoalsColumn />
             <ChallengesColumn />

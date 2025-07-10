@@ -28,7 +28,7 @@ export async function fetchXPAndActualForLast7Days() {
   const items = await res.json();
   const days = getLast7Days();
   return days.map(day => {
-    const dayItems = items.filter(item => (item.day_id || '').slice(0, 10) === day && item.completed_time);
+    const dayItems = items.filter(item => (item.day_id || '').slice(0, 10) === day && item.completed_time && item.type !== 'daily_basic');
     const xp = dayItems.reduce((sum, item) => sum + (item.xp_value || 0), 0);
     const actual = dayItems.reduce((sum, item) => sum + (item.actual_duration || 0), 0);
     return { day, xp, actual };

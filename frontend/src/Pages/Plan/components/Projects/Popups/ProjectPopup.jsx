@@ -15,7 +15,7 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onComplet
   if (!open || !project) return null;
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget && !isEditing) {
+    if (e.target === e.currentTarget) {
       onClose();
     }
   };
@@ -28,11 +28,6 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onComplet
     if (onEdit && typeof onEdit === 'function') {
       onEdit({ ...project, name: editedName });
     }
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditedName(project.name);
     setIsEditing(false);
   };
 
@@ -58,9 +53,6 @@ export default function ProjectPopup({ open, onClose, project, onEdit, onComplet
                 maxLength={50}
               />
               <div className="add-task-buttons">
-                <button onClick={handleCancel} className="cancel-button">
-                  Cancel
-                </button>
                 <button onClick={handleSave} className="add-button">
                   Save
                 </button>

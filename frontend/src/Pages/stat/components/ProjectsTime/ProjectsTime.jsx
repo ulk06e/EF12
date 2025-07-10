@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'src/Pages/Plan/components/Projects/Projects.css';
 import 'src/shared/styles/Card.css';
 import 'src/shared/styles/Column.css';
-import { fetchStatisticsData } from 'src/Pages/stat/api/xp';
+import { API_URL } from 'src/shared/getApiUrl';
 
 function getDescendantProjectIds(projects, parentId) {
   const direct = projects.filter(p => p.parent_id === parentId).map(p => p.id);
@@ -34,13 +34,17 @@ export default function ProjectsTime() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch all projects and items on mount
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetchStatisticsData()
-      .then(({ projects, items }) => {
+    Promise.all([
+      fetch(`${API_URL}/projects`).then(res => res.json()),
+      fetch(`${API_URL}/items`).then(res => res.json())
+    ])
+      .then(([projects, items]) => {
         setProjects(projects);
-        setItems(items);
+        setItems(items.filter(item => item.type !== 'daily_basic'));
       })
       .catch(() => setError('Failed to load data'))
       .finally(() => setLoading(false));
@@ -53,9 +57,6 @@ export default function ProjectsTime() {
   const labels = ['Area Total Time', 'Project', 'Sub-project'];
   const cols = [col1, col2, col3];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
-
   return (
     <div className="columns-container">
       {cols.map((col, i) => (
@@ -63,14 +64,13 @@ export default function ProjectsTime() {
           <div className="column-header">
             <h3>{labels[i]}</h3>
           </div>
-          {col.length === 0 && <div className="no-items-message">No data</div>}
-          {col.map(p => {
-            // Utility to get previous level minutes threshold (was XP)
+          {loading && <div className="no-items-message">Loading...</div>}
+          {error && <div style={{ color: 'red' }}>{error}</div>}
+          {!loading && !error && col.length === 0 && <div className="no-items-message">Select a project</div>}
+          {!loading && !error && col.map(p => {
             const getPrevLevelMinutes = (level) => 100 * Math.pow(level, 2);
-            // Utility to get next level minutes threshold (was XP)
             const getNextLevelMinutes = (level) => 100 * Math.pow(level + 1, 2);
             const totalMinutes = p.totalActualDuration;
-            // Find the current level based on minutes
             let level = 0;
             while (totalMinutes >= getNextLevelMinutes(level)) {
               level++;

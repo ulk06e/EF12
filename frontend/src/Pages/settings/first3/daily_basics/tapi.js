@@ -72,20 +72,21 @@ export async function rescheduleDailyBasics() {
     const todayIso = toLocalDateString(new Date());
     const futureDates = weekDates.filter(date => date >= todayIso);
     
-    // Create new daily basics for today and future days
+    // Create new daily basics for today and future days (bulk)
+    const allTasks = [];
     for (const day of futureDates) {
       for (const basic of basics) {
-        const newTask = createDailyBasicTask(basic, day);
-        
-        const createRes = await fetch(`${API_URL}/items`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTask)
-        });
-        
-        if (!createRes.ok) {
-          throw new Error(`Failed to create daily basic task: ${createRes.status}`);
-        }
+        allTasks.push(createDailyBasicTask(basic, day));
+      }
+    }
+    if (allTasks.length > 0) {
+      const createRes = await fetch(`${API_URL}/items/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(allTasks)
+      });
+      if (!createRes.ok) {
+        throw new Error(`Failed to create daily basic tasks in bulk: ${createRes.status}`);
       }
     }
   } catch (error) {
@@ -109,21 +110,23 @@ export async function populateWeekWithDailyBasics(weekStartDate) {
     return toLocalDateString(d);
   });
   
-  // Create daily basic tasks for each day of the week
+  // Create daily basic tasks for each day of the week (bulk)
+  const allTasks = [];
   for (const day of weekDates) {
     for (const basic of basics) {
-      const newTask = createDailyBasicTask(basic, day);
-      
-      try {
-        await fetch(`${API_URL}/items`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTask)
-        });
-      } catch (error) {
-        console.error('[DailyBasics] Error creating task:', error);
-        console.error('[DailyBasics] Task that failed:', newTask);
-      }
+      allTasks.push(createDailyBasicTask(basic, day));
+    }
+  }
+  if (allTasks.length > 0) {
+    try {
+      await fetch(`${API_URL}/items/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(allTasks)
+      });
+    } catch (error) {
+      console.error('[DailyBasics] Error creating tasks in bulk:', error);
+      console.error('[DailyBasics] Tasks that failed:', allTasks);
     }
   }
 } 

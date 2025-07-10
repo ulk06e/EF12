@@ -101,6 +101,79 @@ async def create_item(item: dict, db: Session = Depends(get_db)):
     db.refresh(new_item)
     return new_item
 
+@router.post("/bulk")
+async def create_items_bulk(items: list = Body(...), db: Session = Depends(get_db)):
+    created_items = []
+    for item in items:
+        # Copy logic from create_item
+        if item.get("type") == "bonus":
+            from uuid import uuid4
+            item.setdefault("id", str(uuid4()))
+            item["completed"] = True
+            item["column_location"] = "fact"
+            item.setdefault("completed_time", datetime.datetime.utcnow())
+            if "completed_time" in item and item["completed_time"]:
+                if not isinstance(item["completed_time"], datetime.datetime):
+                    try:
+                        item["completed_time"] = datetime.datetime.fromisoformat(str(item["completed_time"]).replace('Z', '+00:00'))
+                    except Exception:
+                        item["completed_time"] = datetime.datetime.utcnow()
+            new_item = Item(**item)
+            db.add(new_item)
+            db.commit()
+            db.refresh(new_item)
+            created_items.append(new_item)
+            continue
+        if "task_quality" in item and item["task_quality"]:
+            item["task_quality"] = TaskQualityEnum(item["task_quality"])
+        if "column_location" in item and item["column_location"]:
+            item["column_location"] = ColumnLocationEnum(item["column_location"])
+        if "time_quality" in item and item["time_quality"]:
+            item["time_quality"] = TimeQualityEnum(item["time_quality"])
+        if "created_time" in item and item["created_time"]:
+            if not isinstance(item["created_time"], datetime.datetime):
+                try:
+                    item["created_time"] = datetime.datetime.fromisoformat(str(item["created_time"]).replace('Z', '+00:00'))
+                except Exception:
+                    item["created_time"] = datetime.datetime.utcnow()
+        else:
+            item["created_time"] = datetime.datetime.utcnow()
+        if "planned_time" in item and item["planned_time"]:
+            try:
+                time_str = item["planned_time"]
+                hour, minute = map(int, time_str.split(':'))
+                today = datetime.datetime.now().replace(hour=hour, minute=minute, second=0, microsecond=0)
+                item["planned_time"] = today
+            except Exception:
+                item["planned_time"] = None
+        else:
+            item["planned_time"] = None
+        if "approximate_planned_time" in item and item["approximate_planned_time"]:
+            pass
+        else:
+            item["approximate_planned_time"] = None
+        day_id = item.get("day_id")
+        if day_id:
+            day = db.query(Day).filter(Day.id == day_id).first()
+            if not day:
+                try:
+                    day_date = datetime.datetime.fromisoformat(day_id)
+                except Exception:
+                    day_date = None
+                new_day = Day(id=day_id, date=day_date)
+                db.add(new_day)
+                db.commit()
+        if item.get("type") == "daily_basic":
+            item["xp_value"] = 0
+        if "parent_id" not in item:
+            item["parent_id"] = None
+        new_item = Item(**item)
+        db.add(new_item)
+        db.commit()
+        db.refresh(new_item)
+        created_items.append(new_item)
+    return created_items
+
 @router.delete("/{item_id}")
 def delete_item(item_id: str, db: Session = Depends(get_db)):
     item = db.query(Item).filter(Item.id == item_id).first()
@@ -191,7 +264,8 @@ def update_item(item_id: str, item: dict = Body(...), db: Session = Depends(get_
                 task_quality=db_item.task_quality.value,
                 time_quality=db_item.time_quality.value,
                 priority=db_item.priority,
-                created_time=getattr(db_item, 'created_time', None)
+                created_time=getattr(db_item, 'created_time', None),
+                completed_time=getattr(db_item, 'completed_time', None)
             )
             db_item.xp_value = xp
             # Update project XP and levels

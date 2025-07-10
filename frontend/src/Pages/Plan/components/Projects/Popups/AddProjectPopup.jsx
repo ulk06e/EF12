@@ -7,6 +7,12 @@ export default function AddProjectPopup({ open, onClose, onAdd, parentId }) {
 
   if (!open) return null;
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onAdd({ id: uuidv4(), name, parent_id: parentId });
@@ -15,7 +21,7 @@ export default function AddProjectPopup({ open, onClose, onAdd, parentId }) {
   };
 
   return (
-    <div className="add-task-popup-overlay">
+    <div className="add-task-popup-overlay" onClick={handleOverlayClick}>
       <div className="add-task-popup">
         <form onSubmit={handleSubmit}>
           <div className="add-task-row">
@@ -29,9 +35,6 @@ export default function AddProjectPopup({ open, onClose, onAdd, parentId }) {
             />
           </div>
           <div className="add-task-buttons">
-            <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
-            </button>
             <button type="submit" className="add-button">
               Add Project
             </button>
