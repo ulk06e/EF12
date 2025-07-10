@@ -1,8 +1,25 @@
 import React from 'react';
 import '../styles/Popup.css';
+import { handleAddTask } from 'src/Pages/Plan/api/items';
 
-export default function CongratsPopup({ open, onClose, bonus }) {
+export default function CongratsPopup({ open, onClose, bonus, setItems }) {
   if (!open || !bonus) return null;
+
+  const handleClaim = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const bonusTask = {
+      // id is omitted, backend will generate it
+      type: 'bonus',
+      column_location: 'fact',
+      completed: true,
+      day_id: today,
+      completed_time: new Date().toISOString(),
+      xp_value: bonus.xp,
+      description: bonus.id, // Use bonus.id as the description (bonus ID)
+    };
+    handleAddTask(bonusTask, setItems);
+    onClose();
+  };
 
   const handleOverlayClick = (e) => {
     if (e.target.classList.contains('popup-overlay')) {
@@ -19,7 +36,7 @@ export default function CongratsPopup({ open, onClose, bonus }) {
           <div style={{ fontStyle: 'italic', color: '#888', marginBottom: 16 }}>&ldquo;{bonus.quote}&rdquo;</div>
         )}
         <div style={{ fontSize: '2em', fontWeight: 700, color: '#059669', marginBottom: 16 }}>+{bonus.xp} XP</div>
-        <button className="add-button" onClick={onClose} style={{ marginTop: 8 }}>Claim</button>
+        <button className="add-button" onClick={handleClaim} style={{ marginTop: 8 }}>Claim</button>
       </div>
     </div>
   );

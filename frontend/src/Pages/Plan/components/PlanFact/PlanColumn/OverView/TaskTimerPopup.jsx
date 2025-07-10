@@ -44,9 +44,22 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   useEffect(() => {
   }, [remainingTime, now, startTime, totalPausedTime]);
 
+  // AudioContext singleton for beeps
+  let audioCtx = null;
+  function ensureAudioContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
   // Play a beep using the Web Audio API
-  function playBeep(frequency = 440, duration = 200, volume = 0.2) { // Lowered default volume
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  function playBeep(frequency = 440, duration = 200, volume = 0.2) {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
     const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
     oscillator.type = 'sine';
@@ -57,7 +70,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
     oscillator.start();
     setTimeout(() => {
       oscillator.stop();
-      ctx.close();
+      // Do not close the context, keep it alive for future beeps
     }, duration);
   }
 
@@ -83,8 +96,18 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   useEffect(() => {
     // Determine warning threshold: 15 min for >=30 min tasks, 5 min for <30 min tasks
     const warningThreshold = estimatedMinutesNum >= 30 ? 900 : 300;
+    // Debug logs for beep timing
+    console.log('[TIMER DEBUG]', {
+      estimatedMinutesNum,
+      warningThreshold,
+      remainingTime,
+      beep15Played,
+      beep0Played,
+      beepMiddlePlayed
+    });
     // Warning beep (either 15 or 5 min left)
     if (remainingTime <= warningThreshold && !beep15Played && remainingTime > 0) {
+      console.log('[BEEP] Warning beep triggered', { remainingTime, warningThreshold, estimatedMinutesNum });
       playBeep(660, 200, 0.2); // warning beep, quieter
       setBeep15Played(true);
     }
@@ -95,11 +118,13 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       remainingTime <= (estimatedMinutesNum * 60) / 2 &&
       remainingTime > (estimatedMinutesNum * 60) / 2 - 5 // 5s window to avoid multiple triggers
     ) {
+      console.log('[BEEP] Middle beep triggered', { remainingTime, estimatedMinutesNum });
       playBeep(550, 300, 0.2); // middle beep, quieter
       setBeepMiddlePlayed(true);
     }
     // End beep
     if (remainingTime <= 0 && !beep0Played) {
+      console.log('[BEEP] End beep triggered', { remainingTime });
       playBeep(440, 500, 0.25); // end beep, slightly louder but still quieter than before
       setBeep0Played(true);
     }
@@ -135,6 +160,7 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
 
   // Continue the timer
   const handleContinue = () => {
+    ensureAudioContext(); // Unlock/resume audio on user gesture
     setIsRunning(true); // Resume timer
     if (pauseStartTime) {
       setTotalPausedTime(prev => prev + (Date.now() - pauseStartTime)); // Add paused ms
@@ -226,12 +252,14 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
           >
             {isRunning ? 'Pause' : 'Continue'}
           </button>
-          <button
-            onClick={e => { e.stopPropagation(); handleFinish(); }}
-            className="task-time-button primary sticky-timer-btn"
-          >
+          <button onClick={handleFinish} className="task-time-button primary sticky-timer-btn">
             Complete
           </button>
+          {task.type === 'not planned' && (
+            <button onClick={handleFinishAndDeleteParent} className="task-time-button delete sticky-timer-btn">
+              Finish
+            </button>
+          )}
         </div>
       </div>
     );
@@ -270,4 +298,4 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       </div>
     </div>
   );
-} 
+}

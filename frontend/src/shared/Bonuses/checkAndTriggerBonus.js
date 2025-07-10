@@ -18,7 +18,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
   // 1. First finished task of the day
-  const hasFirstTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'first_task_of_day');
+  const hasFirstTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'first_task_of_day');
   const completedToday = items.filter(item => item.completed_time && (item.day_id || '').slice(0, 10) === today && item.type !== 'bonus');
   if (!hasFirstTaskBonus && completedToday.length === 1) {
     const bonus = getBonusById('first_task_of_day');
@@ -28,7 +28,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   }
 
   // 2. More XP today than yesterday
-  const hasMoreXPBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'more_xp_than_yesterday');
+  const hasMoreXPBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'more_xp_than_yesterday');
   const todayXP = items.filter(item => (item.day_id || '').slice(0, 10) === today && item.completed_time).reduce((sum, item) => sum + (item.xp_value || 0), 0);
   const yesterdayXP = items.filter(item => (item.day_id || '').slice(0, 10) === yesterday && item.completed_time).reduce((sum, item) => sum + (item.xp_value || 0), 0);
   if (!hasMoreXPBonus && todayXP > yesterdayXP && yesterdayXP > 0) {
@@ -41,7 +41,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   // 3. Long focus session (duration bonuses) -- removed all duration-based bonus checks
 
   // 4. 10th finished task of the day
-  const hasTenthTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'tenth_task_of_day');
+  const hasTenthTaskBonus = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'tenth_task_of_day');
   if (!hasTenthTaskBonus && completedToday.length === 10) {
     const bonus = getBonusById('tenth_task_of_day');
     if (bonus) {
@@ -50,7 +50,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   }
 
   // 5. 3 pure, 90+ min, A/B, priority 1-3 tasks today
-  const hasThreePureLongHighQuality = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'three_pure_long_high_quality');
+  const hasThreePureLongHighQuality = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'three_pure_long_high_quality');
   const pureLongHighQualityTasks = completedToday.filter(item =>
     item.time_quality === 'pure' &&
     item.actual_duration >= 90 &&
@@ -65,7 +65,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
   }
 
   // 6. 3 tasks 4h+ (240 min), A-C, priority 1-4, at least one pure
-  const hasThreeVeryLongGoodQuality = items.some(item => item.type === 'bonus' && item.day_id === today && item.bonus_id === 'three_very_long_good_quality');
+  const hasThreeVeryLongGoodQuality = items.some(item => item.type === 'bonus' && item.day_id === today && item.description === 'three_very_long_good_quality');
   const veryLongGoodQualityTasks = completedToday.filter(item =>
     item.actual_duration >= 240 &&
     ['A', 'B', 'C'].includes(item.task_quality) &&
@@ -98,7 +98,7 @@ export async function checkAndTriggerBonus({ items, onAddTask, showPopup, option
         break;
       }
     }
-    const hasWeekBonus = items.some(item => item.type === 'bonus' && item.day_id === now.toISOString().slice(0, 10) && item.bonus_id === 'week_fully_planned');
+    const hasWeekBonus = items.some(item => item.type === 'bonus' && item.day_id === now.toISOString().slice(0, 10) && item.description === 'week_fully_planned');
     if (allDaysPlanned && !hasWeekBonus) {
       const bonus = getBonusById('week_fully_planned');
       if (bonus) {

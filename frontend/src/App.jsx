@@ -79,24 +79,6 @@ function App() {
 
   // Refactored showPopup: just set the bonus, don't add XP yet
   const showCongratsPopup = (bonus) => setCongratsBonus(bonus);
-  // Handler for claiming the bonus
-  const handleClaimBonus = () => {
-    if (congratsBonus) {
-      // Add the bonus task to the backend
-      const today = new Date().toISOString().slice(0, 10);
-      const bonusTask = {
-        id: crypto.randomUUID(),
-        type: 'bonus',
-        column_location: 'fact',
-        completed: true,
-        day_id: today,
-        completed_time: new Date().toISOString(),
-        xp_value: congratsBonus.xp,
-      };
-      handleAddTask(bonusTask, setItems);
-    }
-    setCongratsBonus(null);
-  };
 
   return (
     <div className="main-container">
@@ -172,7 +154,7 @@ function App() {
             setViewMode={setViewMode}
             projects={projects}
           />
-          <CongratsPopup open={!!congratsBonus} onClose={handleClaimBonus} bonus={congratsBonus} />
+          <CongratsPopup open={!!congratsBonus} onClose={() => setCongratsBonus(null)} bonus={congratsBonus} setItems={setItems} />
           
         </>
       )}
