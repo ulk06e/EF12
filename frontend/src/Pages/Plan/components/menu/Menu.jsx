@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // Helper to calculate XP for a plan task (with avg time quality, penalty=1)
 function calculatePotentialXP(task, avgTimeQuality = 1.25) {
@@ -28,7 +28,8 @@ export default function Menu({
   onShowSettings,
   onShowStatistics,
   items,
-  selectedDay
+  selectedDay,
+  onChangeStatsView
 }) {
   // Calculate stats in JS here
   const factTasks = items.filter(
@@ -66,22 +67,38 @@ export default function Menu({
     statValue = productivity;
   }
 
+  // Stats view selection
+  const VIEWS = [
+    { label: 'All Time', value: 'all' },
+    { label: '5 Years', value: '5y' },
+    { label: '1 Year', value: '1y' },
+    { label: 'Quarter', value: 'quarter' },
+    { label: 'Month', value: 'month' },
+    { label: 'Week', value: 'week' },
+  ];
+  const [selectedView, setSelectedView] = useState('all');
+
+  const handleViewChange = (value) => {
+    setSelectedView(value);
+    if (onChangeStatsView) onChangeStatsView(value);
+  };
+
   return (
     <div className="columns-container">
-    <div className="column">
-      <div className="header-actions" style={{ display: 'flex', alignItems: 'center'}}>
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          <span style={{ fontWeight: 700, fontSize: 22, color: '#2563eb', marginRight: 0 }}>{statValue}</span>
-          <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 16px' }}></div>
-          <span style={{ fontWeight: 700, fontSize: 22, color: '#f59e42', marginRight: 6 }}>0</span>
-          <span style={{ fontSize: 24 }}>🔥</span>
-        </div>
-        <div className="header-buttons">
-          <button className="settings-button" onClick={onShowSettings}>Settings</button>
-          <button className="add-button details-button" onClick={onShowStatistics}>Details</button>
+      <div className="column">
+        <div className="header-actions" style={{ display: 'flex', alignItems: 'center'}}>
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <span style={{ fontWeight: 700, fontSize: 22, color: '#2563eb', marginRight: 0 }}>{statValue}</span>
+            <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 16px' }}></div>
+            <span style={{ fontWeight: 700, fontSize: 22, color: '#f59e42', marginRight: 6 }}>0</span>
+            <span style={{ fontSize: 24 }}>🔥</span>
+          </div>
+          <div className="header-buttons">
+            <button className="settings-button" onClick={onShowSettings}>Settings</button>
+            <button className="add-button details-button" onClick={onShowStatistics}>Details</button>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 } 

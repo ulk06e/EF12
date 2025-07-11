@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'src/shared/styles/Popup.css';
 import { handleDeleteTask } from 'src/Pages/Plan/api/items.js';
 import { clearActiveTaskTimer } from 'src/shared/cache/localDb.js';
@@ -78,6 +78,15 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   const [beep15Played, setBeep15Played] = useState(false);
   const [beep0Played, setBeep0Played] = useState(false);
   const [beepMiddlePlayed, setBeepMiddlePlayed] = useState(false);
+  const prevRemainingTimeRef = useRef();
+
+  // Reset beep states and previous time when task or timer changes
+  useEffect(() => {
+    setBeep15Played(false);
+    setBeep0Played(false);
+    setBeepMiddlePlayed(false);
+    prevRemainingTimeRef.current = estimatedMinutesNum * 60;
+  }, [task?.id, estimatedMinutesNum, startTime]);
 
   useEffect(() => {
     if (open && minimized) {
@@ -94,38 +103,35 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
   }, [isRunning]);
 
   useEffect(() => {
-    // Determine warning threshold: 15 min for >=30 min tasks, 5 min for <30 min tasks
     const warningThreshold = estimatedMinutesNum >= 30 ? 900 : 300;
-    // Debug logs for beep timing
-    console.log('[TIMER DEBUG]', {
-      estimatedMinutesNum,
-      warningThreshold,
-      remainingTime,
-      beep15Played,
-      beep0Played,
-      beepMiddlePlayed
-    });
     // Warning beep (either 15 or 5 min left)
-    if (remainingTime <= warningThreshold && !beep15Played && remainingTime > 0) {
+    if (
+      prevRemainingTimeRef.current > warningThreshold &&
+      remainingTime <= warningThreshold &&
+      !beep15Played &&
+      remainingTime > 0
+    ) {
       console.log('[BEEP] Warning beep triggered', { remainingTime, warningThreshold, estimatedMinutesNum });
-      playBeep(660, 200, 0.2); // warning beep, quieter
+      playBeep(660, 200, 0.2);
       setBeep15Played(true);
     }
-    // Middle beep for long tasks
+    // Middle beep for long tasks (only when crossing half-time threshold)
+    const halfTime = (estimatedMinutesNum * 60) / 2;
     if (
       estimatedMinutesNum > 60 &&
+      prevRemainingTimeRef.current > halfTime &&
+      remainingTime <= halfTime &&
       !beepMiddlePlayed &&
-      remainingTime <= (estimatedMinutesNum * 60) / 2 &&
-      remainingTime > (estimatedMinutesNum * 60) / 2 - 5 // 5s window to avoid multiple triggers
+      remainingTime > 0
     ) {
-      console.log('[BEEP] Middle beep triggered', { remainingTime, estimatedMinutesNum });
-      playBeep(550, 300, 0.2); // middle beep, quieter
+      console.log('[BEEP] Middle beep triggered', { remainingTime, halfTime, estimatedMinutesNum });
+      playBeep(550, 300, 0.2);
       setBeepMiddlePlayed(true);
     }
     // End beep
     if (remainingTime <= 0 && !beep0Played) {
       console.log('[BEEP] End beep triggered', { remainingTime });
-      playBeep(440, 500, 0.25); // end beep, slightly louder but still quieter than before
+      playBeep(440, 500, 0.25);
       setBeep0Played(true);
     }
     // Reset beeps if timer is reset above thresholds
@@ -133,9 +139,10 @@ export default function TaskTimerPopup({ open, minimized, onMinimize, onRestore,
       setBeep15Played(false);
       setBeep0Played(false);
     }
-    if (remainingTime > (estimatedMinutesNum * 60) / 2 && beepMiddlePlayed) {
+    if (remainingTime > halfTime && beepMiddlePlayed) {
       setBeepMiddlePlayed(false);
     }
+    prevRemainingTimeRef.current = remainingTime;
   }, [remainingTime, beep15Played, beep0Played, beepMiddlePlayed, estimatedMinutesNum]);
 
   if ((!open && !minimized) || !task || !Number.isFinite(estimatedMinutesNum)) {

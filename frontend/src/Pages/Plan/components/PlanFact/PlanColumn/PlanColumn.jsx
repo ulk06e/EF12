@@ -21,7 +21,7 @@ export default function PlanColumn({
   runningTaskId
 }) {
   // Fill button handler
-  const handleFill = async () => {
+  const handleFill = async (maxTasks = Infinity) => {
     try {
       // 1. Fetch all items from backend
       const res = await fetch(`${API_URL}/items`);
@@ -50,10 +50,10 @@ export default function PlanColumn({
       // 4. Try to fit as many duplicates of each not planned task as possible into the gaps
       const newTasks = [];
       let tempGaps = gaps.map(gap => ({ ...gap })); // Copy for mutation
-      for (let task of notPlanned) {
+      let added = 0;
+      outer: for (let task of notPlanned) {
         for (let gap of tempGaps) {
           let gapLeft = gap.minutes;
-          let found = false;
           // Try durations from +20% to -20% in 5 min steps
           const base = task.estimated_duration || 0;
           // Ensure minDur and maxDur are multiples of 5
@@ -81,8 +81,9 @@ export default function PlanColumn({
                 created_time: new Date().toISOString(),
               };
               newTasks.push(newTask);
+              added++;
               gapLeft -= dur;
-              found = true;
+              if (added >= maxTasks) break outer;
             }
             if (gapLeft < minDur) break;
           }
@@ -104,6 +105,21 @@ export default function PlanColumn({
     }
   };
 
+  // Magic button click handler to distinguish single vs double click
+  let clickTimeout = null;
+  const handleMagicButtonClick = () => {
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+      handleFill(); // Double click: add as many as possible
+    } else {
+      clickTimeout = setTimeout(() => {
+        handleFill(1); // Single click: add only one
+        clickTimeout = null;
+      }, 250); // 250ms window for double click
+    }
+  };
+
   return (
     <div className="column">
       <div className="column-header">
@@ -113,7 +129,8 @@ export default function PlanColumn({
             <>
               <button
                 className="view-toggle-button"
-                onClick={handleFill}
+                onClick={handleMagicButtonClick}
+                onDoubleClick={e => e.preventDefault()} // Prevent default double click behavior
                 title="Auto-fill plan"
               >
                 🪄

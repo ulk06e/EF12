@@ -86,7 +86,7 @@ function App() {
         />
       )}
       {showStatistics ? (
-        <StatisticsPage onClose={() => setShowStatistics(false)} />
+        <StatisticsPage onClose={() => setShowStatistics(false)} items={items} />
       ) : showSettings ? (
         <SettingsPage onClose={async () => {
           setShowSettings(false);

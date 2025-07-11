@@ -6,12 +6,6 @@ import { rescheduleDailyBasics } from './first3/daily_basics/tapi';
 
 export default function SettingsPage({ onClose }) {
   const handleClose = async () => {
-    // TEMPORARILY DISABLED - testing if this causes reloads
-    // try {
-    //   await rescheduleDailyBasics();
-    // } catch (error) {
-    //   console.error('[Settings] Error rescheduling daily basics:', error);
-    // }
     onClose();
   };
 
