@@ -67,7 +67,7 @@ export default function TaskCard({ item, isPlan = false, index = 0, isUnschedule
                 <span>{formatMinutesToHours(item.estimated_duration)}</span>
               )
             ) : (
-              <span>{formatMinutesToHours(item.actual_duration || 0)}/{formatMinutesToHours(item.estimated_duration || 0)}</span>
+              <span>{formatMinutesToHours(item.actual_duration || 0)} / {formatMinutesToHours(item.estimated_duration || 0)}</span>
             )}
           </div>
         </div>
