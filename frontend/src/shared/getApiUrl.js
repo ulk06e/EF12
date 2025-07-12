@@ -1,13 +1,21 @@
 import { SETTINGS } from 'src/config';
 
 export function getApiUrl(env) {
-    const urls = {
-      1: import.meta.env.VITE_API_URL,
-      2: 'http://localhost:8000',
-    };
-    return urls[env] || urls[1]; // по умолчанию — прод
-  }
-  
-  export const API_URL = getApiUrl(SETTINGS.API_URL_VERSION); // ← поменяй 1 или 2 здесь
+  const PROD_URL = import.meta.env.VITE_API_URL;
+  const LOCAL_URL = 'http://localhost:8000';
 
-  
+  const urls = {
+    1: PROD_URL,
+    2: LOCAL_URL,
+  };
+
+  const selected = urls[env] || PROD_URL;
+
+  if (!selected) {
+    throw new Error('API URL is not defined. Check VITE_API_URL in env and SETTINGS.API_URL_VERSION');
+  }
+
+  return selected;
+}
+
+export const API_URL = getApiUrl(SETTINGS.API_URL_VERSION);
