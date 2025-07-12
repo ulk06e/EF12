@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import ProjectColumns from './Pages/Plan/components/Projects/ProjectColumns'
 import WeekSelector from './Pages/Plan/components/Week/WeekSelector'
 import PlanFactColumns from './Pages/Plan/components/PlanFact/PlanFactColumns'
+import GoalsColumn from './Pages/Plan/components/Goals/GoalsColumn'
+import InstructionsColumn from './Pages/Plan/components/Goals/InstructionsColumn'
 import { API_URL } from 'src/shared/getApiUrl';
 import {
   handleAddProject,
@@ -22,8 +24,6 @@ import SettingsPage from './Pages/settings'
 import { getTodayDateString } from './shared/utils/time'
 import autoUpdateService from './services/autoUpdate'
 import dailyTaskReviewService from './services/dailyTaskReview'
-import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
-import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
 import { rescheduleDailyBasics } from './Pages/settings/first3/daily_basics/tapi';
 import { getBonusById } from './shared/Bonuses/List.js';
 import Menu from './Pages/Plan/components/menu/Menu';
@@ -151,10 +151,10 @@ function App() {
         }} />
       ) : (
         <>
-          {/* <div className="columns-container">
+          <div className="columns-container" style={{ marginBottom: '20px' }}>
             <GoalsColumn />
-            <ChallengesColumn />
-          </div> */}
+            <InstructionsColumn />
+          </div>
           {viewMode !== 'target' && (
             <WeekSelector 
               selectedDay={selectedDay} 

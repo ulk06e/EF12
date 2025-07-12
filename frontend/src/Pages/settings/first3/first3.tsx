@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import TimespanBlock from './timespan/TimespanBlock';
 import DailyBasicsBlock from './daily_basics/DailyBasicsBlock';
-// import OtherBlock from './other/OtherBlock';
 
 export default function FirstThreeColumns() {
   const [addCol, setAddCol] = useState<number | null>(null);

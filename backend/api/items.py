@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, Query
 from sqlalchemy.orm import Session
 from models import Item, Day, TaskQualityEnum, ColumnLocationEnum, TimeQualityEnum
 from db import get_db
@@ -11,6 +11,11 @@ router = APIRouter(prefix="/items")
 def get_items(db: Session = Depends(get_db)):
     items = db.query(Item).all()
     return items
+
+@router.get("/breaks")
+def get_breaks(db: Session = Depends(get_db)):
+    breaks = db.query(Item).filter(Item.type == "break").all()
+    return breaks
 
 @router.post("")
 async def create_item(item: dict, db: Session = Depends(get_db)):

@@ -18,9 +18,10 @@ function getMultiplierClass(name, value) {
     if (value === 1.0) return 'xp-multiplier-red';
   }
   if (name === 'Penalty') {
-    if (value === 1.0) return 'xp-multiplier-green';
-    if (value === 0.7) return 'xp-multiplier-yellow';
-    if (value === 0.5) return 'xp-multiplier-red';
+    if (value === 0.8) return 'xp-multiplier-red';
+    if (value === 1.0) return 'xp-multiplier-yellow';
+    if (value === 1.1) return 'xp-multiplier-yellow';
+    if (value === 1.2) return 'xp-multiplier-green';
     return '';
   }
   return '';
@@ -37,7 +38,11 @@ function getMultiplierLabel(name, value, breakdown) {
     return `Priority #${breakdown.priority_value || ''}`;
   }
   if (name === 'Penalty') {
-    return 'Penalty';
+    if (value === 0.8) return 'Estimation Penalty';
+    if (value === 1.0) return 'Estimation Penalty';
+    if (value === 1.1) return 'Estimation Bonus';
+    if (value === 1.2) return 'Estimation Bonus';
+    return 'Estimation Accuracy';
   }
   return name;
 }
