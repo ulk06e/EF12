@@ -1,7 +1,7 @@
 import { SETTINGS } from 'src/config';
 
 export function getApiUrl(env) {
-  const PROD_URL = import.meta.env.VITE_API_URL;
+  const PROD_URL = import.meta.env.VITE_API_URL_N;
   const LOCAL_URL = 'http://localhost:8000';
 
   const urls = {
@@ -12,8 +12,9 @@ export function getApiUrl(env) {
   const selected = urls[env] || PROD_URL;
 
   if (!selected) {
-    throw new Error('API URL is not defined. Check VITE_API_URL in env and SETTINGS.API_URL_VERSION');
+    throw new Error('API URL is not defined. Check VITE_API_URL_N in env and SETTINGS.API_URL_VERSION');
   }
+  console.log("🔍 VITE_API_URL:", import.meta.env.VITE_API_URL_N);
 
   return selected;
 }
