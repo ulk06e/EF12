@@ -12,7 +12,7 @@ export function getApiUrl(env) {
   const selected = urls[env] || PROD_URL;
 
   if (!selected) {
-    throw new Error("🔍 VITE_API_URL:", import.meta.env.VITE_API_URL);
+    throw new Error("🔍 VITE_API_URL:", import.meta.env.DATABASE_URL);
   }
 
   return selected;
