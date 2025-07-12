@@ -56,6 +56,40 @@ if (isWeeklyUpdateTime()) {
 console.log(`Next update in: ${getTimeUntilNextUpdate()}`);
 ```
 
+## Daily Task Review Service
+
+The `dailyTaskReview.js` service handles automatic daily task review popups.
+
+### How it works:
+
+1. **Initialization**: The service starts when the app loads and runs in the background
+2. **Monitoring**: Checks every minute if it's a new day and if there are no running timers
+3. **Task Review**: When triggered, it:
+   - Fetches yesterday's uncompleted plan tasks (excluding daily basics)
+   - Shows a popup with the tasks
+   - Allows users to set tasks for today or delete them
+   - Automatically closes when all tasks are handled
+   - Checks for planning bonus: 30 XP if today has 18+ hours planned and wasn't planned on Sunday
+
+### Features:
+
+- **Timer-aware**: Waits for running timers to finish before showing popup
+- **Automatic**: Runs in the background without user intervention
+- **User-friendly**: Clear interface for handling yesterday's tasks
+- **Self-closing**: Popup closes automatically when no tasks remain
+- **Planning Bonus**: Checks for 30 XP bonus when today has 18+ hours planned and wasn't planned on Sunday
+- **Manual Trigger**: Includes `manualTrigger()` for testing
+
+### Usage:
+
+```javascript
+import dailyTaskReviewService from './services/dailyTaskReview';
+
+// Service is automatically initialized in App.jsx
+// Manual trigger for testing:
+dailyTaskReviewService.manualTrigger();
+```
+
 ## Note: Two Different Schedulers
 
 This app has two different "scheduler" files with different purposes:

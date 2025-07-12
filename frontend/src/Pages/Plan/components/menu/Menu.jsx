@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCurrentStreak } from 'src/Pages/stat/utils/statistics';
 
 // Helper to calculate XP for a plan task (with avg time quality, penalty=1)
 function calculatePotentialXP(task, avgTimeQuality = 1.25) {
@@ -48,6 +49,9 @@ export default function Menu({
   const potentialRaw = totalDuration > 0 ? ((xpPlan + xpFact) / totalDuration) : 0;
   const potential = totalDuration > 0 ? (potentialRaw / (1440 / totalDuration)).toFixed(2) : '0';
 
+  // Calculate current streak
+  const currentStreak = getCurrentStreak(items);
+
   // Determine which stat to show
   const todayStr = new Date().toISOString().slice(0, 10);
   const selected = new Date(selectedDay);
@@ -90,7 +94,7 @@ export default function Menu({
           <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <span style={{ fontWeight: 700, fontSize: 22, color: '#2563eb', marginRight: 0 }}>{statValue}</span>
             <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 16px' }}></div>
-            <span style={{ fontWeight: 700, fontSize: 22, color: '#f59e42', marginRight: 6 }}>0</span>
+            <span style={{ fontWeight: 700, fontSize: 22, color: '#f59e42', marginRight: 6 }}>{currentStreak}</span>
             <span style={{ fontSize: 24 }}>🔥</span>
           </div>
           <div className="header-buttons">

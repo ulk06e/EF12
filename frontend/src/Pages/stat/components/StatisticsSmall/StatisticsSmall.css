@@ -37,14 +37,6 @@
   justify-content: center;
 }
 
-.statistics-small-param-value {
-  font-size: 28px;
-  font-weight: 600;
-  margin-right: 4px;
-  display: flex;
-  align-items: baseline;
-}
-
 .statistics-small-param-desc {
   font-size: 12px;
   font-weight: 400;
@@ -82,24 +74,16 @@
   align-items: center;
 }
 
-.statistics-small-param-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  width: 100%;
-  justify-content: center;
-}
-
 .statistics-small-param-desc-row {
-  font-size: 18px;
+  font-size: 0.9rem;
   color: #888;
   font-weight: 400;
   margin-right: 2px;
 }
 
 .statistics-small-param-value-rose {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   margin-right: 2px;
 }
 

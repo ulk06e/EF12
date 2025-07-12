@@ -14,6 +14,14 @@ const METRICS = [
   { label: 'Productivity', value: 'productivity', color: '#059669' },
 ];
 
+// Helper function to get local date string (YYYY-MM-DD)
+function getLocalDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getDayLabel(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -21,7 +29,6 @@ function getDayLabel(dateString) {
 
 function formatYAxis(metric, value) {
   if (metric === 'actual' || metric === 'plan') {
-    // Show as hours/minutes
     const h = Math.floor(value / 60);
     const m = Math.round(value % 60);
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
@@ -31,73 +38,45 @@ function formatYAxis(metric, value) {
   return value;
 }
 
+// Helper to get day items for a specific day
+function getDayItems(items, day) {
+  return items.filter(item => (item.day_id || item.completed_time || '').slice(0, 10) === day);
+}
+
+// Helper to calculate metric value for items
+function calculateMetricValue(items, metric) {
+  if (metric === 'tasks') return items.filter(i => i.completed_time).length;
+  if (metric === 'xp') return items.reduce((sum, i) => sum + (i.xp_value || 0), 0);
+  if (metric === 'actual') return items.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
+  if (metric === 'plan') return items.filter(i => i.type !== 'daily_basic').reduce((sum, i) => sum + (i.estimated_duration || 0), 0);
+  if (metric === 'productivity') {
+    const xp = items.reduce((sum, i) => sum + (i.xp_value || 0), 0);
+    const actual = items.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
+    return actual > 0 ? xp / actual : 0;
+  }
+  return 0;
+}
+
 function aggregateDaily(items, metric, days) {
-  // days: array of YYYY-MM-DD strings in order
   if (metric === 'durations') {
-    // Return both actual and plan durations for each day
     return days.map(day => {
-      let dayItems = items.filter(item => (item.day_id || item.completed_time || '').slice(0, 10) === day);
-      let actual = dayItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-      let plan = dayItems.filter(i => i.type !== 'daily_basic').reduce((sum, i) => sum + (i.estimated_duration || 0), 0);
+      const dayItems = getDayItems(items, day);
+      const actual = calculateMetricValue(dayItems, 'actual');
+      const plan = calculateMetricValue(dayItems, 'plan');
       return { day, actual, plan };
     });
   }
   return days.map(day => {
-    let dayItems = items.filter(item => (item.day_id || item.completed_time || '').slice(0, 10) === day);
-    let value = 0;
-    if (metric === 'tasks') value = dayItems.filter(i => i.completed_time).length;
-    if (metric === 'xp') value = dayItems.reduce((sum, i) => sum + (i.xp_value || 0), 0);
-    if (metric === 'actual') value = dayItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-    if (metric === 'plan') value = dayItems.filter(i => i.type !== 'daily_basic').reduce((sum, i) => sum + (i.estimated_duration || 0), 0);
-    if (metric === 'productivity') {
-      const xp = dayItems.reduce((sum, i) => sum + (i.xp_value || 0), 0);
-      const actual = dayItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-      value = actual > 0 ? xp / actual : 0;
-    }
+    const dayItems = getDayItems(items, day);
+    const value = calculateMetricValue(dayItems, metric);
     return { day, value };
   });
 }
 
 function getDaysForView(view, items, today = new Date()) {
-  // Returns an array of YYYY-MM-DD strings for the selected view
-  const days = [];
   const current = new Date(today);
-  if (view === 'week') {
-    // Rolling last 7 days ending with today
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(current);
-      d.setDate(current.getDate() - i);
-      days.push(d.toISOString().slice(0, 10));
-    }
-    return days;
-  }
-  if (view === '30d') {
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(current);
-      d.setDate(current.getDate() - i);
-      days.push(d.toISOString().slice(0, 10));
-    }
-    return days;
-  }
-  if (view === 'quarter') {
-    // Last 3 months (approx 92 days) ending today
-    for (let i = 91; i >= 0; i--) {
-      const d = new Date(current);
-      d.setDate(current.getDate() - i);
-      days.push(d.toISOString().slice(0, 10));
-    }
-    return days;
-  }
-  if (view === '1y') {
-    for (let i = 364; i >= 0; i--) {
-      const d = new Date(current);
-      d.setDate(current.getDate() - i);
-      days.push(d.toISOString().slice(0, 10));
-    }
-    return days;
-  }
+  
   if (view === 'all') {
-    // Find the earliest date in items
     const allDates = items.map(i => (i.day_id || i.completed_time || '').slice(0, 10)).filter(Boolean);
     if (!allDates.length) return [];
     const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
@@ -105,70 +84,70 @@ function getDaysForView(view, items, today = new Date()) {
     const daysArr = [];
     let d = new Date(current);
     while (d >= min) {
-      daysArr.push(d.toISOString().slice(0, 10));
+      daysArr.push(getLocalDateString(d));
       d.setDate(d.getDate() - 1);
     }
-    return daysArr.reverse(); // chronological order
+    return daysArr.reverse();
   }
-  // Default: all days present in items
-  return Array.from(new Set(items.map(i => (i.day_id || i.completed_time || '').slice(0, 10)))).sort();
+  
+  const daysMap = { week: 7, '30d': 30, quarter: 91, '1y': 365 };
+  const daysBack = daysMap[view] || 0;
+  
+  const days = [];
+  for (let i = daysBack - 1; i >= 0; i--) {
+    const d = new Date(current);
+    d.setDate(current.getDate() - i);
+    days.push(getLocalDateString(d));
+  }
+  return days;
 }
 
 function getStepForView(view, days) {
-  if (view === 'quarter') return '2week';
-  if (view === '1y') return 'month';
+  const stepMap = { quarter: '2week', '1y': 'month' };
+  if (stepMap[view]) return stepMap[view];
+  
   if (view === 'all') {
     const totalDays = days.length;
     if (totalDays <= 31) return 'day';
-    if (totalDays > 31 && totalDays <= 92) return '2week'; // 1 month < x <= 1 quarter
-    if (totalDays > 92 && totalDays <= 730) return 'month'; // 1 quarter < x <= 2 years
-    return 'year'; // > 2 years
+    if (totalDays <= 92) return '2week';
+    if (totalDays <= 730) return 'month';
+    return 'year';
   }
-  // Default for week, 30d
   return 'day';
 }
 
 function groupByStep(days, step) {
-  // Returns an array of { label, days: [YYYY-MM-DD, ...] }
   if (step === 'day') {
     return days.map(day => ({ label: getDayLabel(day), days: [day] }));
   }
-  if (step === 'week') {
+  
+  if (step === 'week' || step === '2week') {
+    const groupSize = step === 'week' ? 7 : 14;
     const groups = [];
-    let week = [];
+    let currentGroup = [];
+    
     days.forEach((day, i) => {
-      week.push(day);
-      if (week.length === 7 || i === days.length - 1) {
-        if (week.length) {
-          const label = week.length === 1 ? getDayLabel(week[0]) : `${getDayLabel(week[0])} - ${getDayLabel(week[week.length - 1])}`;
-          groups.push({ label, days: [...week] });
+      currentGroup.push(day);
+      if (currentGroup.length === groupSize || i === days.length - 1) {
+        if (currentGroup.length) {
+          const label = currentGroup.length === 1 
+            ? getDayLabel(currentGroup[0]) 
+            : `${getDayLabel(currentGroup[0])} - ${getDayLabel(currentGroup[currentGroup.length - 1])}`;
+          groups.push({ label, days: [...currentGroup] });
         }
-        week = [];
+        currentGroup = [];
       }
     });
     return groups;
   }
-  if (step === '2week') {
-    const groups = [];
-    let twoweek = [];
-    days.forEach((day, i) => {
-      twoweek.push(day);
-      if (twoweek.length === 14 || i === days.length - 1) {
-        if (twoweek.length) {
-          const label = twoweek.length === 1 ? getDayLabel(twoweek[0]) : `${getDayLabel(twoweek[0])} - ${getDayLabel(twoweek[twoweek.length - 1])}`;
-          groups.push({ label, days: [...twoweek] });
-        }
-        twoweek = [];
-      }
-    });
-    return groups;
-  }
+  
   if (step === 'month') {
     const groups = [];
     let currentMonth = '';
     let monthDays = [];
+    
     days.forEach((day, i) => {
-      const month = day.slice(0, 7); // YYYY-MM
+      const month = day.slice(0, 7);
       if (month !== currentMonth && monthDays.length) {
         const label = new Date(monthDays[0]).toLocaleString('en-US', { month: 'short', year: 'numeric' });
         groups.push({ label, days: [...monthDays] });
@@ -183,12 +162,14 @@ function groupByStep(days, step) {
     });
     return groups;
   }
+  
   if (step === 'year') {
     const groups = [];
     let currentYear = '';
     let yearDays = [];
+    
     days.forEach((day, i) => {
-      const year = day.slice(0, 4); // YYYY
+      const year = day.slice(0, 4);
       if (year !== currentYear && yearDays.length) {
         groups.push({ label: currentYear, days: [...yearDays] });
         yearDays = [];
@@ -201,27 +182,23 @@ function groupByStep(days, step) {
     });
     return groups;
   }
+  
   return [];
 }
 
 function aggregateByStep(items, metric, groups) {
   return groups.map(group => {
-    let groupItems = items.filter(item => group.days.includes((item.day_id || item.completed_time || '').slice(0, 10)));
-    let value = 0, actual = 0, plan = 0;
-    if (metric === 'tasks') value = groupItems.filter(i => i.completed_time).length;
-    if (metric === 'xp') value = groupItems.reduce((sum, i) => sum + (i.xp_value || 0), 0);
-    if (metric === 'actual') value = groupItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-    if (metric === 'plan') value = groupItems.filter(i => i.type !== 'daily_basic').reduce((sum, i) => sum + (i.estimated_duration || 0), 0);
-    if (metric === 'productivity') {
-      const xp = groupItems.reduce((sum, i) => sum + (i.xp_value || 0), 0);
-      const actualDur = groupItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-      value = actualDur > 0 ? xp / actualDur : 0;
-    }
+    const groupItems = items.filter(item => 
+      group.days.includes((item.day_id || item.completed_time || '').slice(0, 10))
+    );
+    
     if (metric === 'durations') {
-      actual = groupItems.reduce((sum, i) => sum + (i.actual_duration || 0), 0);
-      plan = groupItems.filter(i => i.type !== 'daily_basic').reduce((sum, i) => sum + (i.estimated_duration || 0), 0);
+      const actual = calculateMetricValue(groupItems, 'actual');
+      const plan = calculateMetricValue(groupItems, 'plan');
       return { label: group.label, actual, plan };
     }
+    
+    const value = calculateMetricValue(groupItems, metric);
     return { label: group.label, value };
   });
 }
@@ -232,14 +209,12 @@ export default function XPChart({ items = [], view = 'week' }) {
   const days = useMemo(() => getDaysForView(view, items), [view, items]);
   const step = useMemo(() => getStepForView(view, days), [view, days]);
   const groups = useMemo(() => groupByStep(days, step), [days, step]);
-  const chartData = useMemo(() => {
-    return aggregateByStep(filteredItems, selectedMetric, groups);
-  }, [filteredItems, selectedMetric, groups]);
+  const chartData = useMemo(() => 
+    aggregateByStep(filteredItems, selectedMetric, groups), 
+    [filteredItems, selectedMetric, groups]
+  );
 
-  const layout = [
-    { i: 'xpchart', x: 0, y: 0, w: 12, h: 6, minW: 6, minH: 4 }
-  ];
-
+  const layout = [{ i: 'xpchart', x: 0, y: 0, w: 12, h: 6, minW: 6, minH: 4 }];
   const selectedColor = METRICS.find(m => m.value === selectedMetric)?.color || '#007bff';
 
   return (
@@ -274,7 +249,13 @@ export default function XPChart({ items = [], view = 'week' }) {
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={chartData} margin={{ top: 4, right: 16, left: 16, bottom: 4 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 14, fill: '#222' }} axisLine={false} tickLine={false} tickMargin={16} />
-                <YAxis tick={{ fontSize: 14, fill: '#222' }} axisLine={false} tickLine={false} tickMargin={16} tickFormatter={v => formatYAxis(selectedMetric === 'durations' ? 'actual' : selectedMetric, v)} />
+                <YAxis 
+                  tick={{ fontSize: 14, fill: '#222' }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tickMargin={16} 
+                  tickFormatter={v => formatYAxis(selectedMetric === 'durations' ? 'actual' : selectedMetric, v)} 
+                />
                 <Tooltip 
                   formatter={(v, name) => formatYAxis(name === 'Actual Duration' ? 'actual' : name === 'Plan Duration' ? 'plan' : selectedMetric, v)}
                   labelStyle={{ color: '#222' }}

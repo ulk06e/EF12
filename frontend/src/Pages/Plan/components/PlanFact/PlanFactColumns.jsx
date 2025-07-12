@@ -93,6 +93,7 @@ export default function PlanFactColumns({
     const isToday = selectedDay === (new Date()).toISOString().split('T')[0];
     const now = new Date();
     const startTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    
     if (viewMode !== 'overview') {
       return { scheduledTasks: planItemsWithBlocks, errors: [] };
     }
@@ -142,7 +143,7 @@ export default function PlanFactColumns({
   };
 
   return (
-    <div className={`columns-container ${viewMode === 'overview' ? 'overview-mode' : ''}`}>
+    <div className={`columns-container ${viewMode === 'overview' ? 'overview-mode' : ''} ${isPastDate ? 'past-date-mode' : ''}`}>
       <TaskPopup 
         open={!!popupTask} 
         onClose={() => setPopupTask(null)} 
@@ -222,21 +223,23 @@ export default function PlanFactColumns({
       />
       <XPBreakdownPopup open={!!xpPopupTaskId} onClose={() => setXpPopupTaskId(null)} taskId={xpPopupTaskId} />
       
-      <PlanColumn
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        isPastDate={isPastDate}
-        setAddOpen={setAddOpen}
-        selectedProjectId={selectedProjectId}
-        selectedProjectIds={selectedProjectIds}
-        scheduledOverview={scheduledOverview}
-        setPopupTask={setPopupTask}
-        planItems={planItems}
-        projects={projects}
-        onAddTask={onAddTask}
-        selectedDay={selectedDay} // Pass selectedDay here
-        runningTaskId={timerTask?.id}
-      />
+      {!isPastDate && (
+        <PlanColumn
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          isPastDate={isPastDate}
+          setAddOpen={setAddOpen}
+          selectedProjectId={selectedProjectId}
+          selectedProjectIds={selectedProjectIds}
+          scheduledOverview={scheduledOverview}
+          setPopupTask={setPopupTask}
+          planItems={planItems}
+          projects={projects}
+          onAddTask={onAddTask}
+          selectedDay={selectedDay}
+          runningTaskId={timerTask?.id}
+        />
+      )}
       <FactColumn
         todayXP={todayXP}
         xpData={xpData}

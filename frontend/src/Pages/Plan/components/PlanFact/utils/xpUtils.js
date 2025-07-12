@@ -49,19 +49,24 @@ export function getComparisonXP(todayXP, xpData, selectedDay) {
  * @returns {Array} - Plan items with attached time block info
  */
 export function attachTimeBlocks(planItems, timeBlocks) {
-  return planItems.map(item => {
-    if (item.approximate_planned_time && timeBlocks.length > 0) {
-      if (item.type === 'daily_basic') {
-        const timeRange = item.approximate_planned_time;
-        const match = timeRange.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
-        if (match) {
-          return {
-            ...item,
-            approximate_start: match[1],
-            approximate_end: match[2]
-          };
-        }
+  const result = planItems.map(item => {
+    if (item.approximate_planned_time) {
+      // First, try to parse as a time range (HH:MM - HH:MM format)
+      const timeRangeMatch = item.approximate_planned_time.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+      if (timeRangeMatch) {
+        return {
+          ...item,
+          approximate_start: timeRangeMatch[1],
+          approximate_end: timeRangeMatch[2]
+        };
       }
+      
+      // If no time blocks available, skip time block matching
+      if (timeBlocks.length === 0) {
+        return item;
+      }
+      
+      // Try to find matching time block by name
       const block = timeBlocks.find(
         b => b.name.trim().toLowerCase() === item.approximate_planned_time.trim().toLowerCase()
       );
@@ -71,8 +76,11 @@ export function attachTimeBlocks(planItems, timeBlocks) {
           approximate_start: block.start,
           approximate_end: block.end
         };
+      } else {
       }
     }
     return item;
   });
+  
+  return result;
 } 

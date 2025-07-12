@@ -3,7 +3,7 @@
 const qualityOrder = { A: 1, B: 2, C: 3, D: 4 };
 
 export function sortPlanItems(items) {
-  return items
+  const result = items
     .filter(item => item.column_location === 'plan')
     .sort((a, b) => {
       const priorityA = a.priority || 0;
@@ -13,6 +13,7 @@ export function sortPlanItems(items) {
       if (priorityA !== priorityB) return priorityA - priorityB;
       return qualityA - qualityB;
     });
+  return result;
 }
 
 export const planUtilsPlaceholder = () => {}; 

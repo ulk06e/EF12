@@ -21,11 +21,14 @@ import StatisticsPage from './Pages/stat'
 import SettingsPage from './Pages/settings'
 import { getTodayDateString } from './shared/utils/time'
 import autoUpdateService from './services/autoUpdate'
+import dailyTaskReviewService from './services/dailyTaskReview'
 import GoalsColumn from './Pages/Plan/components/Growth/Goals/GoalsColumn'
 import ChallengesColumn from './Pages/Plan/components/Growth/Challenges/ChallengesColumn'
 import { rescheduleDailyBasics } from './Pages/settings/first3/daily_basics/tapi';
 import { getBonusById } from './shared/Bonuses/List.js';
 import Menu from './Pages/Plan/components/menu/Menu';
+import DailyTaskReviewPopup from './Pages/Plan/components/PlanFact/PlanColumn/OverView/DailyTaskReviewPopup';
+import CongratsPopup from './shared/Bonuses/CongratsPopup';
 
 function App() {
   const {
@@ -42,6 +45,10 @@ function App() {
   const [viewMode, setViewMode] = useState('overview');
   const [showStatistics, setShowStatistics] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [dailyTaskReviewOpen, setDailyTaskReviewOpen] = useState(false);
+  const [dailyTaskReviewTasks, setDailyTaskReviewTasks] = useState([]);
+  const [bonusPopupOpen, setBonusPopupOpen] = useState(false);
+  const [bonusPopupData, setBonusPopupData] = useState(null);
 
   // Initialize auto-update service on app start
   useEffect(() => {
@@ -50,6 +57,31 @@ function App() {
     // Cleanup on unmount
     return () => {
       autoUpdateService.stop();
+    };
+  }, []);
+
+  // Initialize daily task review service
+  useEffect(() => {
+    dailyTaskReviewService.init({
+      onShowPopup: (tasks) => {
+        setDailyTaskReviewTasks(tasks);
+        setDailyTaskReviewOpen(true);
+      },
+      onHidePopup: () => {
+        setDailyTaskReviewOpen(false);
+        setDailyTaskReviewTasks([]);
+      },
+      onAddTask: (task) => handleAddTask(task, setItems),
+      onDeleteTask: (taskId) => handleDeleteTask(taskId, setItems),
+      onShowBonusPopup: (bonus) => {
+        setBonusPopupData(bonus);
+        setBonusPopupOpen(true);
+      },
+    });
+    
+    // Cleanup on unmount
+    return () => {
+      dailyTaskReviewService.stop();
     };
   }, []);
 
@@ -77,6 +109,21 @@ function App() {
 
   return (
     <div className="main-container">
+      <DailyTaskReviewPopup
+        open={dailyTaskReviewOpen}
+        tasks={dailyTaskReviewTasks}
+        onSetForToday={(task) => dailyTaskReviewService.setTaskForToday(task)}
+        onDelete={(task) => dailyTaskReviewService.deleteTask(task)}
+      />
+      <CongratsPopup
+        open={bonusPopupOpen}
+        onClose={() => {
+          setBonusPopupOpen(false);
+          setBonusPopupData(null);
+        }}
+        bonuses={bonusPopupData}
+        setItems={setItems}
+      />
       {(!showStatistics && !showSettings) && (
         <Menu 
           onShowSettings={() => setShowSettings(true)}

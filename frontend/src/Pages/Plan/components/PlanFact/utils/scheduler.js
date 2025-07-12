@@ -154,6 +154,10 @@ const calculatePreciseGaps = (sortedTasks, taskPositions, startTimeMinutes = 0) 
  * @returns {Object} - { scheduledTasks, errors }
  */
 export const scheduleTasks = (tasks, startTimeMinutes) => {
+  console.log('=== SCHEDULER DEBUG START ===');
+  console.log('Input tasks:', tasks);
+  console.log('Start time minutes:', startTimeMinutes);
+  
   if (!tasks || tasks.length === 0) {
     // If no tasks, create a gap from startTimeMinutes (or 0) to end of day
     const startMinutes = typeof startTimeMinutes === 'number' ? startTimeMinutes : 0;
@@ -164,6 +168,8 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
       endMinutes: 24 * 60,
       minutes: gapMinutes
     }] : [];
+    console.log('No tasks provided, returning gap:', scheduledTasks);
+    console.log('=== SCHEDULER DEBUG END ===');
     return { scheduledTasks, errors: [] };
   }
   
@@ -178,9 +184,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
 
   // Determine if this is 'today' (startTimeMinutes is provided and > 0)
   const isToday = typeof startTimeMinutes === 'number' && startTimeMinutes > 0;
+  
+  console.log('Start block:', startBlock, 'Is today:', isToday);
 
   // --- Phase 1: Schedule fixed time tasks (planned_time) ---
   const fixedTimeTasks = tasks.filter(task => task.planned_time);
+  console.log('Fixed time tasks:', fixedTimeTasks.length, fixedTimeTasks.map(t => ({ id: t.id, description: t.description, planned_time: t.planned_time, estimated_duration: t.estimated_duration })));
   fixedTimeTasks.forEach(task => {
     // Parse planned_time as HH:MM
     const timeMatch = task.planned_time.match(/(\d{1,2}):(\d{2})/);
@@ -212,10 +221,18 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
   
   // --- Phase 2: Schedule approximate time tasks (approximate_planned_time) ---
   const approximateTasks = sortTasks(tasks.filter(task => task.approximate_planned_time));
+  console.log('Approximate time tasks:', approximateTasks.length, approximateTasks.map(t => ({ id: t.id, description: t.description, approximate_planned_time: t.approximate_planned_time, approximate_start: t.approximate_start, approximate_end: t.approximate_end, estimated_duration: t.estimated_duration })));
   approximateTasks.forEach(task => {
+    console.log(`Processing approximate task "${task.description}":`, {
+      approximate_planned_time: task.approximate_planned_time,
+      approximate_start: task.approximate_start,
+      approximate_end: task.approximate_end
+    });
+    
     // Use custom time block start/end
     if (!task.approximate_start || !task.approximate_end) {
       errors.push(`Invalid time block for task "${task.description}"`);
+      console.log('Missing approximate start/end for task:', task.description, task);
       return;
     }
     // Parse start/end as HH:MM
@@ -247,10 +264,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
       return;
     }
     markBlocksOccupied(position, length, task.id, occupiedBlocks, taskPositions);
+    console.log(`Successfully scheduled approximate task "${task.description}" at position ${position}`);
   });
   
   // --- Phase 3: Schedule unassigned tasks (no time info) ---
   const unassignedTasks = sortTasks(tasks.filter(task => !task.planned_time && !task.approximate_planned_time));
+  console.log('Unassigned tasks:', unassignedTasks.length, unassignedTasks.map(t => ({ id: t.id, description: t.description, estimated_duration: t.estimated_duration, priority: t.priority, task_quality: t.task_quality })));
   
   unassignedTasks.forEach(task => {
     const length = Math.ceil(task.estimated_duration / BLOCK_SIZE_MINUTES);
@@ -286,8 +305,12 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
       return { ...task, isUnscheduled: true };
     });
   
+  console.log('Successfully scheduled tasks:', sortedTasks.length, sortedTasks.map(t => ({ id: t.id, description: t.description, position: taskPositions.get(t.id)?.position })));
+  console.log('Unscheduled tasks:', unscheduledTasks.length, unscheduledTasks.map(t => ({ id: t.id, description: t.description })));
+  
   // --- Find unaccounted time periods (gaps) ---
   const gaps = calculatePreciseGaps(sortedTasks, taskPositions, startTimeMinutes);
+  console.log('Gaps calculated:', gaps.length, gaps.map(g => ({ startMinutes: g.startMinutes, endMinutes: g.endMinutes, minutes: g.minutes })));
   
   // --- Merge tasks and gaps in chronological order ---
   const finalSchedule = [];
@@ -317,12 +340,18 @@ export const scheduleTasks = (tasks, startTimeMinutes) => {
     }
   }
   
-  // --- Return the merged schedule and any errors ---
-  return { 
+  const result = { 
     scheduledTasks: [...finalSchedule, ...unscheduledTasks], 
     errors,
     taskPositions // Return this for canScheduleTask
   };
+  
+  console.log('Final schedule:', result.scheduledTasks.length, 'items');
+  console.log('Errors:', errors);
+  console.log('=== SCHEDULER DEBUG END ===');
+  
+  // --- Return the merged schedule and any errors ---
+  return result;
 };
 
 /**
