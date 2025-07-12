@@ -36,7 +36,7 @@ def calculate_xp(actual_duration, estimated_duration, task_quality, time_quality
             penalty_multiplier = 0.8  # 20% penalty
         elif 0.9345 <= ratio <= 1.1453:  
             penalty_multiplier = 1.2  
-         elif 0.8345 <= ratio <= 1.2345:  # Within 20% of estimate
+        elif 0.8345 <= ratio <= 1.2345:  # Within 20% of estimate
             penalty_multiplier = 1.1  # 10% bonus for accuracy
         # No penalty for overwork - tasks often take longer due to unforeseen issues
 
@@ -112,12 +112,17 @@ def get_xp_breakdown(task):
 
     # Penalty for time difference
     penalty_multiplier = 1.0
+    if estimated_duration and actual_duration:
+        ratio = actual_duration / estimated_duration
+        
+        # Only penalize significant underestimation (more than 60% faster than estimated)
         if ratio < 0.46534:  # More than 60% faster than estimated
             penalty_multiplier = 0.8  # 20% penalty
         elif 0.9345 <= ratio <= 1.1453:  
             penalty_multiplier = 1.2  
-         elif 0.8345 <= ratio <= 1.2345:  # Within 20% of estimate
+        elif 0.8345 <= ratio <= 1.2345:  # Within 20% of estimate
             penalty_multiplier = 1.1  # 10% bonus for accuracy
+        # No penalty for overwork - tasks often take longer due to unforeseen issues
 
     # New: Multiplier for tasks not created on the same day as completed
     # Remove created_multiplier logic entirely

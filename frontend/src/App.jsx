@@ -112,8 +112,16 @@ function App() {
       <DailyTaskReviewPopup
         open={dailyTaskReviewOpen}
         tasks={dailyTaskReviewTasks}
-        onSetForToday={(task) => dailyTaskReviewService.setTaskForToday(task)}
-        onDelete={(task) => dailyTaskReviewService.deleteTask(task)}
+        onSetForToday={(task) => {
+          dailyTaskReviewService.setTaskForToday(task);
+          // Update local state to remove the task from the popup
+          setDailyTaskReviewTasks(prevTasks => prevTasks.filter(t => t.id !== task.id));
+        }}
+        onDelete={(task) => {
+          dailyTaskReviewService.deleteTask(task);
+          // Update local state to remove the task from the popup
+          setDailyTaskReviewTasks(prevTasks => prevTasks.filter(t => t.id !== task.id));
+        }}
       />
       <CongratsPopup
         open={bonusPopupOpen}
